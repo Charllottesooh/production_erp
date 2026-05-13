@@ -1,0 +1,1304 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>제품생산 ERP 시스템 (클라우드)</title>
+<style>
+  :root {
+    --primary: #2563eb; --primary-hover: #1d4ed8;
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+    --text: #1e293b; --text-light: #64748b; --hover: #f1f5f9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px; }
+  header { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; padding: 12px 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .header-flex { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 20px; font-weight: 700; }
+  header .subtitle { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+  .cloud-status { font-size: 12px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px; }
+  .cloud-status .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .cloud-status.connected .dot { background: #34d399; box-shadow: 0 0 8px #34d399; }
+  .cloud-status.disconnected .dot { background: #f87171; }
+  .cloud-status.syncing .dot { background: #fbbf24; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.4; } }
+  nav { background: white; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; }
+  nav button { background: none; border: none; padding: 14px 18px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-light); border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.15s; }
+  nav button:hover { color: var(--primary); background: var(--hover); }
+  nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  .tab { display: none; } .tab.active { display: block; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .card h2 { font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+  .card h2 .right { display: flex; gap: 6px; align-items: center; }
+  .grid { display: grid; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 800px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
+  input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; background: white; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  textarea { resize: vertical; min-height: 60px; }
+  .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.15s; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-secondary { background: var(--hover); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-print { background: #475569; color: white; padding: 4px 12px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; font-weight: 600; color: var(--text-light); font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+  tr:hover td { background: var(--hover); }
+  .text-right { text-align: right; } .text-center { text-align: center; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-tax-exempt { background: #dbeafe; color: #1e40af; }
+  .badge-tax-excluded { background: #fef3c7; color: #92400e; }
+  .badge-tax-included { background: #dcfce7; color: #166534; }
+  .badge-expired { background: #fee2e2; color: #991b1b; }
+  .badge-warning { background: #fef3c7; color: #92400e; }
+  .badge-ok { background: #dcfce7; color: #166534; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .summary-card .label { font-size: 12px; color: var(--text-light); margin-bottom: 4px; }
+  .summary-card .value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .summary-card .unit { font-size: 14px; color: var(--text-light); margin-left: 4px; }
+  .empty-state { text-align: center; padding: 40px; color: var(--text-light); font-size: 13px; }
+  .row-flex { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text); color: white; padding: 12px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; opacity: 0; transform: translateY(10px); transition: all 0.3s; max-width: 400px; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: var(--danger); }
+  .toast.success { background: var(--success); }
+  .bom-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .alert-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .success-banner { background: #dcfce7; border: 1px solid #10b981; color: #166534; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
+  .danger-banner { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
+  .print-header { display: none; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
+  .print-header h1 { font-size: 18px; margin: 0; }
+  .print-header .meta { font-size: 11px; color: #555; margin-top: 4px; }
+  pre.code { background: #1e293b; color: #f1f5f9; padding: 14px; border-radius: 6px; font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre; }
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list li { counter-increment: step; padding: 10px 0 10px 40px; position: relative; border-bottom: 1px dashed var(--border); }
+  .step-list li::before { content: counter(step); position: absolute; left: 0; top: 10px; width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .step-list li:last-child { border-bottom: none; }
+  .cloud-form { background: #f1f5f9; padding: 16px; border-radius: 8px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: white; border-radius: 10px; padding: 24px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .modal-box h3 { font-size: 18px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-box .close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-light); }
+  .modal-box .footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-edit { background: #0ea5e9; color: white; padding: 4px 10px; font-size: 12px; margin-right: 2px; }
+  .btn-edit:hover { background: #0284c7; }
+  .info-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: white; font-size: 11px; }
+    header, nav, .btn, .no-print, .alert-banner, .success-banner { display: none !important; }
+    main { padding: 0; max-width: 100%; }
+    .tab { display: none !important; } .tab.print-active { display: block !important; }
+    .card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; padding: 12px; margin-bottom: 12px; }
+    .card h2 { font-size: 13px; padding-bottom: 6px; margin-bottom: 8px; }
+    .print-header { display: block; }
+    table { font-size: 10px; }
+    th, td { padding: 4px 6px; }
+    th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge { border: 1px solid #999; padding: 1px 4px; }
+    .summary-card { page-break-inside: avoid; }
+    .no-print-card { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="no-print">
+  <div class="header-flex">
+    <div>
+      <h1>📦 제품생산 ERP 시스템</h1>
+      <div class="subtitle">FIFO 재고 · 다중 완제품 · 클라우드 영구보존</div>
+    </div>
+    <div id="cloudStatus" class="cloud-status disconnected"><span class="dot"></span><span class="text">클라우드 미연결</span></div>
+  </div>
+</header>
+
+<nav class="no-print">
+  <button data-tab="dashboard" class="active">대시보드</button>
+  <button data-tab="materials">원재료 등록</button>
+  <button data-tab="products">완제품 등록</button>
+  <button data-tab="purchase">원재료 매입</button>
+  <button data-tab="inventory">재고 현황</button>
+  <button data-tab="production">생산 관리</button>
+  <button data-tab="product">완제품 현황</button>
+  <button data-tab="cloud">☁️ 클라우드 연결</button>
+  <button data-tab="settings">설정/백업</button>
+</nav>
+
+<main>
+
+  <div id="backupAlert" class="alert-banner no-print" style="display:none;"></div>
+  <div id="cloudAlert" class="danger-banner no-print" style="display:none;"></div>
+
+  <div class="print-header">
+    <h1 id="printTitle">제품생산 ERP</h1>
+    <div class="meta" id="printMeta"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="tab active">
+    <div class="summary-grid" id="dashboardSummary"></div>
+    <div class="card">
+      <h2>완제품별 재고 요약 <button class="btn btn-print no-print" onclick="printTab('dashboard','대시보드')">🖨️ 인쇄</button></h2>
+      <div id="productStockSummary"></div>
+    </div>
+    <div class="card">
+      <h2>유통기한 임박/경과</h2>
+      <div id="expirationAlerts"></div>
+    </div>
+    <div class="card">
+      <h2>최근 매입</h2>
+      <div id="recentPurchases"></div>
+    </div>
+    <div class="card">
+      <h2>최근 생산</h2>
+      <div id="recentProductions"></div>
+    </div>
+  </section>
+
+  <!-- 원재료 등록 -->
+  <section id="materials" class="tab">
+    <div class="card no-print-card">
+      <h2>원재료 품목 등록</h2>
+      <div class="row-flex">
+        <div style="flex:1;min-width:200px;"><label>품목명</label><input type="text" id="materialName" placeholder="예: 밀가루" /></div>
+        <div style="flex:1;min-width:200px;"><label>품목코드 (선택)</label><input type="text" id="materialCode" placeholder="예: RM-001" /></div>
+        <button class="btn btn-primary" onclick="addMaterial()">+ 추가</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>등록된 원재료 <button class="btn btn-print no-print" onclick="printTab('materials','원재료 목록')">🖨️ 인쇄</button></h2>
+      <div id="materialsList"></div>
+    </div>
+  </section>
+
+  <!-- 완제품 등록 -->
+  <section id="products" class="tab">
+    <div class="card no-print-card">
+      <h2>완제품 등록</h2>
+      <div class="row-flex">
+        <div style="flex:2;min-width:200px;"><label>완제품명</label><input type="text" id="productName" placeholder="예: 제품A" /></div>
+        <div style="flex:1;min-width:120px;"><label>제품코드 (선택)</label><input type="text" id="productCode" placeholder="예: FG-001" /></div>
+        <button class="btn btn-primary" onclick="addProduct()">+ 추가</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>등록된 완제품 <button class="btn btn-print no-print" onclick="printTab('products','완제품 목록')">🖨️ 인쇄</button></h2>
+      <div id="productsList"></div>
+    </div>
+  </section>
+
+  <!-- 원재료 매입 -->
+  <section id="purchase" class="tab">
+    <div class="card no-print-card">
+      <h2>원재료 매입 입고 등록</h2>
+      <div class="grid grid-3">
+        <div><label>입고일 *</label><input type="date" id="pDate" /></div>
+        <div><label>품목명 *</label><select id="pMaterial"></select></div>
+        <div><label>수량 (Kg) *</label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" /></div>
+      </div>
+      <div class="grid grid-3" style="margin-top:12px;">
+        <div><label>금액 (원) *</label><input type="number" id="pAmount" step="1" min="0" placeholder="0" /></div>
+        <div><label>세금 구분 *</label><select id="pTaxType"><option value="exempt">면세</option><option value="excluded" selected>부가세 별도</option><option value="included">부가세 포함</option></select></div>
+        <div><label>유통기한</label><input type="date" id="pExpiration" /></div>
+      </div>
+      <div style="margin-top:12px;"><label>비고</label><textarea id="pNotes" placeholder="공급처, 로트번호, 메모"></textarea></div>
+      <div id="pPreview" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:6px;font-size:13px;"></div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="btn btn-secondary" onclick="resetPurchaseForm()">초기화</button>
+        <button class="btn btn-primary" onclick="savePurchase()">매입 저장</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>매입 이력 <button class="btn btn-print no-print" onclick="printTab('purchase','매입 이력')">🖨️ 인쇄</button></h2>
+      <div class="row-flex no-print" style="margin-bottom:12px;">
+        <div style="flex:1;"><label>필터: 품목</label><select id="filterPurchaseMaterial" onchange="renderPurchases()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>기간 시작</label><input type="date" id="filterPurchaseStart" onchange="renderPurchases()" /></div>
+        <div style="flex:1;"><label>기간 종료</label><input type="date" id="filterPurchaseEnd" onchange="renderPurchases()" /></div>
+      </div>
+      <div id="purchasesList"></div>
+    </div>
+  </section>
+
+  <!-- 재고 현황 -->
+  <section id="inventory" class="tab">
+    <div class="card">
+      <h2>원재료 재고 요약 <button class="btn btn-print no-print" onclick="printTab('inventory','재고 현황')">🖨️ 인쇄</button></h2>
+      <div id="inventorySummary"></div>
+    </div>
+    <div class="card">
+      <h2>FIFO 로트별 상세 재고</h2>
+      <div id="inventoryLots"></div>
+    </div>
+  </section>
+
+  <!-- 생산 관리 -->
+  <section id="production" class="tab">
+    <div class="card no-print-card">
+      <h2>완제품 생산 등록</h2>
+      <div class="grid grid-4">
+        <div><label>생산일 *</label><input type="date" id="prodDate" /></div>
+        <div><label>완제품 *</label><select id="prodProduct"></select></div>
+        <div><label>생산수량 (Kg) *</label><input type="number" id="prodQuantity" step="0.001" min="0" /></div>
+        <div><label>로트번호 (선택)</label><input type="text" id="prodLot" /></div>
+      </div>
+      <div style="margin-top:16px;"><label>투입 원재료 (BOM)</label><div id="bomList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addBomRow()">+ 원재료 추가</button>
+      </div>
+      <div style="margin-top:12px;"><label>비고</label><textarea id="prodNotes"></textarea></div>
+      <div id="prodPreview" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:6px;font-size:13px;"></div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="btn btn-secondary" onclick="resetProductionForm()">초기화</button>
+        <button class="btn btn-success" onclick="checkProduction()">투입가능 확인</button>
+        <button class="btn btn-primary" onclick="saveProduction()">생산 저장</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>생산 이력 <button class="btn btn-print no-print" onclick="printTab('production','생산 이력')">🖨️ 인쇄</button></h2>
+      <div class="row-flex no-print" style="margin-bottom:12px;">
+        <div style="flex:1;"><label>필터: 완제품</label><select id="filterProdProduct" onchange="renderProductions()"><option value="">전체</option></select></div>
+      </div>
+      <div id="productionsList"></div>
+    </div>
+  </section>
+
+  <!-- 완제품 현황 -->
+  <section id="product" class="tab">
+    <div class="card no-print-card">
+      <h2>완제품 출고/판매 등록</h2>
+      <div class="grid grid-4">
+        <div><label>출고일</label><input type="date" id="shipDate" /></div>
+        <div><label>완제품</label><select id="shipProduct"></select></div>
+        <div><label>출고수량 (Kg)</label><input type="number" id="shipQty" step="0.001" min="0" /></div>
+        <div><label>비고</label><input type="text" id="shipNotes" placeholder="거래처, 사유" /></div>
+      </div>
+      <div style="margin-top:12px;text-align:right;"><button class="btn btn-primary" onclick="saveShipment()">출고 저장</button></div>
+    </div>
+    <div class="card">
+      <h2>완제품별 현황 <button class="btn btn-print no-print" onclick="printTab('product','완제품 현황')">🖨️ 인쇄</button></h2>
+      <div id="productSummary"></div>
+    </div>
+    <div class="card">
+      <h2>생산/출고 이력</h2>
+      <div class="row-flex no-print" style="margin-bottom:12px;">
+        <div style="flex:1;"><label>필터: 완제품</label><select id="filterLedgerProduct" onchange="renderProductLedger()"><option value="">전체</option></select></div>
+      </div>
+      <div id="productLedger"></div>
+    </div>
+  </section>
+
+  <!-- ☁️ 클라우드 연결 -->
+  <section id="cloud" class="tab">
+    <div class="card">
+      <h2>☁️ 클라우드 DB 영구 보존 설정</h2>
+      <p style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
+        Supabase(무료 클라우드 PostgreSQL)에 연결하면 모든 데이터가 클라우드에 자동 저장됩니다.
+        브라우저/PC를 잃어도 URL과 키만 있으면 어디서나 같은 데이터로 복구됩니다.
+      </p>
+
+      <div class="cloud-form">
+        <div class="grid grid-2">
+          <div><label>Supabase Project URL</label><input type="text" id="cloudUrl" placeholder="https://xxxxxxxx.supabase.co" /></div>
+          <div><label>Anon (Public) Key</label><input type="password" id="cloudKey" placeholder="eyJhbGciOi..." /></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:12px;">
+          <div><label>워크스페이스 이름 (회사/사업장 구분용)</label><input type="text" id="cloudWorkspace" placeholder="my-factory" value="default" /></div>
+          <div><label>자동 동기화</label>
+            <select id="cloudAutoSync"><option value="true">켜기 (저장 즉시 클라우드 반영)</option><option value="false">끄기 (수동만)</option></select>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-success" onclick="cloudTestAndConnect()">🔌 연결 테스트 & 저장</button>
+          <button class="btn btn-primary" onclick="cloudPush(true)">⬆️ 지금 업로드 (덮어쓰기)</button>
+          <button class="btn btn-primary" onclick="cloudPull(true)">⬇️ 지금 다운로드 (덮어쓰기)</button>
+          <button class="btn btn-danger" onclick="cloudDisconnect()">연결 해제</button>
+        </div>
+        <div id="cloudInfo" style="margin-top:12px;font-size:13px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📘 Supabase 5분 설정 가이드</h2>
+      <ol class="step-list">
+        <li>
+          <b><a href="https://supabase.com" target="_blank" style="color:var(--primary);">supabase.com</a> 접속 → "Start your project" → GitHub/Google로 무료 가입</b><br>
+          <span style="font-size:12px;color:var(--text-light);">신용카드 불필요. 무료 플랜은 500MB 저장 / 무제한 사용기간.</span>
+        </li>
+        <li>
+          <b>"New Project" 클릭</b> → 이름(예: my-erp), 비밀번호(아무거나, 메모만), 지역(Northeast Asia/Seoul 권장) → 2분 대기
+        </li>
+        <li>
+          <b>좌측 메뉴 "SQL Editor"</b> 열기 → "New query" → 아래 SQL을 그대로 붙여넣고 "Run":
+          <pre class="code">create table if not exists erp_data (
+  workspace text primary key,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+alter table erp_data enable row level security;
+create policy "allow all" on erp_data for all using (true) with check (true);</pre>
+          <button class="btn btn-secondary btn-sm" onclick="copySql()">📋 SQL 복사</button>
+        </li>
+        <li>
+          <b>좌측 메뉴 "Project Settings" → "API"</b> 열기<br>
+          - <b>Project URL</b> 복사 → 위쪽 입력란에 붙여넣기<br>
+          - <b>Project API keys → anon public</b> 키 복사 → 위쪽 입력란에 붙여넣기
+        </li>
+        <li>
+          위 <b>"🔌 연결 테스트 & 저장"</b> 버튼 클릭 → 성공 메시지 확인 → 끝!
+        </li>
+        <li>
+          <b>다른 PC/스마트폰에서 같은 데이터 사용하기</b><br>
+          - HTML 파일을 어느 기기든 열기 → 클라우드 탭에서 같은 URL/Key/워크스페이스 입력 → "⬇️ 지금 다운로드" → 동일 데이터 표시
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>🛡️ 3중 안전 보존 구조</h2>
+      <ul style="margin-left:20px;font-size:13px;line-height:1.9;">
+        <li><b>1차: 브라우저 localStorage</b> — 모든 입력은 즉시 로컬에 저장 (오프라인에서도 작동)</li>
+        <li><b>2차: 클라우드 DB(Supabase)</b> — 저장 직후 자동으로 클라우드에 동기화. 브라우저/PC가 망가져도 안전</li>
+        <li><b>3차: JSON 백업 파일</b> — 설정 탭에서 주기적으로 다운로드 → 구글드라이브/원드라이브에 보관 (Supabase가 점검/장애일 때 대비)</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px;color:var(--text-light);">
+        이 3가지 중 하나만 살아 있어도 데이터를 100% 복구할 수 있습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="settings" class="tab">
+    <div class="card">
+      <h2>자동 백업 알림 설정</h2>
+      <div class="row-flex">
+        <div style="flex:1;min-width:200px;"><label>알림 주기 (일)</label><input type="number" id="backupDays" min="1" max="365" /></div>
+        <div style="flex:2;min-width:200px;"><label>마지막 백업일</label><input type="text" id="lastBackupDate" readonly /></div>
+        <button class="btn btn-primary" onclick="saveBackupSettings()">저장</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>데이터 백업/복원 (로컬 파일)</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="exportData()">📥 전체 JSON 백업</button>
+        <label class="btn btn-secondary" style="cursor:pointer;">📤 JSON 복원<input type="file" accept=".json" style="display:none" onchange="importData(event)" /></label>
+        <button class="btn btn-secondary" onclick="exportCSV('purchases')">매입 CSV</button>
+        <button class="btn btn-secondary" onclick="exportCSV('productions')">생산 CSV</button>
+        <button class="btn btn-secondary" onclick="exportCSV('shipments')">출고 CSV</button>
+        <button class="btn btn-secondary" onclick="exportCSV('inventory')">재고 CSV</button>
+        <button class="btn btn-danger" onclick="clearAllData()">⚠ 전체 초기화</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 수정 모달 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <h3 id="editModalTitle">수정 <button class="close" onclick="closeEditModal()">×</button></h3>
+    <div id="editModalBody"></div>
+    <div class="footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+      <button class="btn btn-primary" id="editModalSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== STATE ==========
+const STORAGE_KEY = 'production_erp_v3';
+const OLD_KEYS = ['production_erp_v2','production_erp_v1'];
+let state = {
+  materials: [], products: [], purchases: [], productions: [], shipments: [],
+  settings: { backupDays: 7, lastBackupAt: null },
+  cloud: { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null }
+};
+let cloudSyncTimer = null;
+
+function loadState() {
+  try {
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) for (const k of OLD_KEYS) { const r = localStorage.getItem(k); if (r) { raw=r; break; } }
+    if (raw) {
+      const data = JSON.parse(raw);
+      state = { ...state, ...data };
+      state.settings = { backupDays:7, lastBackupAt:null, ...(state.settings||{}) };
+      state.cloud = { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null, ...(state.cloud||{}) };
+      state.products = state.products || [];
+      state.shipments = state.shipments || [];
+    }
+    migrate();
+  } catch(e) { console.error(e); }
+}
+function migrate() {
+  if (state.products.length === 0 && (state.productions.length > 0 || state.shipments.length > 0 || state.finalProductName)) {
+    const dp = { id: uid(), name: state.finalProductName || '완제품', code: '', createdAt: nowISO() };
+    state.products.push(dp);
+    state.productions.forEach(p => { if (!p.productId) p.productId = dp.id; });
+    state.shipments.forEach(s => { if (!s.productId) s.productId = dp.id; });
+  }
+  delete state.finalProductName;
+}
+function saveState(triggerCloud=true) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (triggerCloud && state.cloud.connected && state.cloud.autoSync) {
+    scheduleCloudSync();
+  }
+}
+function scheduleCloudSync() {
+  if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(() => cloudPush(false), 1200);
+}
+
+// ========== UTIL ==========
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayISO() { return new Date().toISOString().slice(0,10); }
+function nowISO() { return new Date().toISOString(); }
+function fmt(n,d=3) { if (n==null||isNaN(n)) return '0'; return Number(n).toLocaleString('ko-KR',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+function won(n) { if (isNaN(n)) return '0원'; return Math.round(Number(n)).toLocaleString('ko-KR')+'원'; }
+function toast(msg,type='') { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show '+type; setTimeout(()=>el.className='toast',2800); }
+function daysBetween(d1,d2) { return Math.floor((new Date(d2)-new Date(d1))/86400000); }
+function materialName(id) { const m=state.materials.find(x=>x.id===id); return m?m.name:'(삭제됨)'; }
+function productName(id) { const p=state.products.find(x=>x.id===id); return p?p.name:'(삭제됨)'; }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ========== TAX ==========
+function calcTax(amount,type) {
+  amount = Number(amount)||0; let supply=0,vat=0,total=0;
+  if (type==='exempt') { supply=amount; total=amount; }
+  else if (type==='excluded') { supply=amount; vat=Math.round(amount*0.1); total=supply+vat; }
+  else if (type==='included') { supply=Math.round(amount/1.1); vat=amount-supply; total=amount; }
+  return { supply, vat, total };
+}
+function taxLabel(t) { return {exempt:'면세',excluded:'부가세 별도',included:'부가세 포함'}[t]||t; }
+function taxBadgeClass(t) { return {exempt:'badge-tax-exempt',excluded:'badge-tax-excluded',included:'badge-tax-included'}[t]||''; }
+
+// ========== CLOUD SYNC (Supabase REST) ==========
+function cloudHeaders() {
+  return {
+    'apikey': state.cloud.key,
+    'Authorization': 'Bearer ' + state.cloud.key,
+    'Content-Type': 'application/json',
+    'Prefer': 'resolution=merge-duplicates,return=representation'
+  };
+}
+function updateCloudStatus() {
+  const el = document.getElementById('cloudStatus');
+  if (!state.cloud.connected) {
+    el.className = 'cloud-status disconnected';
+    el.querySelector('.text').textContent = '클라우드 미연결';
+  } else {
+    el.className = 'cloud-status connected';
+    el.querySelector('.text').textContent = `☁️ ${state.cloud.workspace}` + (state.cloud.lastSyncAt ? ' · 동기화 ' + state.cloud.lastSyncAt.slice(11,19) : '');
+  }
+  // Cloud form values
+  const fields = { cloudUrl:'url', cloudKey:'key', cloudWorkspace:'workspace' };
+  for (const id in fields) { const e = document.getElementById(id); if (e) e.value = state.cloud[fields[id]] || ''; }
+  const as = document.getElementById('cloudAutoSync'); if (as) as.value = String(state.cloud.autoSync);
+  const info = document.getElementById('cloudInfo');
+  if (info) {
+    if (state.cloud.connected) {
+      info.innerHTML = `<div class="success-banner">✅ 연결됨 — 워크스페이스: <b>${escapeHtml(state.cloud.workspace)}</b><br>마지막 동기화: ${state.cloud.lastSyncAt || '없음'}</div>`;
+    } else {
+      info.innerHTML = '<div class="alert-banner">⚠ 아직 연결되지 않았습니다. 위 가이드를 따라 5분이면 끝납니다.</div>';
+    }
+  }
+}
+function cloudSetStatus(syncing) {
+  const el = document.getElementById('cloudStatus');
+  if (syncing) { el.className = 'cloud-status syncing'; el.querySelector('.text').textContent = '동기화 중...'; }
+  else updateCloudStatus();
+}
+async function cloudTestAndConnect() {
+  const url = document.getElementById('cloudUrl').value.trim().replace(/\/$/,'');
+  const key = document.getElementById('cloudKey').value.trim();
+  const ws = document.getElementById('cloudWorkspace').value.trim() || 'default';
+  const auto = document.getElementById('cloudAutoSync').value === 'true';
+  if (!url || !key) return toast('URL과 Key를 입력하세요','error');
+  cloudSetStatus(true);
+  try {
+    // Check if table exists by trying to GET
+    const r = await fetch(`${url}/rest/v1/erp_data?workspace=eq.${encodeURIComponent(ws)}&select=workspace,updated_at`, {
+      headers: { apikey:key, Authorization:'Bearer '+key }
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`);
+    }
+    const rows = await r.json();
+    state.cloud = { url, key, workspace: ws, autoSync: auto, connected: true, lastSyncAt: nowISO() };
+
+    if (rows.length === 0) {
+      // No data on server → upload current state
+      await cloudPush(false);
+      toast('연결 성공 — 현재 로컬 데이터를 클라우드에 업로드했습니다','success');
+    } else {
+      // Server has data → ask user
+      const serverTime = rows[0].updated_at;
+      const useServer = confirm(`클라우드에 이미 ${ws} 워크스페이스 데이터가 있습니다 (마지막 수정: ${serverTime}).\n\n[확인] 클라우드 데이터로 로컬을 덮어쓰기\n[취소] 현재 로컬 데이터로 클라우드 덮어쓰기`);
+      if (useServer) await cloudPull(false);
+      else await cloudPush(false);
+      toast('연결 성공 — 동기화 완료','success');
+    }
+    saveState(false);
+    renderAll();
+  } catch(e) {
+    state.cloud.connected = false;
+    saveState(false);
+    cloudSetStatus(false);
+    toast('연결 실패: ' + e.message, 'error');
+  }
+}
+async function cloudPush(showToast=true) {
+  if (!state.cloud.url || !state.cloud.key) { if (showToast) toast('클라우드 미설정','error'); return; }
+  cloudSetStatus(true);
+  try {
+    const payload = {
+      workspace: state.cloud.workspace,
+      data: {
+        materials: state.materials, products: state.products,
+        purchases: state.purchases, productions: state.productions,
+        shipments: state.shipments, settings: state.settings
+      },
+      updated_at: nowISO()
+    };
+    const r = await fetch(`${state.cloud.url}/rest/v1/erp_data?on_conflict=workspace`, {
+      method: 'POST',
+      headers: cloudHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`); }
+    state.cloud.connected = true;
+    state.cloud.lastSyncAt = nowISO();
+    saveState(false);
+    updateCloudStatus();
+    if (showToast) toast('클라우드 업로드 완료','success');
+  } catch(e) {
+    cloudSetStatus(false);
+    showCloudError(e.message);
+    if (showToast) toast('업로드 실패: '+e.message,'error');
+  }
+}
+async function cloudPull(showToast=true) {
+  if (!state.cloud.url || !state.cloud.key) { if (showToast) toast('클라우드 미설정','error'); return; }
+  cloudSetStatus(true);
+  try {
+    const r = await fetch(`${state.cloud.url}/rest/v1/erp_data?workspace=eq.${encodeURIComponent(state.cloud.workspace)}&select=*`, {
+      headers: { apikey: state.cloud.key, Authorization: 'Bearer ' + state.cloud.key }
+    });
+    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`); }
+    const rows = await r.json();
+    if (rows.length === 0) { if (showToast) toast('클라우드에 데이터 없음','error'); cloudSetStatus(false); return; }
+    const d = rows[0].data;
+    state.materials = d.materials || [];
+    state.products = d.products || [];
+    state.purchases = d.purchases || [];
+    state.productions = d.productions || [];
+    state.shipments = d.shipments || [];
+    if (d.settings) state.settings = { ...state.settings, ...d.settings };
+    state.cloud.connected = true;
+    state.cloud.lastSyncAt = nowISO();
+    saveState(false);
+    renderAll();
+    if (showToast) toast('클라우드에서 다운로드 완료','success');
+  } catch(e) {
+    cloudSetStatus(false);
+    showCloudError(e.message);
+    if (showToast) toast('다운로드 실패: '+e.message,'error');
+  }
+}
+function cloudDisconnect() {
+  if (!confirm('클라우드 연결을 해제할까요? (로컬 데이터는 유지됩니다)')) return;
+  state.cloud = { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null };
+  saveState(false);
+  updateCloudStatus();
+  toast('연결 해제됨','success');
+}
+function showCloudError(msg) {
+  const el = document.getElementById('cloudAlert');
+  el.innerHTML = `☁️ 클라우드 통신 오류: ${escapeHtml(msg)} <button class="btn btn-sm btn-secondary" onclick="document.getElementById('cloudAlert').style.display='none';" style="margin-left:8px;">닫기</button>`;
+  el.style.display = 'block';
+}
+function copySql() {
+  const sql = `create table if not exists erp_data (
+  workspace text primary key,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+alter table erp_data enable row level security;
+create policy "allow all" on erp_data for all using (true) with check (true);`;
+  navigator.clipboard.writeText(sql).then(()=>toast('SQL 복사됨','success'));
+}
+
+// ========== EDIT MODAL ==========
+function openEditModal(title, bodyHtml, onSave) {
+  document.getElementById('editModalTitle').firstChild.textContent = title + ' ';
+  document.getElementById('editModalBody').innerHTML = bodyHtml;
+  document.getElementById('editModal').classList.add('show');
+  document.getElementById('editModalSave').onclick = () => {
+    try { if (onSave() !== false) closeEditModal(); }
+    catch(e) { toast(e.message,'error'); }
+  };
+}
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+  document.getElementById('editModalBody').innerHTML = '';
+}
+
+// ----- 원재료 수정 -----
+function editMaterial(id) {
+  const m = state.materials.find(x => x.id === id); if (!m) return;
+  const body = `
+    <div class="grid grid-2">
+      <div><label>품목명 *</label><input type="text" id="emName" value="${escapeHtml(m.name)}" /></div>
+      <div><label>품목코드</label><input type="text" id="emCode" value="${escapeHtml(m.code||'')}" /></div>
+    </div>`;
+  openEditModal('원재료 수정', body, () => {
+    const name = document.getElementById('emName').value.trim();
+    const code = document.getElementById('emCode').value.trim();
+    if (!name) { toast('품목명 필요','error'); return false; }
+    if (state.materials.some(x => x.id !== id && x.name === name)) { toast('중복 품목명','error'); return false; }
+    m.name = name; m.code = code;
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+
+// ----- 완제품 수정 -----
+function editProduct(id) {
+  const p = state.products.find(x => x.id === id); if (!p) return;
+  const body = `
+    <div class="grid grid-2">
+      <div><label>완제품명 *</label><input type="text" id="epName" value="${escapeHtml(p.name)}" /></div>
+      <div><label>제품코드</label><input type="text" id="epCode" value="${escapeHtml(p.code||'')}" /></div>
+    </div>`;
+  openEditModal('완제품 수정', body, () => {
+    const name = document.getElementById('epName').value.trim();
+    const code = document.getElementById('epCode').value.trim();
+    if (!name) { toast('완제품명 필요','error'); return false; }
+    if (state.products.some(x => x.id !== id && x.name === name)) { toast('중복','error'); return false; }
+    p.name = name; p.code = code;
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+
+// ----- 매입 수정 -----
+function editPurchase(id) {
+  const p = state.purchases.find(x => x.id === id); if (!p) return;
+  const used = p.quantity - p.remaining;
+  const matOpts = state.materials.map(m => `<option value="${m.id}" ${m.id===p.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  const warn = used > 0 ? `<div class="info-box">⚠ 이 매입은 ${fmt(used)}Kg가 이미 생산에 사용되었습니다. 품목 변경 불가, 수량은 ${fmt(used)}Kg 이상이어야 합니다.</div>` : '';
+  const body = `
+    ${warn}
+    <div class="grid grid-3">
+      <div><label>입고일 *</label><input type="date" id="epDate" value="${p.date}" /></div>
+      <div><label>품목 *</label><select id="epMat" ${used>0?'disabled':''}>${matOpts}</select></div>
+      <div><label>수량 (Kg) *</label><input type="number" id="epQty" step="0.001" min="${used}" value="${p.quantity}" /></div>
+    </div>
+    <div class="grid grid-3" style="margin-top:12px;">
+      <div><label>금액 (원) *</label><input type="number" id="epAmt" step="1" value="${p.enteredAmount}" /></div>
+      <div><label>세금 구분</label><select id="epTax">
+        <option value="exempt" ${p.taxType==='exempt'?'selected':''}>면세</option>
+        <option value="excluded" ${p.taxType==='excluded'?'selected':''}>부가세 별도</option>
+        <option value="included" ${p.taxType==='included'?'selected':''}>부가세 포함</option>
+      </select></div>
+      <div><label>유통기한</label><input type="date" id="epExp" value="${p.expiration||''}" /></div>
+    </div>
+    <div style="margin-top:12px;"><label>비고</label><textarea id="epNotes">${escapeHtml(p.notes||'')}</textarea></div>
+    <div id="epPrev" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;font-size:12px;"></div>
+  `;
+  openEditModal('매입 수정', body, () => {
+    const date = document.getElementById('epDate').value;
+    const matId = document.getElementById('epMat').value;
+    const qty = Number(document.getElementById('epQty').value);
+    const amt = Number(document.getElementById('epAmt').value);
+    const tax = document.getElementById('epTax').value;
+    const exp = document.getElementById('epExp').value;
+    const notes = document.getElementById('epNotes').value.trim();
+    if (!date || !matId || !(qty>0) || !(amt>=0)) { toast('필수 입력 확인','error'); return false; }
+    if (qty < used - 1e-9) { toast(`수량은 사용량 ${fmt(used)}Kg 이상`,'error'); return false; }
+    const r = calcTax(amt, tax);
+    p.date = date; p.materialId = matId; p.quantity = qty;
+    p.remaining = qty - used;
+    p.enteredAmount = amt; p.taxType = tax;
+    p.supplyPrice = r.supply; p.vat = r.vat; p.totalAmount = r.total;
+    p.unitCost = qty>0 ? r.supply/qty : 0;
+    p.expiration = exp || null; p.notes = notes;
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+  // Live preview
+  const upd = () => {
+    const amt = Number(document.getElementById('epAmt').value)||0;
+    const tax = document.getElementById('epTax').value;
+    const qty = Number(document.getElementById('epQty').value)||0;
+    const r = calcTax(amt, tax);
+    const u = qty>0 ? r.supply/qty : 0;
+    document.getElementById('epPrev').innerHTML = `공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · Kg당 <b>${won(u)}</b>`;
+  };
+  ['epAmt','epTax','epQty'].forEach(id => document.getElementById(id).addEventListener('input', upd));
+  upd();
+}
+
+// ----- 생산 수정 (메타데이터만; BOM·수량 변경은 삭제 후 재등록) -----
+function editProduction(id) {
+  const p = state.productions.find(x => x.id === id); if (!p) return;
+  const prodOpts = state.products.map(pr => `<option value="${pr.id}" ${pr.id===p.productId?'selected':''}>${escapeHtml(pr.name)}</option>`).join('');
+  const usage = p.usages.map(u => `${materialName(u.materialId)}: ${fmt(u.totalUsed)}Kg`).join(', ');
+  const body = `
+    <div class="info-box">ℹ️ 생산은 FIFO 재고 차감과 연결돼 있어, <b>생산수량·투입 원재료(BOM) 변경은 삭제 후 재등록</b>해 주세요. 여기서는 일자/완제품/로트/비고만 수정됩니다.</div>
+    <div class="grid grid-2">
+      <div><label>생산일 *</label><input type="date" id="eprDate" value="${p.date}" /></div>
+      <div><label>완제품 *</label><select id="eprProd">${prodOpts}</select></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:12px;">
+      <div><label>로트번호</label><input type="text" id="eprLot" value="${escapeHtml(p.lotNo||'')}" /></div>
+      <div><label>생산량(읽기전용)</label><input type="text" value="${fmt(p.productQty)} Kg" readonly /></div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-light);">투입: ${usage}</div>
+    <div style="margin-top:12px;"><label>비고</label><textarea id="eprNotes">${escapeHtml(p.notes||'')}</textarea></div>
+  `;
+  openEditModal('생산 수정', body, () => {
+    const date = document.getElementById('eprDate').value;
+    const productId = document.getElementById('eprProd').value;
+    if (!date || !productId) { toast('필수 입력','error'); return false; }
+    p.date = date; p.productId = productId;
+    p.lotNo = document.getElementById('eprLot').value.trim();
+    p.notes = document.getElementById('eprNotes').value.trim();
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+
+// ----- 출고 수정 -----
+function editShipment(id) {
+  const s = state.shipments.find(x => x.id === id); if (!s) return;
+  const prodOpts = state.products.map(p => `<option value="${p.id}" ${p.id===s.productId?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+  const body = `
+    <div class="grid grid-3">
+      <div><label>출고일 *</label><input type="date" id="esDate" value="${s.date}" /></div>
+      <div><label>완제품 *</label><select id="esProd">${prodOpts}</select></div>
+      <div><label>수량 (Kg) *</label><input type="number" id="esQty" step="0.001" min="0" value="${s.qty}" /></div>
+    </div>
+    <div style="margin-top:12px;"><label>비고</label><input type="text" id="esNotes" value="${escapeHtml(s.notes||'')}" /></div>
+  `;
+  openEditModal('출고 수정', body, () => {
+    const date = document.getElementById('esDate').value;
+    const pid = document.getElementById('esProd').value;
+    const qty = Number(document.getElementById('esQty').value);
+    if (!date || !pid || !(qty>0)) { toast('필수 입력','error'); return false; }
+    // 재고 검증 (편집 후 잔량이 음수가 되면 안됨)
+    const produced = state.productions.filter(x=>x.productId===pid).reduce((a,x)=>a+x.productQty,0);
+    const otherShip = state.shipments.filter(x=>x.productId===pid && x.id!==id).reduce((a,x)=>a+x.qty,0);
+    if (qty > produced - otherShip + 1e-9) { toast(`재고 부족 (가용 ${fmt(produced-otherShip)}Kg)`,'error'); return false; }
+    s.date = date; s.productId = pid; s.qty = qty;
+    s.notes = document.getElementById('esNotes').value.trim();
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+
+// ========== TABS / PRINT ==========
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    renderAll();
+  };
+});
+function printTab(tabId, title) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('print-active'));
+  document.getElementById(tabId).classList.add('print-active');
+  document.getElementById('printTitle').textContent = title;
+  document.getElementById('printMeta').textContent = `출력일: ${todayISO()}`;
+  window.print();
+  setTimeout(() => document.querySelectorAll('.tab').forEach(t => t.classList.remove('print-active')), 500);
+}
+
+// ========== MATERIALS / PRODUCTS ==========
+function addMaterial() {
+  const name = document.getElementById('materialName').value.trim();
+  const code = document.getElementById('materialCode').value.trim();
+  if (!name) return toast('품목명','error');
+  if (state.materials.some(m => m.name === name)) return toast('중복','error');
+  state.materials.push({ id: uid(), name, code, createdAt: nowISO() });
+  saveState(); document.getElementById('materialName').value=''; document.getElementById('materialCode').value=''; toast('추가됨','success'); renderAll();
+}
+function deleteMaterial(id) {
+  if (state.purchases.some(p => p.materialId === id)) return toast('매입 이력 존재','error');
+  if (!confirm('삭제?')) return;
+  state.materials = state.materials.filter(m => m.id !== id); saveState(); renderAll();
+}
+function addProduct() {
+  const name = document.getElementById('productName').value.trim();
+  const code = document.getElementById('productCode').value.trim();
+  if (!name) return toast('완제품명','error');
+  if (state.products.some(p => p.name === name)) return toast('중복','error');
+  state.products.push({ id: uid(), name, code, createdAt: nowISO() });
+  saveState(); document.getElementById('productName').value=''; document.getElementById('productCode').value=''; toast('추가됨','success'); renderAll();
+}
+function deleteProduct(id) {
+  if (state.productions.some(p => p.productId === id) || state.shipments.some(s => s.productId === id)) return toast('이력 존재','error');
+  if (!confirm('삭제?')) return;
+  state.products = state.products.filter(p => p.id !== id); saveState(); renderAll();
+}
+function renderMaterials() {
+  const el = document.getElementById('materialsList');
+  if (state.materials.length === 0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let html = '<table><thead><tr><th>코드</th><th>품목명</th><th class="text-right">매입(Kg)</th><th class="text-right">재고(Kg)</th><th class="no-print"></th></tr></thead><tbody>';
+  for (const m of state.materials) {
+    const purch = state.purchases.filter(p=>p.materialId===m.id).reduce((s,p)=>s+p.quantity,0);
+    const rem = state.purchases.filter(p=>p.materialId===m.id).reduce((s,p)=>s+p.remaining,0);
+    html += `<tr><td>${m.code||'-'}</td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(purch)}</td><td class="text-right">${fmt(rem)}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editMaterial('${m.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function renderProducts() {
+  const el = document.getElementById('productsList');
+  if (state.products.length === 0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let html = '<table><thead><tr><th>코드</th><th>완제품</th><th class="text-right">생산(Kg)</th><th class="text-right">출고(Kg)</th><th class="text-right">재고(Kg)</th><th class="no-print"></th></tr></thead><tbody>';
+  for (const p of state.products) {
+    const prod = state.productions.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.productQty,0);
+    const ship = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
+    html += `<tr><td>${p.code||'-'}</td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(prod)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(prod-ship)}</b></td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editProduct('${p.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function renderSelects() {
+  const matOpts = state.materials.map(m=>`<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
+  const prodOpts = state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  const set = (id, prefix, opts) => { const el=document.getElementById(id); if(!el) return; const v=el.value; el.innerHTML=prefix+opts; el.value=v; };
+  set('pMaterial','<option value="">선택...</option>',matOpts);
+  set('filterPurchaseMaterial','<option value="">전체</option>',matOpts);
+  set('prodProduct','<option value="">선택...</option>',prodOpts);
+  set('shipProduct','<option value="">선택...</option>',prodOpts);
+  set('filterProdProduct','<option value="">전체</option>',prodOpts);
+  set('filterLedgerProduct','<option value="">전체</option>',prodOpts);
+}
+
+// ========== PURCHASES ==========
+function updatePurchasePreview() {
+  const amt = Number(document.getElementById('pAmount').value)||0;
+  const type = document.getElementById('pTaxType').value;
+  const qty = Number(document.getElementById('pQuantity').value)||0;
+  const r = calcTax(amt, type);
+  const u = qty>0?r.supply/qty:0;
+  document.getElementById('pPreview').innerHTML = `<b>자동계산</b><br>공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · Kg당 <b>${won(u)}</b>/Kg`;
+}
+document.addEventListener('input', e => {
+  if (['pAmount','pTaxType','pQuantity'].includes(e.target.id)) updatePurchasePreview();
+  if (e.target.id === 'prodQuantity') updateProductionPreview();
+});
+function resetPurchaseForm() {
+  document.getElementById('pDate').value = todayISO();
+  ['pMaterial','pQuantity','pAmount','pExpiration','pNotes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('pTaxType').value = 'excluded';
+  updatePurchasePreview();
+}
+function savePurchase() {
+  const date = document.getElementById('pDate').value;
+  const materialId = document.getElementById('pMaterial').value;
+  const quantity = Number(document.getElementById('pQuantity').value);
+  const amount = Number(document.getElementById('pAmount').value);
+  const taxType = document.getElementById('pTaxType').value;
+  const expiration = document.getElementById('pExpiration').value;
+  const notes = document.getElementById('pNotes').value.trim();
+  if (!date) return toast('입고일','error');
+  if (!materialId) return toast('품목 선택','error');
+  if (!(quantity>0)) return toast('수량','error');
+  if (!(amount>=0)) return toast('금액','error');
+  const r = calcTax(amount, taxType);
+  const unitCost = quantity>0 ? r.supply/quantity : 0;
+  state.purchases.push({ id:uid(), date, materialId, quantity, remaining:quantity, enteredAmount:amount, taxType, supplyPrice:r.supply, vat:r.vat, totalAmount:r.total, unitCost, expiration:expiration||null, notes, createdAt:nowISO() });
+  saveState(); resetPurchaseForm(); toast('매입 저장','success'); renderAll();
+}
+function expirationClass(date) {
+  if (!date) return {cls:'',label:''};
+  const d = daysBetween(todayISO(), date);
+  if (d<0) return {cls:'badge-expired',label:'만료'};
+  if (d<=30) return {cls:'badge-warning',label:`D-${d}`};
+  return {cls:'badge-ok',label:`D-${d}`};
+}
+function renderPurchases() {
+  const fM = document.getElementById('filterPurchaseMaterial')?.value || '';
+  const fS = document.getElementById('filterPurchaseStart')?.value || '';
+  const fE = document.getElementById('filterPurchaseEnd')?.value || '';
+  let list = [...state.purchases];
+  if (fM) list = list.filter(p=>p.materialId===fM);
+  if (fS) list = list.filter(p=>p.date>=fS);
+  if (fE) list = list.filter(p=>p.date<=fE);
+  list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+  const el = document.getElementById('purchasesList');
+  if (list.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const totQty=list.reduce((s,p)=>s+p.quantity,0), totSup=list.reduce((s,p)=>s+p.supplyPrice,0), totVat=list.reduce((s,p)=>s+p.vat,0), totAmt=list.reduce((s,p)=>s+p.totalAmount,0);
+  let html = `<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 수량 ${fmt(totQty)}Kg · 공급가 ${won(totSup)} · 부가세 ${won(totVat)} · 합계 <b>${won(totAmt)}</b></div>`;
+  html += `<table><thead><tr><th>입고일</th><th>품목</th><th class="text-right">수량(Kg)</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">부가세</th><th class="text-right">합계</th><th class="text-right">잔량(Kg)</th><th>유통기한</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
+  for (const p of list) {
+    const exp = expirationClass(p.expiration);
+    html += `<tr><td>${p.date}</td><td><b>${materialName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right">${won(p.vat)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${exp.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.notes||'-')}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editPurchase('${p.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function deletePurchase(id) {
+  const p = state.purchases.find(x=>x.id===id); if (!p) return;
+  if (p.remaining<p.quantity) { if (!confirm('일부 사용된 매입. 데이터 불일치 위험. 계속?')) return; }
+  else if (!confirm('삭제?')) return;
+  state.purchases = state.purchases.filter(x=>x.id!==id); saveState(); renderAll();
+}
+
+// ========== INVENTORY ==========
+function renderInventorySummary() {
+  const el = document.getElementById('inventorySummary');
+  if (state.materials.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let html = `<table><thead><tr><th>품목</th><th class="text-right">매입(Kg)</th><th class="text-right">사용(Kg)</th><th class="text-right">재고(Kg)</th><th class="text-right">평균단가</th><th class="text-right">재고가액</th></tr></thead><tbody>`;
+  for (const m of state.materials) {
+    const lots = state.purchases.filter(p=>p.materialId===m.id);
+    const purch = lots.reduce((s,p)=>s+p.quantity,0);
+    const rem = lots.reduce((s,p)=>s+p.remaining,0);
+    const value = lots.reduce((s,p)=>s+p.remaining*p.unitCost,0);
+    const avg = rem>0?value/rem:0;
+    html += `<tr><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(purch)}</td><td class="text-right">${fmt(purch-rem)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(avg)}</td><td class="text-right">${won(value)}</td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function renderInventoryLots() {
+  const el = document.getElementById('inventoryLots');
+  const lots = state.purchases.filter(p=>p.remaining>0).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  if (lots.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let html = `<table><thead><tr><th>순위</th><th>입고일</th><th>품목</th><th class="text-right">초기(Kg)</th><th class="text-right">잔량(Kg)</th><th class="text-right">단가</th><th class="text-right">가액</th><th>유통기한</th><th>비고</th></tr></thead><tbody>`;
+  const byMat = {};
+  for (const lot of lots) (byMat[lot.materialId]=byMat[lot.materialId]||[]).push(lot);
+  for (const mid of Object.keys(byMat)) byMat[mid].forEach((lot,i)=>{
+    const exp = expirationClass(lot.expiration);
+    html += `<tr><td class="text-center"><b>${i+1}</b></td><td>${lot.date}</td><td><b>${materialName(lot.materialId)}</b></td><td class="text-right">${fmt(lot.quantity)}</td><td class="text-right"><b>${fmt(lot.remaining)}</b></td><td class="text-right">${won(lot.unitCost)}</td><td class="text-right">${won(lot.remaining*lot.unitCost)}</td><td>${lot.expiration?`<span class="badge ${exp.cls}">${lot.expiration} (${exp.label})</span>`:'-'}</td><td>${escapeHtml(lot.notes||'-')}</td></tr>`;
+  });
+  el.innerHTML = html + '</tbody></table>';
+}
+
+// ========== PRODUCTION ==========
+let bomCounter = 0;
+function addBomRow(matId='',qty='') {
+  bomCounter++;
+  const opts = state.materials.map(m=>`<option value="${m.id}" ${m.id===matId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  const row = document.createElement('div');
+  row.className='bom-row'; row.id='bom_'+bomCounter;
+  row.innerHTML = `<select class="bom-material"><option value="">선택...</option>${opts}</select><input type="number" class="bom-qty" step="0.001" min="0" placeholder="Kg" value="${qty}" /><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();updateProductionPreview();">삭제</button>`;
+  document.getElementById('bomList').appendChild(row);
+  row.querySelector('.bom-material').addEventListener('change', updateProductionPreview);
+  row.querySelector('.bom-qty').addEventListener('input', updateProductionPreview);
+  updateProductionPreview();
+}
+function getBomEntries() {
+  const rows = document.querySelectorAll('#bomList .bom-row');
+  const entries = [];
+  rows.forEach(r=>{
+    const matId = r.querySelector('.bom-material').value;
+    const qty = Number(r.querySelector('.bom-qty').value);
+    if (matId && qty>0) entries.push({materialId:matId, qty});
+  });
+  const merged = {};
+  for (const e of entries) merged[e.materialId] = (merged[e.materialId]||0)+e.qty;
+  return Object.keys(merged).map(k=>({materialId:k, qty:merged[k]}));
+}
+function fifoAllocate(materialId, qty) {
+  const lots = state.purchases.filter(p=>p.materialId===materialId && p.remaining>0).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  let need = qty; const allocations = [];
+  for (const lot of lots) {
+    if (need<=0) break;
+    const use = Math.min(lot.remaining, need);
+    allocations.push({lotId:lot.id, qty:use, unitCost:lot.unitCost, date:lot.date, expiration:lot.expiration});
+    need -= use;
+  }
+  if (need<1e-9) need=0;
+  return {allocations, shortage:need};
+}
+function updateProductionPreview() {
+  const entries = getBomEntries();
+  const prodQty = Number(document.getElementById('prodQuantity').value)||0;
+  if (entries.length===0) { document.getElementById('prodPreview').innerHTML='<i>투입 원재료를 추가하세요.</i>'; return; }
+  let html = '<b>투입 시뮬레이션(FIFO)</b><table style="margin-top:8px;"><thead><tr><th>원재료</th><th class="text-right">투입량</th><th>로트</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
+  let totalCost=0, anyShort=false;
+  for (const e of entries) {
+    const r = fifoAllocate(e.materialId, e.qty);
+    const cost = r.allocations.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost;
+    const desc = r.allocations.map(a=>`${a.date}: ${fmt(a.qty)}Kg @${won(a.unitCost)}`).join('<br>')||'-';
+    const status = r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}Kg</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
+    if (r.shortage>0) anyShort=true;
+    html += `<tr><td>${materialName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td style="font-size:11px;">${desc}</td><td class="text-right">${won(cost)}</td><td>${status}</td></tr>`;
+  }
+  html += '</tbody></table>';
+  const inputKg = entries.reduce((s,e)=>s+e.qty,0);
+  const y = inputKg>0?(prodQty/inputKg*100):0;
+  const u = prodQty>0?totalCost/prodQty:0;
+  html += `<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}Kg</b> · 생산 <b>${fmt(prodQty)}Kg</b> · 수율 <b>${y.toFixed(2)}%</b><br>총원가 <b>${won(totalCost)}</b> · Kg당 <b>${won(u)}</b>/Kg${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}</div>`;
+  document.getElementById('prodPreview').innerHTML = html;
+}
+function resetProductionForm() {
+  document.getElementById('prodDate').value = todayISO();
+  ['prodProduct','prodQuantity','prodLot','prodNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bomList').innerHTML=''; addBomRow();
+}
+function checkProduction() {
+  const entries = getBomEntries();
+  if (entries.length===0) return toast('투입 원재료 필요','error');
+  let ok = true;
+  for (const e of entries) if (fifoAllocate(e.materialId,e.qty).shortage>0) { ok=false; break; }
+  toast(ok?'재고 충분 ✓':'재고 부족 ✗', ok?'success':'error');
+}
+function saveProduction() {
+  const date = document.getElementById('prodDate').value;
+  const productId = document.getElementById('prodProduct').value;
+  const productQty = Number(document.getElementById('prodQuantity').value);
+  const lotNo = document.getElementById('prodLot').value.trim();
+  const notes = document.getElementById('prodNotes').value.trim();
+  const entries = getBomEntries();
+  if (!date) return toast('생산일','error');
+  if (!productId) return toast('완제품 선택','error');
+  if (!(productQty>0)) return toast('생산수량','error');
+  if (entries.length===0) return toast('투입 원재료','error');
+  const plan = [];
+  for (const e of entries) {
+    const r = fifoAllocate(e.materialId, e.qty);
+    if (r.shortage>0) return toast(`재고부족: ${materialName(e.materialId)} ${fmt(r.shortage)}Kg`,'error');
+    plan.push({materialId:e.materialId, totalUsed:e.qty, allocations:r.allocations});
+  }
+  let totalCost = 0;
+  for (const it of plan) for (const a of it.allocations) {
+    const lot = state.purchases.find(p=>p.id===a.lotId);
+    lot.remaining = Math.max(0, lot.remaining - a.qty);
+    totalCost += a.qty*a.unitCost;
+  }
+  state.productions.push({ id:uid(), date, productId, lotNo, productQty, usages:plan, totalCost, unitCost:totalCost/productQty, notes, createdAt:nowISO() });
+  saveState(); resetProductionForm(); toast('생산 저장','success'); renderAll();
+}
+function renderProductions() {
+  const el = document.getElementById('productionsList');
+  const f = document.getElementById('filterProdProduct')?.value||'';
+  let list = [...state.productions]; if (f) list=list.filter(p=>p.productId===f);
+  list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+  if (list.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const totQ=list.reduce((s,p)=>s+p.productQty,0), totC=list.reduce((s,p)=>s+p.totalCost,0);
+  let html = `<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 생산 ${fmt(totQ)}Kg · 원가 <b>${won(totC)}</b></div>`;
+  html += `<table><thead><tr><th>생산일</th><th>완제품</th><th>로트</th><th class="text-right">생산(Kg)</th><th>투입</th><th class="text-right">총원가</th><th class="text-right">Kg당</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
+  for (const p of list) {
+    const u = p.usages.map(x=>`${materialName(x.materialId)}: ${fmt(x.totalUsed)}Kg`).join('<br>');
+    html += `<tr><td>${p.date}</td><td><b>${productName(p.productId)}</b></td><td>${p.lotNo||'-'}</td><td class="text-right"><b>${fmt(p.productQty)}</b></td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td>${escapeHtml(p.notes||'-')}</td><td class="no-print"><button class="btn btn-secondary btn-sm" onclick="showProductionDetail('${p.id}')">상세</button> <button class="btn btn-edit btn-sm" onclick="editProduction('${p.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteProduction('${p.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function showProductionDetail(id) {
+  const p = state.productions.find(x=>x.id===id); if (!p) return;
+  let t = `생산일: ${p.date}\n완제품: ${productName(p.productId)}\n생산량: ${fmt(p.productQty)}Kg\n총원가: ${won(p.totalCost)}\nKg당: ${won(p.unitCost)}\n\n[투입]\n`;
+  for (const u of p.usages) { t+=`\n■ ${materialName(u.materialId)}: ${fmt(u.totalUsed)}Kg\n`; for (const a of u.allocations) t+=`  - ${a.date} ${fmt(a.qty)}Kg × ${won(a.unitCost)}\n`; }
+  alert(t);
+}
+function deleteProduction(id) {
+  const p = state.productions.find(x=>x.id===id); if (!p) return;
+  if (!confirm('삭제 시 원재료 잔량 복원됨. 계속?')) return;
+  for (const u of p.usages) for (const a of u.allocations) { const lot=state.purchases.find(x=>x.id===a.lotId); if (lot) lot.remaining+=a.qty; }
+  state.productions = state.productions.filter(x=>x.id!==id); saveState(); renderAll();
+}
+
+// ========== SHIPMENT ==========
+function saveShipment() {
+  const date = document.getElementById('shipDate').value;
+  const productId = document.getElementById('shipProduct').value;
+  const qty = Number(document.getElementById('shipQty').value);
+  const notes = document.getElementById('shipNotes').value.trim();
+  if (!date) return toast('출고일','error');
+  if (!productId) return toast('완제품 선택','error');
+  if (!(qty>0)) return toast('수량','error');
+  const prod = state.productions.filter(p=>p.productId===productId).reduce((s,p)=>s+p.productQty,0);
+  const ship = state.shipments.filter(s=>s.productId===productId).reduce((s,p)=>s+p.qty,0);
+  if (qty>prod-ship+1e-9) return toast(`재고 부족 (${fmt(prod-ship)}Kg)`,'error');
+  state.shipments.push({id:uid(), date, productId, qty, notes, createdAt:nowISO()});
+  saveState();
+  document.getElementById('shipDate').value = todayISO();
+  document.getElementById('shipQty').value=''; document.getElementById('shipNotes').value='';
+  toast('출고 저장','success'); renderAll();
+}
+function deleteShipment(id) {
+  if (!confirm('삭제?')) return;
+  state.shipments = state.shipments.filter(x=>x.id!==id); saveState(); renderAll();
+}
+function renderProductSummary() {
+  const el = document.getElementById('productSummary');
+  if (state.products.length===0) { el.innerHTML='<div class="empty-state">완제품 등록 필요</div>'; return; }
+  let html = `<table><thead><tr><th>코드</th><th>완제품</th><th class="text-right">생산(Kg)</th><th class="text-right">출고(Kg)</th><th class="text-right">재고(Kg)</th><th class="text-right">원가</th><th class="text-right">평균 Kg당</th></tr></thead><tbody>`;
+  for (const p of state.products) {
+    const ps = state.productions.filter(x=>x.productId===p.id);
+    const produced = ps.reduce((s,x)=>s+x.productQty,0);
+    const cost = ps.reduce((s,x)=>s+x.totalCost,0);
+    const ship = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
+    const avg = produced>0?cost/produced:0;
+    html += `<tr><td>${p.code||'-'}</td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(produced)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b style="color:var(--primary);">${fmt(produced-ship)}</b></td><td class="text-right">${won(cost)}</td><td class="text-right">${won(avg)}</td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+function renderProductLedger() {
+  const f = document.getElementById('filterLedgerProduct')?.value||'';
+  const ledger = [];
+  for (const p of state.productions) if (!f||p.productId===f) ledger.push({type:'생산',date:p.date,productId:p.productId,qty:p.productQty,notes:p.notes,lot:p.lotNo,id:p.id});
+  for (const s of state.shipments) if (!f||s.productId===f) ledger.push({type:'출고',date:s.date,productId:s.productId,qty:-s.qty,notes:s.notes,lot:'',id:s.id,isShip:true});
+  ledger.sort((a,b)=>a.date.localeCompare(b.date));
+  const bal = {};
+  const rows = ledger.map(r=>{ bal[r.productId]=(bal[r.productId]||0)+r.qty; return {...r, balance:bal[r.productId]}; }).reverse();
+  const el = document.getElementById('productLedger');
+  if (rows.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let html = `<table><thead><tr><th>일자</th><th>완제품</th><th>구분</th><th>로트</th><th class="text-right">수량(Kg)</th><th class="text-right">잔량(Kg)</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
+  for (const r of rows) {
+    const c = r.type==='생산'?'var(--success)':'var(--danger)';
+    const actions = r.isShip
+      ? `<button class="btn btn-edit btn-sm" onclick="editShipment('${r.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteShipment('${r.id}')">삭제</button>`
+      : `<button class="btn btn-edit btn-sm" onclick="editProduction('${r.id}')">✏️ 수정</button>`;
+    html += `<tr><td>${r.date}</td><td><b>${productName(r.productId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td>${r.lot||'-'}</td><td class="text-right" style="color:${c};font-weight:600;">${r.qty>0?'+':''}${fmt(r.qty)}</td><td class="text-right"><b>${fmt(r.balance)}</b></td><td>${escapeHtml(r.notes||'-')}</td><td class="no-print">${actions}</td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard() {
+  const purch = state.purchases.reduce((s,p)=>s+p.quantity,0);
+  const rem = state.purchases.reduce((s,p)=>s+p.remaining,0);
+  const amt = state.purchases.reduce((s,p)=>s+p.totalAmount,0);
+  const prod = state.productions.reduce((s,p)=>s+p.productQty,0);
+  const ship = state.shipments.reduce((s,p)=>s+p.qty,0);
+  document.getElementById('dashboardSummary').innerHTML = `
+    <div class="summary-card"><div class="label">원재료 매입</div><div class="value">${fmt(purch)}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">원재료 재고</div><div class="value">${fmt(rem)}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">매입 합계</div><div class="value">${won(amt)}</div></div>
+    <div class="summary-card"><div class="label">완제품 생산</div><div class="value">${fmt(prod)}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">완제품 재고</div><div class="value" style="color:var(--primary);">${fmt(prod-ship)}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">완제품 종류</div><div class="value">${state.products.length}<span class="unit">종</span></div></div>`;
+  const psEl = document.getElementById('productStockSummary');
+  if (state.products.length===0) psEl.innerHTML='<div class="empty-state">완제품 없음</div>';
+  else {
+    let h = '<table><thead><tr><th>완제품</th><th class="text-right">생산</th><th class="text-right">출고</th><th class="text-right">재고</th></tr></thead><tbody>';
+    for (const p of state.products) {
+      const pp = state.productions.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.productQty,0);
+      const ss = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
+      h += `<tr><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(pp)}</td><td class="text-right">${fmt(ss)}</td><td class="text-right"><b>${fmt(pp-ss)}</b></td></tr>`;
+    }
+    psEl.innerHTML = h + '</tbody></table>';
+  }
+  const today = todayISO();
+  const alerts = state.purchases.filter(p=>p.remaining>0&&p.expiration).map(p=>({...p,days:daysBetween(today,p.expiration)})).filter(p=>p.days<=30).sort((a,b)=>a.days-b.days);
+  const aEl = document.getElementById('expirationAlerts');
+  if (alerts.length===0) aEl.innerHTML='<div class="empty-state">없음</div>';
+  else {
+    let h='<table><thead><tr><th>품목</th><th>입고일</th><th class="text-right">잔량</th><th>유통기한</th><th>상태</th></tr></thead><tbody>';
+    for (const a of alerts) { const ec=expirationClass(a.expiration); const lbl=a.days<0?`${-a.days}일 경과`:`D-${a.days}`; h+=`<tr><td><b>${materialName(a.materialId)}</b></td><td>${a.date}</td><td class="text-right">${fmt(a.remaining)}</td><td>${a.expiration}</td><td><span class="badge ${ec.cls}">${lbl}</span></td></tr>`; }
+    aEl.innerHTML = h + '</tbody></table>';
+  }
+  const rp = [...state.purchases].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  document.getElementById('recentPurchases').innerHTML = rp.length===0?'<div class="empty-state">없음</div>': '<table><thead><tr><th>일자</th><th>품목</th><th class="text-right">수량</th><th class="text-right">합계</th></tr></thead><tbody>'+rp.map(p=>`<tr><td>${p.date}</td><td>${materialName(p.materialId)}</td><td class="text-right">${fmt(p.quantity)}</td><td class="text-right">${won(p.totalAmount)}</td></tr>`).join('')+'</tbody></table>';
+  const rpr = [...state.productions].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  document.getElementById('recentProductions').innerHTML = rpr.length===0?'<div class="empty-state">없음</div>': '<table><thead><tr><th>일자</th><th>완제품</th><th class="text-right">생산</th><th class="text-right">원가</th></tr></thead><tbody>'+rpr.map(p=>`<tr><td>${p.date}</td><td>${productName(p.productId)}</td><td class="text-right">${fmt(p.productQty)}</td><td class="text-right">${won(p.totalCost)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+// ========== BACKUP ALERT ==========
+function checkBackupAlert() {
+  const el = document.getElementById('backupAlert');
+  const days = state.settings.backupDays || 7;
+  const last = state.settings.lastBackupAt;
+  // If cloud is connected and synced recently, hide alert
+  if (state.cloud.connected && state.cloud.lastSyncAt) {
+    const elapsed = daysBetween(state.cloud.lastSyncAt.slice(0,10), todayISO());
+    if (elapsed < days) { el.style.display='none'; return; }
+  }
+  if (!last) {
+    el.style.display='flex';
+    el.innerHTML = '<div>⚠ 클라우드 미연결 + 백업 기록 없음 — 클라우드 연결 또는 JSON 백업 권장</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>';
+    return;
+  }
+  const elapsed = daysBetween(last.slice(0,10), todayISO());
+  if (elapsed >= days) {
+    el.style.display='flex';
+    el.innerHTML = `<div>⚠ 마지막 백업 ${elapsed}일 경과</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>`;
+  } else el.style.display='none';
+}
+function saveBackupSettings() {
+  const d = parseInt(document.getElementById('backupDays').value);
+  if (isNaN(d)||d<1) return toast('1 이상','error');
+  state.settings.backupDays = d; saveState(); toast('저장됨','success'); checkBackupAlert();
+}
+
+// ========== EXPORT/IMPORT ==========
+function exportData() {
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`erp_backup_${todayISO()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  state.settings.lastBackupAt = nowISO(); saveState();
+  toast('백업 완료','success'); checkBackupAlert();
+  document.getElementById('lastBackupDate').value = state.settings.lastBackupAt;
+}
+function importData(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.purchases) throw new Error('형식 오류');
+      if (!confirm('현재 데이터 덮어쓰기?')) return;
+      state = { materials:[], products:[], purchases:[], productions:[], shipments:[], settings:{backupDays:7,lastBackupAt:null}, cloud:state.cloud, ...data };
+      state.cloud = state.cloud || { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null };
+      migrate(); saveState(); toast('복원됨','success'); renderAll();
+    } catch(err) { toast('파일 오류: '+err.message,'error'); }
+  };
+  r.readAsText(f);
+}
+function exportCSV(kind) {
+  let h=[], rows=[];
+  if (kind==='purchases') { h=['입고일','품목','수량','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','비고']; rows=state.purchases.map(p=>[p.date,materialName(p.materialId),p.quantity,taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',(p.notes||'').replace(/[\r\n,]/g,' ')]); }
+  else if (kind==='productions') { h=['생산일','완제품','로트','생산량','투입','총원가','Kg당원가','비고']; rows=state.productions.map(p=>[p.date,productName(p.productId),p.lotNo||'',p.productQty,p.usages.map(u=>`${materialName(u.materialId)}:${u.totalUsed}Kg`).join('; '),Math.round(p.totalCost),Math.round(p.unitCost),(p.notes||'').replace(/[\r\n,]/g,' ')]); }
+  else if (kind==='shipments') { h=['출고일','완제품','수량','비고']; rows=state.shipments.map(s=>[s.date,productName(s.productId),s.qty,(s.notes||'').replace(/[\r\n,]/g,' ')]); }
+  else if (kind==='inventory') { h=['품목','매입','사용','재고','평균단가','재고가액']; rows=state.materials.map(m=>{ const ls=state.purchases.filter(p=>p.materialId===m.id); const pu=ls.reduce((s,p)=>s+p.quantity,0); const re=ls.reduce((s,p)=>s+p.remaining,0); const v=ls.reduce((s,p)=>s+p.remaining*p.unitCost,0); return [m.name,pu,pu-re,re,re>0?Math.round(v/re):0,Math.round(v)]; }); }
+  const csv = [h,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`${kind}_${todayISO()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+function clearAllData() {
+  if (!confirm('모든 데이터 삭제?')) return;
+  if (!confirm('정말? (복구 불가)')) return;
+  state = { materials:[], products:[], purchases:[], productions:[], shipments:[], settings:{backupDays:7,lastBackupAt:null}, cloud:state.cloud };
+  saveState(); renderAll(); toast('초기화됨','success');
+}
+
+// ========== RENDER ==========
+function renderAll() {
+  renderMaterials(); renderProducts(); renderSelects();
+  renderPurchases(); renderInventorySummary(); renderInventoryLots();
+  renderProductions(); renderProductSummary(); renderProductLedger();
+  renderDashboard(); updateCloudStatus(); checkBackupAlert();
+  const bd = document.getElementById('backupDays'); if (bd) bd.value = state.settings.backupDays||7;
+  const lb = document.getElementById('lastBackupDate'); if (lb) lb.value = state.settings.lastBackupAt||'없음';
+}
+
+// ========== INIT ==========
+loadState();
+['pDate','prodDate','shipDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayISO(); });
+addBomRow(); updatePurchasePreview(); renderAll();
+
+// Auto-pull from cloud on init if connected
+if (state.cloud.connected && state.cloud.url && state.cloud.key) {
+  cloudPull(false).catch(()=>{});
+}
+</script>
+</body>
+</html>
