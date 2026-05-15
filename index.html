@@ -1323,116 +1323,155 @@ if (state.cloud.connected && state.cloud.url && state.cloud.key) {
 @media (min-width: 1024px) {
   body { padding-left: 220px !important; }
   #ws-launcher {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 220px;
-    background: linear-gradient(180deg, #0a0d12 0%, #0f1320 100%);
-    border-right: 1px solid rgba(255,255,255,0.08);
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    padding: 22px 14px;
-    font-family: -apple-system, 'Segoe UI', 'Pretendard', sans-serif;
-    color: #f0f3f9;
-    overflow-y: auto;
+    position: fixed !important;
+    left: 0 !important; top: 0 !important; bottom: 0 !important;
+    width: 220px !important;
+    background: linear-gradient(180deg, #0a0d12 0%, #0f1320 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 22px 14px !important;
+    font-family: -apple-system, 'Segoe UI', 'Pretendard', sans-serif !important;
+    color: #f0f3f9 !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
   }
-  #ws-launcher * { box-sizing: border-box; }
+  #ws-launcher,
+  #ws-launcher *,
+  #ws-launcher *::before,
+  #ws-launcher *::after { box-sizing: border-box !important; }
+
   #ws-launcher .ws-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 8px 18px;
-    margin-bottom: 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0 8px 18px !important;
+    margin-bottom: 14px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    background: transparent !important;
   }
   #ws-launcher .ws-logo {
-    width: 32px; height: 32px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, #7c8cff 0%, #b67cff 50%, #ff7cae 100%);
-    display: grid; place-items: center;
-    box-shadow: 0 6px 20px rgba(124,140,255,0.25);
-    flex-shrink: 0;
+    width: 32px !important; height: 32px !important;
+    border-radius: 9px !important;
+    background: linear-gradient(135deg, #7c8cff 0%, #b67cff 50%, #ff7cae 100%) !important;
+    display: grid !important; place-items: center !important;
+    box-shadow: 0 6px 20px rgba(124,140,255,0.25) !important;
+    flex-shrink: 0 !important;
   }
-  #ws-launcher .ws-logo svg { width: 16px; height: 16px; color: #fff; }
+  #ws-launcher .ws-logo svg { width: 16px !important; height: 16px !important; color: #fff !important; }
   #ws-launcher .ws-title {
-    font-size: 14px; font-weight: 700;
-    letter-spacing: -0.2px;
+    font-size: 14px !important; font-weight: 700 !important;
+    letter-spacing: -0.2px !important;
+    color: #f0f3f9 !important;
+    line-height: 1.2 !important;
+    background: transparent !important;
   }
   #ws-launcher .ws-sub {
-    font-size: 9px; color: #555c6e;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-top: 2px;
-    font-weight: 600;
+    font-size: 9px !important; color: #555c6e !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    margin-top: 2px !important;
+    font-weight: 600 !important;
+    background: transparent !important;
   }
   #ws-launcher .ws-label {
-    font-size: 9px; color: #555c6e;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 600;
-    padding: 0 12px;
-    margin-bottom: 8px;
+    font-size: 9px !important; color: #555c6e !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    font-weight: 600 !important;
+    padding: 0 12px !important;
+    margin-bottom: 8px !important;
+    background: transparent !important;
   }
   #ws-launcher .ws-nav {
-    display: flex; flex-direction: column;
-    gap: 3px;
+    display: flex !important; flex-direction: column !important;
+    gap: 3px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
   }
-  #ws-launcher a.ws-item {
-    display: flex; align-items: center;
-    gap: 10px;
-    padding: 9px 11px;
-    border-radius: 8px;
-    color: #8a93a6;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid transparent;
-    transition: all 0.15s ease;
-    position: relative;
+  #ws-launcher a.ws-item,
+  #ws-launcher a.ws-item:link,
+  #ws-launcher a.ws-item:visited {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 9px 11px !important;
+    border-radius: 8px !important;
+    color: #8a93a6 !important;
+    text-decoration: none !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border: 1px solid transparent !important;
+    transition: all 0.15s ease !important;
+    position: relative !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: auto !important;
   }
   #ws-launcher a.ws-item:hover {
-    background: rgba(255,255,255,0.03);
-    color: #f0f3f9;
+    background: rgba(255,255,255,0.04) !important;
+    color: #f0f3f9 !important;
   }
-  #ws-launcher a.ws-item.ws-active {
-    background: rgba(124,140,255,0.12);
-    color: #f0f3f9;
-    border-color: rgba(124,140,255,0.2);
+  #ws-launcher a.ws-item.ws-active,
+  #ws-launcher a.ws-item.ws-active:link,
+  #ws-launcher a.ws-item.ws-active:visited,
+  #ws-launcher a.ws-item.ws-active:hover {
+    background: rgba(124,140,255,0.15) !important;
+    color: #ffffff !important;
+    border-color: rgba(124,140,255,0.3) !important;
   }
   #ws-launcher a.ws-item.ws-active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 8px; bottom: 8px;
-    width: 2px;
-    background: linear-gradient(180deg, #7c8cff, #ff7cae);
-    border-radius: 2px;
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important; top: 8px !important; bottom: 8px !important;
+    width: 2px !important;
+    background: linear-gradient(180deg, #7c8cff, #ff7cae) !important;
+    border-radius: 2px !important;
+    display: block !important;
+  }
+  /* 모든 자식 텍스트도 명시적으로 색상 적용 (앱 CSS의 span 오버라이드 방지) */
+  #ws-launcher a.ws-item > span {
+    color: inherit !important;
+    background: transparent !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+  }
+  #ws-launcher a.ws-item.ws-active > span:not(.ws-icon) {
+    color: #ffffff !important;
+    font-weight: 600 !important;
   }
   #ws-launcher .ws-icon {
-    width: 26px; height: 26px;
-    border-radius: 7px;
-    display: grid; place-items: center;
-    font-size: 14px;
-    background: rgba(255,255,255,0.04);
-    flex-shrink: 0;
+    width: 26px !important; height: 26px !important;
+    border-radius: 7px !important;
+    display: grid !important; place-items: center !important;
+    font-size: 14px !important;
+    background: rgba(255,255,255,0.05) !important;
+    flex-shrink: 0 !important;
+    color: inherit !important;
   }
   #ws-launcher a.ws-active .ws-icon {
-    background: rgba(124,140,255,0.15);
+    background: rgba(124,140,255,0.2) !important;
   }
   #ws-launcher .ws-foot {
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    font-size: 10px;
-    color: #555c6e;
-    text-align: center;
+    margin-top: auto !important;
+    padding-top: 14px !important;
+    border-top: 1px solid rgba(255,255,255,0.06) !important;
+    font-size: 10px !important;
+    color: #555c6e !important;
+    text-align: center !important;
+    background: transparent !important;
   }
   #ws-launcher .ws-foot .ws-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #00d97e;
-    margin-right: 5px;
-    box-shadow: 0 0 6px #00d97e;
+    display: inline-block !important;
+    width: 6px !important; height: 6px !important;
+    border-radius: 50% !important;
+    background: #00d97e !important;
+    margin-right: 5px !important;
+    box-shadow: 0 0 6px #00d97e !important;
   }
 }
 @media (max-width: 1023px) {
@@ -1474,7 +1513,6 @@ if (state.cloud.connected && state.cloud.url && state.cloud.key) {
 
 <script>
 (function(){
-  // 현재 앱 식별자를 HTML 파일에 주입된 변수로 표시
   var current = window.WS_CURRENT_APP || '';
   if (!current) return;
   var items = document.querySelectorAll('#ws-launcher a.ws-item');
@@ -1484,6 +1522,7 @@ if (state.cloud.connected && state.cloud.url && state.cloud.key) {
 })();
 </script>
 <!-- ===== /Workspace Sidebar ===== -->
+
 
 </body>
 </html>
