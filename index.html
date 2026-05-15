@@ -1317,5 +1317,173 @@ if (state.cloud.connected && state.cloud.url && state.cloud.key) {
   cloudPull(false).catch(()=>{});
 }
 </script>
+<script>window.WS_CURRENT_APP="production";</script>
+<!-- ===== Workspace Sidebar (PC only, hidden on mobile) ===== -->
+<style id="ws-launcher-style">
+@media (min-width: 1024px) {
+  body { padding-left: 220px !important; }
+  #ws-launcher {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: linear-gradient(180deg, #0a0d12 0%, #0f1320 100%);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 14px;
+    font-family: -apple-system, 'Segoe UI', 'Pretendard', sans-serif;
+    color: #f0f3f9;
+    overflow-y: auto;
+  }
+  #ws-launcher * { box-sizing: border-box; }
+  #ws-launcher .ws-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 18px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  #ws-launcher .ws-logo {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #7c8cff 0%, #b67cff 50%, #ff7cae 100%);
+    display: grid; place-items: center;
+    box-shadow: 0 6px 20px rgba(124,140,255,0.25);
+    flex-shrink: 0;
+  }
+  #ws-launcher .ws-logo svg { width: 16px; height: 16px; color: #fff; }
+  #ws-launcher .ws-title {
+    font-size: 14px; font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  #ws-launcher .ws-sub {
+    font-size: 9px; color: #555c6e;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+  #ws-launcher .ws-label {
+    font-size: 9px; color: #555c6e;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+  #ws-launcher .ws-nav {
+    display: flex; flex-direction: column;
+    gap: 3px;
+  }
+  #ws-launcher a.ws-item {
+    display: flex; align-items: center;
+    gap: 10px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    color: #8a93a6;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  #ws-launcher a.ws-item:hover {
+    background: rgba(255,255,255,0.03);
+    color: #f0f3f9;
+  }
+  #ws-launcher a.ws-item.ws-active {
+    background: rgba(124,140,255,0.12);
+    color: #f0f3f9;
+    border-color: rgba(124,140,255,0.2);
+  }
+  #ws-launcher a.ws-item.ws-active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, #7c8cff, #ff7cae);
+    border-radius: 2px;
+  }
+  #ws-launcher .ws-icon {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: grid; place-items: center;
+    font-size: 14px;
+    background: rgba(255,255,255,0.04);
+    flex-shrink: 0;
+  }
+  #ws-launcher a.ws-active .ws-icon {
+    background: rgba(124,140,255,0.15);
+  }
+  #ws-launcher .ws-foot {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 10px;
+    color: #555c6e;
+    text-align: center;
+  }
+  #ws-launcher .ws-foot .ws-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00d97e;
+    margin-right: 5px;
+    box-shadow: 0 0 6px #00d97e;
+  }
+}
+@media (max-width: 1023px) {
+  #ws-launcher { display: none !important; }
+}
+@media print {
+  #ws-launcher { display: none !important; }
+  body { padding-left: 0 !important; }
+}
+</style>
+
+<aside id="ws-launcher">
+  <div class="ws-brand">
+    <div class="ws-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </div>
+    <div>
+      <div class="ws-title">Workspace</div>
+      <div class="ws-sub">Console</div>
+    </div>
+  </div>
+  <div class="ws-label">Applications</div>
+  <nav class="ws-nav">
+    <a class="ws-item" data-app="daily-report" href="https://charllottesooh.github.io/Daily-account-report/">
+      <span class="ws-icon">📊</span><span>일일보고</span>
+    </a>
+    <a class="ws-item" data-app="purchase" href="https://charllottesooh.github.io/my-erp/">
+      <span class="ws-icon">💳</span><span>일일결제</span>
+    </a>
+    <a class="ws-item" data-app="franchise" href="https://charllottesooh.github.io/franchise-manager/">
+      <span class="ws-icon">🏪</span><span>가맹점 변동</span>
+    </a>
+    <a class="ws-item" data-app="production" href="https://charllottesooh.github.io/production_erp/">
+      <span class="ws-icon">🏭</span><span>제품생산 ERP</span>
+    </a>
+  </nav>
+  <div class="ws-foot"><span class="ws-dot"></span>Workspace v2</div>
+</aside>
+
+<script>
+(function(){
+  // 현재 앱 식별자를 HTML 파일에 주입된 변수로 표시
+  var current = window.WS_CURRENT_APP || '';
+  if (!current) return;
+  var items = document.querySelectorAll('#ws-launcher a.ws-item');
+  items.forEach(function(el){
+    if (el.dataset.app === current) el.classList.add('ws-active');
+  });
+})();
+</script>
+<!-- ===== /Workspace Sidebar ===== -->
+
 </body>
 </html>
