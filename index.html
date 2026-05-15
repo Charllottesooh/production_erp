@@ -1075,6 +1075,46 @@ function checkProduction() {
   for (const e of entries) if (fifoAllocate(e.materialId,e.qty).shortage>0) { ok=false; break; }
   toast(ok?'재고 충분 ✓':'재고 부족 ✗', ok?'success':'error');
 }
+function duplicateProduction(id) {
+  const p = state.productions.find(x => x.id === id);
+  if (!p) return;
+
+  // 1) 생산 관리 탭으로 이동
+  const tabBtn = document.querySelector('[data-tab="production"]');
+  if (tabBtn) tabBtn.click();
+
+  // 2) 폼 초기화 후 값 채우기
+  setTimeout(() => {
+    // 날짜는 오늘로 (사용자가 원하면 변경 가능)
+    document.getElementById('prodDate').value = todayISO();
+    // 완제품
+    document.getElementById('prodProduct').value = p.productId;
+    // 생산수량
+    document.getElementById('prodQuantity').value = p.productQty;
+    // 로트번호 (비워두는 게 안전 - 중복 방지)
+    document.getElementById('prodLot').value = '';
+    // 비고
+    document.getElementById('prodNotes').value = p.notes || '';
+
+    // BOM 재구성: 기존 행 모두 제거 후 원본 usages로 행 채우기
+    document.getElementById('bomList').innerHTML = '';
+    if (p.usages && p.usages.length > 0) {
+      p.usages.forEach(u => {
+        addBomRow(u.materialId, u.totalUsed);
+      });
+    } else {
+      addBomRow();
+    }
+
+    updateProductionPreview();
+
+    // 상단으로 스크롤 + 안내
+    const sec = document.getElementById('production');
+    if (sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
+    toast('복사됨 - 날짜·내용 수정 후 [생산 저장]','success');
+  }, 50);
+}
+
 function saveProduction() {
   const date = document.getElementById('prodDate').value;
   const productId = document.getElementById('prodProduct').value;
@@ -1112,7 +1152,7 @@ function renderProductions() {
   html += `<table><thead><tr><th>생산일</th><th>완제품</th><th>로트</th><th class="text-right">생산(Kg)</th><th>투입</th><th class="text-right">총원가</th><th class="text-right">Kg당</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
   for (const p of list) {
     const u = p.usages.map(x=>`${materialName(x.materialId)}: ${fmt(x.totalUsed)}Kg`).join('<br>');
-    html += `<tr><td>${p.date}</td><td><b>${productName(p.productId)}</b></td><td>${p.lotNo||'-'}</td><td class="text-right"><b>${fmt(p.productQty)}</b></td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td>${escapeHtml(p.notes||'-')}</td><td class="no-print"><button class="btn btn-secondary btn-sm" onclick="showProductionDetail('${p.id}')">상세</button> <button class="btn btn-edit btn-sm" onclick="editProduction('${p.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteProduction('${p.id}')">삭제</button></td></tr>`;
+    html += `<tr><td>${p.date}</td><td><b>${productName(p.productId)}</b></td><td>${p.lotNo||'-'}</td><td class="text-right"><b>${fmt(p.productQty)}</b></td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td>${escapeHtml(p.notes||'-')}</td><td class="no-print"><button class="btn btn-secondary btn-sm" onclick="showProductionDetail('${p.id}')">상세</button> <button class="btn btn-secondary btn-sm" onclick="duplicateProduction('${p.id}')" title="이 생산을 복사해서 새로 입력">📋 복사</button> <button class="btn btn-edit btn-sm" onclick="editProduction('${p.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteProduction('${p.id}')">삭제</button></td></tr>`;
   }
   el.innerHTML = html + '</tbody></table>';
 }
