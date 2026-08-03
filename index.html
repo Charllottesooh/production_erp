@@ -1,32 +1,25 @@
-
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>제품생산 ERP 시스템 (클라우드)</title>
+<title>생산관리 ERP (반제품·완제품 2단계)</title>
 
-<!-- PWA: 앱으로 설치 -->
 <meta name="theme-color" content="#0a0d12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="제품생산">
-<meta name="application-name" content="제품생산">
+<meta name="apple-mobile-web-app-title" content="생산관리">
+<meta name="application-name" content="생산관리">
 <meta name="format-detection" content="telephone=no">
 
-<!-- 아이콘: 퍼플 그라데이션 (공장 굴뚝 모티프) -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='50%25' stop-color='%23c026d3'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='%230a0d12'/%3E%3Crect x='40' y='80' width='32' height='60' rx='3' fill='url(%23g)' opacity='0.6'/%3E%3Crect x='40' y='65' width='32' height='20' rx='2' fill='url(%23g)' opacity='0.9'/%3E%3Crect x='78' y='55' width='32' height='85' rx='3' fill='url(%23g)' opacity='0.8'/%3E%3Crect x='78' y='40' width='32' height='20' rx='2' fill='url(%23g)'/%3E%3Crect x='116' y='95' width='28' height='45' rx='3' fill='url(%23g)' opacity='0.65'/%3E%3Ccircle cx='86' cy='32' r='4' fill='rgba(255,255,255,0.4)'/%3E%3Ccircle cx='92' cy='28' r='3' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='50%25' stop-color='%23c026d3'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='%230a0d12'/%3E%3Crect x='40' y='80' width='32' height='60' rx='3' fill='url(%23g)' opacity='0.6'/%3E%3Crect x='40' y='65' width='32' height='20' rx='2' fill='url(%23g)' opacity='0.9'/%3E%3Crect x='78' y='55' width='32' height='85' rx='3' fill='url(%23g)' opacity='0.8'/%3E%3Crect x='78' y='40' width='32' height='20' rx='2' fill='url(%23g)'/%3E%3Crect x='116' y='95' width='28' height='45' rx='3' fill='url(%23g)' opacity='0.65'/%3E%3Ccircle cx='86' cy='32' r='4' fill='rgba(255,255,255,0.4)'/%3E%3Ccircle cx='92' cy='28' r='3' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='50%25' stop-color='%23c026d3'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='%230a0d12'/%3E%3Crect x='40' y='80' width='32' height='60' rx='3' fill='url(%23g)' opacity='0.6'/%3E%3Crect x='40' y='65' width='32' height='20' rx='2' fill='url(%23g)' opacity='0.9'/%3E%3Crect x='78' y='55' width='32' height='85' rx='3' fill='url(%23g)' opacity='0.8'/%3E%3Crect x='78' y='40' width='32' height='20' rx='2' fill='url(%23g)'/%3E%3Crect x='116' y='95' width='28' height='45' rx='3' fill='url(%23g)' opacity='0.65'/%3E%3C/svg%3E">
 
-<!-- PWA Manifest -->
-<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%EC%A0%9C%ED%92%88%EC%83%9D%EC%82%B0%20ERP%22%2C%22short_name%22%3A%22%EC%A0%9C%ED%92%88%EC%83%9D%EC%82%B0%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230a0d12%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520180%2520180%2527%253E%253Crect%2520width%253D%2527180%2527%2520height%253D%2527180%2527%2520rx%253D%252740%2527%2520fill%253D%2527%2523c026d3%2527%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22180x180%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <style>
   :root {
     --primary: #2563eb; --primary-hover: #1d4ed8;
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --semi: #8b5cf6; --semi-bg: #f5f3ff;
     --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
     --text: #1e293b; --text-light: #64748b; --hover: #f1f5f9;
   }
@@ -43,14 +36,16 @@
   .cloud-status.syncing .dot { background: #fbbf24; animation: pulse 1s infinite; }
   @keyframes pulse { 50% { opacity: 0.4; } }
   nav { background: white; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; }
-  nav button { background: none; border: none; padding: 14px 18px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-light); border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.15s; }
+  nav button { background: none; border: none; padding: 14px 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-light); border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.15s; }
   nav button:hover { color: var(--primary); background: var(--hover); }
   nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
   main { padding: 24px; max-width: 1400px; margin: 0 auto; }
   .tab { display: none; } .tab.active { display: block; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-  .card h2 { font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+  .card h2 { font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
   .card h2 .right { display: flex; gap: 6px; align-items: center; }
+  .card.semi { border-top: 3px solid var(--semi); }
+  .card.final { border-top: 3px solid var(--success); }
   .grid { display: grid; gap: 12px; }
   .grid-2 { grid-template-columns: 1fr 1fr; }
   .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -67,11 +62,12 @@
   .btn-secondary { background: var(--hover); color: var(--text); border: 1px solid var(--border); }
   .btn-secondary:hover { background: #e2e8f0; }
   .btn-success { background: var(--success); color: white; }
+  .btn-semi { background: var(--semi); color: white; }
   .btn-sm { padding: 4px 10px; font-size: 12px; }
   .btn-print { background: #475569; color: white; padding: 4px 12px; font-size: 12px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-  th { background: #f8fafc; font-weight: 600; color: var(--text-light); font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+  th { background: #f8fafc; font-weight: 600; color: var(--text-light); font-size: 12px; white-space: nowrap; }
   tr:hover td { background: var(--hover); }
   .text-right { text-align: right; } .text-center { text-align: center; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
@@ -81,7 +77,10 @@
   .badge-expired { background: #fee2e2; color: #991b1b; }
   .badge-warning { background: #fef3c7; color: #92400e; }
   .badge-ok { background: #dcfce7; color: #166534; }
-  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .badge-mat { background: #e0f2fe; color: #075985; }
+  .badge-semi { background: #ede9fe; color: #5b21b6; }
+  .badge-final { background: #dcfce7; color: #166534; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .summary-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
   .summary-card .label { font-size: 12px; color: var(--text-light); margin-bottom: 4px; }
   .summary-card .value { font-size: 22px; font-weight: 700; color: var(--text); }
@@ -96,6 +95,8 @@
   .alert-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .success-banner { background: #dcfce7; border: 1px solid #10b981; color: #166534; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
   .danger-banner { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
+  .info-box { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
+  .warn-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
   .print-header { display: none; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
   .print-header h1 { font-size: 18px; margin: 0; }
   .print-header .meta { font-size: 11px; color: #555; margin-top: 4px; }
@@ -113,11 +114,14 @@
   .modal-box .footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
   .btn-edit { background: #0ea5e9; color: white; padding: 4px 10px; font-size: 12px; margin-right: 2px; }
   .btn-edit:hover { background: #0284c7; }
-  .info-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .seg button { background: white; border: none; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-light); }
+  .seg button.active { background: var(--primary); color: white; }
   @media print {
     @page { size: A4 landscape; margin: 10mm; }
     body { background: white; font-size: 11px; }
-    header, nav, .btn, .no-print, .alert-banner, .success-banner { display: none !important; }
+    header, nav, .btn, .no-print, .alert-banner, .success-banner, #ws-launcher { display: none !important; }
+    body { padding-left: 0 !important; }
     main { padding: 0; max-width: 100%; }
     .tab { display: none !important; } .tab.print-active { display: block !important; }
     .card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; padding: 12px; margin-bottom: 12px; }
@@ -127,7 +131,6 @@
     th, td { padding: 4px 6px; }
     th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .badge { border: 1px solid #999; padding: 1px 4px; }
-    .summary-card { page-break-inside: avoid; }
     .no-print-card { display: none !important; }
   }
 </style>
@@ -137,8 +140,8 @@
 <header class="no-print">
   <div class="header-flex">
     <div>
-      <h1>📦 제품생산 ERP 시스템</h1>
-      <div class="subtitle">FIFO 재고 · 다중 완제품 · 클라우드 영구보존</div>
+      <h1>🏭 생산관리 ERP</h1>
+      <div class="subtitle">원재료 → 반제품 → 완제품 2단계 · 수불부 · FIFO 원가 · 클라우드</div>
     </div>
     <div id="cloudStatus" class="cloud-status disconnected"><span class="dot"></span><span class="text">클라우드 미연결</span></div>
   </div>
@@ -146,94 +149,117 @@
 
 <nav class="no-print">
   <button data-tab="dashboard" class="active">대시보드</button>
-  <button data-tab="materials">원재료 등록</button>
-  <button data-tab="products">완제품 등록</button>
+  <button data-tab="master">마스터/기초재고</button>
   <button data-tab="purchase">원재료 매입</button>
-  <button data-tab="inventory">재고 현황</button>
-  <button data-tab="production">생산 관리</button>
-  <button data-tab="product">완제품 현황</button>
-  <button data-tab="cloud">☁️ 클라우드 연결</button>
-  <button data-tab="settings">설정/백업</button>
+  <button data-tab="prod1">1차생산·반제품</button>
+  <button data-tab="prod2">2차생산·완제품</button>
+  <button data-tab="ledger">수불부</button>
+  <button data-tab="ship">출고/판매</button>
+  <button data-tab="report">리포트</button>
+  <button data-tab="excel">엑셀 업로드</button>
+  <button data-tab="cloud">☁️ 클라우드/설정</button>
 </nav>
 
 <main>
-
   <div id="backupAlert" class="alert-banner no-print" style="display:none;"></div>
   <div id="cloudAlert" class="danger-banner no-print" style="display:none;"></div>
 
   <div class="print-header">
-    <h1 id="printTitle">제품생산 ERP</h1>
+    <h1 id="printTitle">생산관리 ERP</h1>
     <div class="meta" id="printMeta"></div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- ===== DASHBOARD ===== -->
   <section id="dashboard" class="tab active">
+    <div class="card no-print-card">
+      <h2>기간 지정 조회</h2>
+      <div class="row-flex">
+        <div style="flex:1;min-width:140px;"><label>시작일</label><input type="date" id="dashStart" onchange="renderDashboard()" /></div>
+        <div style="flex:1;min-width:140px;"><label>종료일</label><input type="date" id="dashEnd" onchange="renderDashboard()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('month')">이번달</button>
+        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('year')">올해</button>
+        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('all')">전체</button>
+      </div>
+    </div>
     <div class="summary-grid" id="dashboardSummary"></div>
     <div class="card">
-      <h2>완제품별 재고 요약 <button class="btn btn-print no-print" onclick="printTab('dashboard','대시보드')">🖨️ 인쇄</button></h2>
-      <div id="productStockSummary"></div>
+      <h2>재고 요약 (원재료·반제품·완제품) <button class="btn btn-print no-print" onclick="printTab('dashboard','대시보드')">🖨️ 인쇄</button></h2>
+      <div id="stockSummary"></div>
     </div>
     <div class="card">
-      <h2>유통기한 임박/경과</h2>
+      <h2>유통기한 임박/경과 (원재료)</h2>
       <div id="expirationAlerts"></div>
     </div>
-    <div class="card">
-      <h2>최근 매입</h2>
-      <div id="recentPurchases"></div>
-    </div>
-    <div class="card">
-      <h2>최근 생산</h2>
-      <div id="recentProductions"></div>
+    <div class="grid grid-2">
+      <div class="card"><h2>최근 매입</h2><div id="recentPurchases"></div></div>
+      <div class="card"><h2>최근 생산</h2><div id="recentProductions"></div></div>
     </div>
   </section>
 
-  <!-- 원재료 등록 -->
-  <section id="materials" class="tab">
+  <!-- ===== MASTER ===== -->
+  <section id="master" class="tab">
+    <div class="info-box no-print">품목을 등록하고, 필요하면 <b>기초재고(시작 수량·단가)</b>를 넣으세요. 3년치 과거 이력 대신 시작 시점 재고만 세팅하면 됩니다.</div>
+
     <div class="card no-print-card">
-      <h2>원재료 품목 등록</h2>
+      <h2>원재료 등록</h2>
       <div class="row-flex">
-        <div style="flex:1;min-width:200px;"><label>품목명</label><input type="text" id="materialName" placeholder="예: 밀가루" /></div>
-        <div style="flex:1;min-width:200px;"><label>품목코드 (선택)</label><input type="text" id="materialCode" placeholder="예: RM-001" /></div>
+        <div style="flex:2;min-width:160px;"><label>원재료명 *</label><input type="text" id="matName" placeholder="예: 생닭" /></div>
+        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="matCode" placeholder="RM-001" /></div>
+        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="matUnit" placeholder="Kg" value="Kg" /></div>
         <button class="btn btn-primary" onclick="addMaterial()">+ 추가</button>
       </div>
     </div>
     <div class="card">
-      <h2>등록된 원재료 <button class="btn btn-print no-print" onclick="printTab('materials','원재료 목록')">🖨️ 인쇄</button></h2>
+      <h2>원재료 목록 <button class="btn btn-print no-print" onclick="printTab('master','마스터')">🖨️ 인쇄</button></h2>
       <div id="materialsList"></div>
     </div>
-  </section>
 
-  <!-- 완제품 등록 -->
-  <section id="products" class="tab">
-    <div class="card no-print-card">
-      <h2>완제품 등록</h2>
+    <div class="card no-print-card semi">
+      <h2>반제품 등록</h2>
       <div class="row-flex">
-        <div style="flex:2;min-width:200px;"><label>완제품명</label><input type="text" id="productName" placeholder="예: 제품A" /></div>
-        <div style="flex:1;min-width:120px;"><label>제품코드 (선택)</label><input type="text" id="productCode" placeholder="예: FG-001" /></div>
-        <button class="btn btn-primary" onclick="addProduct()">+ 추가</button>
+        <div style="flex:2;min-width:160px;"><label>반제품명 *</label><input type="text" id="semiName" placeholder="예: 염지닭(반제품)" /></div>
+        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="semiCode" placeholder="SP-001" /></div>
+        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="semiUnit" placeholder="Kg" value="Kg" /></div>
+        <button class="btn btn-semi" onclick="addSemi()">+ 추가</button>
       </div>
     </div>
-    <div class="card">
-      <h2>등록된 완제품 <button class="btn btn-print no-print" onclick="printTab('products','완제품 목록')">🖨️ 인쇄</button></h2>
+    <div class="card semi">
+      <h2>반제품 목록</h2>
+      <div id="semisList"></div>
+    </div>
+
+    <div class="card no-print-card final">
+      <h2>완제품 등록</h2>
+      <div class="row-flex">
+        <div style="flex:2;min-width:160px;"><label>완제품명 *</label><input type="text" id="prodName" placeholder="예: 후라이드치킨" /></div>
+        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="prodCode" placeholder="FG-001" /></div>
+        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="prodUnit" placeholder="Kg" value="Kg" /></div>
+        <button class="btn btn-success" onclick="addProduct()">+ 추가</button>
+      </div>
+    </div>
+    <div class="card final">
+      <h2>완제품 목록</h2>
       <div id="productsList"></div>
     </div>
   </section>
 
-  <!-- 원재료 매입 -->
+  <!-- ===== PURCHASE ===== -->
   <section id="purchase" class="tab">
     <div class="card no-print-card">
-      <h2>원재료 매입 입고 등록</h2>
-      <div class="grid grid-3">
+      <h2>원재료 매입 입고</h2>
+      <div class="grid grid-4">
         <div><label>입고일 *</label><input type="date" id="pDate" /></div>
-        <div><label>품목명 *</label><select id="pMaterial"></select></div>
-        <div><label>수량 (Kg) *</label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" /></div>
+        <div><label>원재료 *</label><select id="pMaterial"></select></div>
+        <div><label>수량 *</label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" /></div>
+        <div><label>LOT번호</label><input type="text" id="pLot" placeholder="입고 로트" /></div>
       </div>
-      <div class="grid grid-3" style="margin-top:12px;">
-        <div><label>금액 (원) *</label><input type="number" id="pAmount" step="1" min="0" placeholder="0" /></div>
-        <div><label>세금 구분 *</label><select id="pTaxType"><option value="exempt">면세</option><option value="excluded" selected>부가세 별도</option><option value="included">부가세 포함</option></select></div>
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>금액(원) *</label><input type="number" id="pAmount" step="1" min="0" placeholder="0" /></div>
+        <div><label>세금구분 *</label><select id="pTaxType"><option value="exempt">면세</option><option value="excluded" selected>부가세 별도</option><option value="included">부가세 포함</option></select></div>
         <div><label>유통기한</label><input type="date" id="pExpiration" /></div>
+        <div><label>공급처</label><input type="text" id="pSupplier" placeholder="거래처명" /></div>
       </div>
-      <div style="margin-top:12px;"><label>비고</label><textarea id="pNotes" placeholder="공급처, 로트번호, 메모"></textarea></div>
+      <div style="margin-top:12px;"><label>비고</label><textarea id="pNotes" placeholder="메모"></textarea></div>
       <div id="pPreview" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:6px;font-size:13px;"></div>
       <div style="margin-top:12px;text-align:right;">
         <button class="btn btn-secondary" onclick="resetPurchaseForm()">초기화</button>
@@ -243,187 +269,240 @@
     <div class="card">
       <h2>매입 이력 <button class="btn btn-print no-print" onclick="printTab('purchase','매입 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
-        <div style="flex:1;"><label>필터: 품목</label><select id="filterPurchaseMaterial" onchange="renderPurchases()"><option value="">전체</option></select></div>
-        <div style="flex:1;"><label>기간 시작</label><input type="date" id="filterPurchaseStart" onchange="renderPurchases()" /></div>
-        <div style="flex:1;"><label>기간 종료</label><input type="date" id="filterPurchaseEnd" onchange="renderPurchases()" /></div>
+        <div style="flex:1;"><label>원재료</label><select id="fPurMat" onchange="renderPurchases()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>시작</label><input type="date" id="fPurStart" onchange="renderPurchases()" /></div>
+        <div style="flex:1;"><label>종료</label><input type="date" id="fPurEnd" onchange="renderPurchases()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportFiltered('purchases')">📥 조회분 엑셀</button>
       </div>
       <div id="purchasesList"></div>
     </div>
   </section>
 
-  <!-- 재고 현황 -->
-  <section id="inventory" class="tab">
-    <div class="card">
-      <h2>원재료 재고 요약 <button class="btn btn-print no-print" onclick="printTab('inventory','재고 현황')">🖨️ 인쇄</button></h2>
-      <div id="inventorySummary"></div>
-    </div>
-    <div class="card">
-      <h2>FIFO 로트별 상세 재고</h2>
-      <div id="inventoryLots"></div>
-    </div>
-  </section>
-
-  <!-- 생산 관리 -->
-  <section id="production" class="tab">
-    <div class="card no-print-card">
-      <h2>완제품 생산 등록</h2>
+  <!-- ===== PROD1 반제품 ===== -->
+  <section id="prod1" class="tab">
+    <div class="card no-print-card semi">
+      <h2>1차 생산 — 원재료 → 반제품</h2>
       <div class="grid grid-4">
-        <div><label>생산일 *</label><input type="date" id="prodDate" /></div>
-        <div><label>완제품 *</label><select id="prodProduct"></select></div>
-        <div><label>생산수량 (Kg) *</label><input type="number" id="prodQuantity" step="0.001" min="0" /></div>
-        <div><label>로트번호 (선택)</label><input type="text" id="prodLot" /></div>
+        <div><label>생산일 *</label><input type="date" id="p1Date" /></div>
+        <div><label>반제품 *</label><select id="p1Semi"></select></div>
+        <div><label>반제품 산출량 *</label><input type="number" id="p1Output" step="0.001" min="0" oninput="updateP1Preview()" /></div>
+        <div><label>LOT번호</label><input type="text" id="p1Lot" /></div>
       </div>
-      <div style="margin-top:16px;"><label>투입 원재료 (BOM)</label><div id="bomList"></div>
-        <button class="btn btn-secondary btn-sm" onclick="addBomRow()">+ 원재료 추가</button>
+      <div style="margin-top:16px;"><label>투입 원재료 (FIFO 자동차감)</label><div id="p1BomList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addP1BomRow()">+ 원재료 추가</button>
       </div>
-      <div style="margin-top:12px;"><label>비고</label><textarea id="prodNotes"></textarea></div>
-      <div id="prodPreview" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:6px;font-size:13px;"></div>
+      <div class="grid grid-2" style="margin-top:12px;">
+        <div><label>파기량 (직접입력, 선택)</label><input type="number" id="p1Scrap" step="0.001" min="0" placeholder="0" oninput="updateP1Preview()" /></div>
+        <div><label>파기 사유</label><input type="text" id="p1ScrapReason" placeholder="예: 품질불량" /></div>
+      </div>
+      <div style="margin-top:12px;"><label>비고</label><textarea id="p1Notes"></textarea></div>
+      <div id="p1Preview" style="margin-top:12px;padding:12px;background:var(--semi-bg);border-radius:6px;font-size:13px;"></div>
       <div style="margin-top:12px;text-align:right;">
-        <button class="btn btn-secondary" onclick="resetProductionForm()">초기화</button>
-        <button class="btn btn-success" onclick="checkProduction()">투입가능 확인</button>
-        <button class="btn btn-primary" onclick="saveProduction()">생산 저장</button>
+        <button class="btn btn-secondary" onclick="resetP1Form()">초기화</button>
+        <button class="btn btn-semi" onclick="saveP1()">반제품 생산 저장</button>
       </div>
     </div>
-    <div class="card">
-      <h2>생산 이력 <button class="btn btn-print no-print" onclick="printTab('production','생산 이력')">🖨️ 인쇄</button></h2>
+    <div class="card semi">
+      <h2>1차 생산 이력 <button class="btn btn-print no-print" onclick="printTab('prod1','1차 생산 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
-        <div style="flex:1;"><label>필터: 완제품</label><select id="filterProdProduct" onchange="renderProductions()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>반제품</label><select id="fP1Semi" onchange="renderP1()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>시작</label><input type="date" id="fP1Start" onchange="renderP1()" /></div>
+        <div style="flex:1;"><label>종료</label><input type="date" id="fP1End" onchange="renderP1()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportFiltered('prod1')">📥 조회분 엑셀</button>
       </div>
-      <div id="productionsList"></div>
+      <div id="p1List"></div>
     </div>
   </section>
 
-  <!-- 완제품 현황 -->
-  <section id="product" class="tab">
-    <div class="card no-print-card">
-      <h2>완제품 출고/판매 등록</h2>
+  <!-- ===== PROD2 완제품 ===== -->
+  <section id="prod2" class="tab">
+    <div class="card no-print-card final">
+      <h2>2차 생산 — 반제품 + 원재료 → 완제품</h2>
       <div class="grid grid-4">
-        <div><label>출고일</label><input type="date" id="shipDate" /></div>
-        <div><label>완제품</label><select id="shipProduct"></select></div>
-        <div><label>출고수량 (Kg)</label><input type="number" id="shipQty" step="0.001" min="0" /></div>
-        <div><label>비고</label><input type="text" id="shipNotes" placeholder="거래처, 사유" /></div>
+        <div><label>생산일 *</label><input type="date" id="p2Date" /></div>
+        <div><label>완제품 *</label><select id="p2Product"></select></div>
+        <div><label>완제품 산출량 *</label><input type="number" id="p2Output" step="0.001" min="0" oninput="updateP2Preview()" /></div>
+        <div><label>LOT번호</label><input type="text" id="p2Lot" /></div>
       </div>
-      <div style="margin-top:12px;text-align:right;"><button class="btn btn-primary" onclick="saveShipment()">출고 저장</button></div>
+      <div style="margin-top:16px;"><label>투입 반제품 (재고에서 차감)</label><div id="p2SemiList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addP2SemiRow()">+ 반제품 추가</button>
+      </div>
+      <div style="margin-top:12px;"><label>추가 투입 원재료 (FIFO 자동차감)</label><div id="p2BomList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addP2BomRow()">+ 원재료 추가</button>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px;">
+        <div><label>파기량 (직접입력, 선택)</label><input type="number" id="p2Scrap" step="0.001" min="0" placeholder="0" oninput="updateP2Preview()" /></div>
+        <div><label>파기 사유</label><input type="text" id="p2ScrapReason" placeholder="예: 포장불량" /></div>
+      </div>
+      <div style="margin-top:12px;"><label>비고</label><textarea id="p2Notes"></textarea></div>
+      <div id="p2Preview" style="margin-top:12px;padding:12px;background:#f0fdf4;border-radius:6px;font-size:13px;"></div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="btn btn-secondary" onclick="resetP2Form()">초기화</button>
+        <button class="btn btn-success" onclick="saveP2()">완제품 생산 저장</button>
+      </div>
     </div>
-    <div class="card">
-      <h2>완제품별 현황 <button class="btn btn-print no-print" onclick="printTab('product','완제품 현황')">🖨️ 인쇄</button></h2>
-      <div id="productSummary"></div>
-    </div>
-    <div class="card">
-      <h2>생산/출고 이력</h2>
+    <div class="card final">
+      <h2>2차 생산 이력 <button class="btn btn-print no-print" onclick="printTab('prod2','2차 생산 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
-        <div style="flex:1;"><label>필터: 완제품</label><select id="filterLedgerProduct" onchange="renderProductLedger()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>완제품</label><select id="fP2Product" onchange="renderP2()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>시작</label><input type="date" id="fP2Start" onchange="renderP2()" /></div>
+        <div style="flex:1;"><label>종료</label><input type="date" id="fP2End" onchange="renderP2()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportFiltered('prod2')">📥 조회분 엑셀</button>
       </div>
-      <div id="productLedger"></div>
+      <div id="p2List"></div>
     </div>
   </section>
 
-  <!-- ☁️ 클라우드 연결 -->
+  <!-- ===== LEDGER 수불부 ===== -->
+  <section id="ledger" class="tab">
+    <div class="card no-print-card">
+      <h2>수불부 조회</h2>
+      <div class="row-flex">
+        <div><label>품목종류</label>
+          <select id="ledKind" onchange="onLedgerKindChange()">
+            <option value="material">원재료</option>
+            <option value="semi">반제품</option>
+            <option value="product">완제품</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:160px;"><label>품목 선택</label><select id="ledItem" onchange="renderLedger()"><option value="">전체</option></select></div>
+        <div style="flex:1;min-width:130px;"><label>시작일</label><input type="date" id="ledStart" onchange="renderLedger()" /></div>
+        <div style="flex:1;min-width:130px;"><label>종료일</label><input type="date" id="ledEnd" onchange="renderLedger()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="ledSetRange('month')">이번달</button>
+        <button class="btn btn-secondary btn-sm" onclick="ledSetRange('all')">전체</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportLedger()">📥 엑셀</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>수불 내역 <button class="btn btn-print no-print" onclick="printTab('ledger','수불부')">🖨️ 인쇄</button></h2>
+      <div id="ledgerBody"></div>
+    </div>
+  </section>
+
+  <!-- ===== SHIP ===== -->
+  <section id="ship" class="tab">
+    <div class="card no-print-card">
+      <h2>완제품 출고/판매</h2>
+      <div class="grid grid-4">
+        <div><label>출고일 *</label><input type="date" id="sDate" /></div>
+        <div><label>완제품 *</label><select id="sProduct"></select></div>
+        <div><label>출고수량 *</label><input type="number" id="sQty" step="0.001" min="0" /></div>
+        <div><label>판매금액(원)</label><input type="number" id="sAmount" step="1" min="0" placeholder="0" /></div>
+      </div>
+      <div style="margin-top:12px;"><label>비고(거래처/사유)</label><input type="text" id="sNotes" placeholder="거래처, 사유" /></div>
+      <div style="margin-top:12px;text-align:right;"><button class="btn btn-primary" onclick="saveShip()">출고 저장</button></div>
+    </div>
+    <div class="card">
+      <h2>출고 이력 <button class="btn btn-print no-print" onclick="printTab('ship','출고 이력')">🖨️ 인쇄</button></h2>
+      <div class="row-flex no-print" style="margin-bottom:12px;">
+        <div style="flex:1;"><label>완제품</label><select id="fShipProduct" onchange="renderShips()"><option value="">전체</option></select></div>
+        <div style="flex:1;"><label>시작</label><input type="date" id="fShipStart" onchange="renderShips()" /></div>
+        <div style="flex:1;"><label>종료</label><input type="date" id="fShipEnd" onchange="renderShips()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportFiltered('ships')">📥 조회분 엑셀</button>
+      </div>
+      <div id="shipsList"></div>
+    </div>
+  </section>
+
+  <!-- ===== REPORT ===== -->
+  <section id="report" class="tab">
+    <div class="card no-print-card">
+      <h2>리포트 기간</h2>
+      <div class="row-flex">
+        <div style="flex:1;min-width:140px;"><label>시작일</label><input type="date" id="repStart" onchange="renderReport()" /></div>
+        <div style="flex:1;min-width:140px;"><label>종료일</label><input type="date" id="repEnd" onchange="renderReport()" /></div>
+        <button class="btn btn-secondary btn-sm" onclick="repSetRange('year')">올해</button>
+        <button class="btn btn-secondary btn-sm" onclick="repSetRange('all')">전체</button>
+      </div>
+    </div>
+    <div class="summary-grid" id="reportSummary"></div>
+    <div class="card"><h2>월별 생산·손익 <button class="btn btn-print no-print" onclick="printTab('report','리포트')">🖨️ 인쇄</button></h2><div id="reportMonthly"></div></div>
+    <div class="card semi"><h2>반제품 원가/수율</h2><div id="reportSemi"></div></div>
+    <div class="card final"><h2>완제품 원가/수율</h2><div id="reportProduct"></div></div>
+  </section>
+
+  <!-- ===== EXCEL ===== -->
+  <section id="excel" class="tab">
+    <div class="warn-box no-print">엑셀 업로드는 <b>기존 양식을 받은 뒤 열 매핑을 맞춥니다.</b> 우선 아래 표준 양식으로 동작하며, 실제 양식을 주시면 파서를 조정합니다.</div>
+    <div class="card">
+      <h2>엑셀 대량 업로드</h2>
+      <div class="grid grid-2">
+        <div>
+          <label>업로드 종류</label>
+          <select id="excelKind">
+            <option value="purchases">원재료 매입</option>
+            <option value="prod1">1차생산(반제품)</option>
+            <option value="prod2">2차생산(완제품)</option>
+            <option value="ships">출고</option>
+          </select>
+        </div>
+        <div>
+          <label>파일 선택 (.xlsx/.csv)</label>
+          <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="downloadTemplate()">📄 표준 양식 다운로드</button>
+        <button class="btn btn-primary" onclick="parseExcelPreview()">미리보기</button>
+        <button class="btn btn-success" onclick="commitExcelImport()" id="excelCommitBtn" style="display:none;">가져오기 확정</button>
+      </div>
+      <div id="excelPreview" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- ===== CLOUD / SETTINGS ===== -->
   <section id="cloud" class="tab">
     <div class="card">
-      <h2>☁️ 클라우드 DB 영구 보존 설정</h2>
-      <p style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
-        Supabase(무료 클라우드 PostgreSQL)에 연결하면 모든 데이터가 클라우드에 자동 저장됩니다.
-        브라우저/PC를 잃어도 URL과 키만 있으면 어디서나 같은 데이터로 복구됩니다.
-      </p>
-
+      <h2>☁️ Firebase 클라우드 연결</h2>
+      <p style="font-size:13px;color:var(--text-light);margin-bottom:12px;">Firebase에 연결하면 모든 데이터가 클라우드에 자동 저장됩니다. 다른 기기에서도 같은 데이터로 복구됩니다. (localStorage + Firebase 이중 보존)</p>
       <div class="cloud-form">
-        <div class="grid grid-2">
-          <div><label>Supabase Project URL</label><input type="text" id="cloudUrl" placeholder="https://xxxxxxxx.supabase.co" /></div>
-          <div><label>Anon (Public) Key</label><input type="password" id="cloudKey" placeholder="eyJhbGciOi..." /></div>
-        </div>
-        <div class="grid grid-2" style="margin-top:12px;">
-          <div><label>워크스페이스 이름 (회사/사업장 구분용)</label><input type="text" id="cloudWorkspace" placeholder="my-factory" value="default" /></div>
-          <div><label>자동 동기화</label>
-            <select id="cloudAutoSync"><option value="true">켜기 (저장 즉시 클라우드 반영)</option><option value="false">끄기 (수동만)</option></select>
-          </div>
-        </div>
+        <div><label>Firebase 설정 JSON (firebaseConfig)</label><textarea id="fbConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}' style="min-height:110px;font-family:monospace;font-size:12px;"></textarea></div>
         <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-success" onclick="cloudTestAndConnect()">🔌 연결 테스트 & 저장</button>
-          <button class="btn btn-primary" onclick="cloudPush(true)">⬆️ 지금 업로드 (덮어쓰기)</button>
-          <button class="btn btn-primary" onclick="cloudPull(true)">⬇️ 지금 다운로드 (덮어쓰기)</button>
-          <button class="btn btn-danger" onclick="cloudDisconnect()">연결 해제</button>
+          <button class="btn btn-success" onclick="fbConnect()">🔌 연결 & 저장</button>
+          <button class="btn btn-primary" onclick="fbPush(true)">⬆️ 업로드</button>
+          <button class="btn btn-primary" onclick="fbPull(true)">⬇️ 다운로드</button>
+          <button class="btn btn-danger" onclick="fbDisconnect()">연결 해제</button>
         </div>
-        <div id="cloudInfo" style="margin-top:12px;font-size:13px;"></div>
+        <div id="fbInfo" style="margin-top:12px;font-size:13px;"></div>
       </div>
     </div>
-
     <div class="card">
-      <h2>📘 Supabase 5분 설정 가이드</h2>
+      <h2>📘 Firebase 설정 가이드</h2>
       <ol class="step-list">
-        <li>
-          <b><a href="https://supabase.com" target="_blank" style="color:var(--primary);">supabase.com</a> 접속 → "Start your project" → GitHub/Google로 무료 가입</b><br>
-          <span style="font-size:12px;color:var(--text-light);">신용카드 불필요. 무료 플랜은 500MB 저장 / 무제한 사용기간.</span>
-        </li>
-        <li>
-          <b>"New Project" 클릭</b> → 이름(예: my-erp), 비밀번호(아무거나, 메모만), 지역(Northeast Asia/Seoul 권장) → 2분 대기
-        </li>
-        <li>
-          <b>좌측 메뉴 "SQL Editor"</b> 열기 → "New query" → 아래 SQL을 그대로 붙여넣고 "Run":
-          <pre class="code">create table if not exists erp_data (
-  workspace text primary key,
-  data jsonb not null,
-  updated_at timestamptz default now()
-);
-alter table erp_data enable row level security;
-create policy "allow all" on erp_data for all using (true) with check (true);</pre>
-          <button class="btn btn-secondary btn-sm" onclick="copySql()">📋 SQL 복사</button>
-        </li>
-        <li>
-          <b>좌측 메뉴 "Project Settings" → "API"</b> 열기<br>
-          - <b>Project URL</b> 복사 → 위쪽 입력란에 붙여넣기<br>
-          - <b>Project API keys → anon public</b> 키 복사 → 위쪽 입력란에 붙여넣기
-        </li>
-        <li>
-          위 <b>"🔌 연결 테스트 & 저장"</b> 버튼 클릭 → 성공 메시지 확인 → 끝!
-        </li>
-        <li>
-          <b>다른 PC/스마트폰에서 같은 데이터 사용하기</b><br>
-          - HTML 파일을 어느 기기든 열기 → 클라우드 탭에서 같은 URL/Key/워크스페이스 입력 → "⬇️ 지금 다운로드" → 동일 데이터 표시
+        <li><b><a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary);">Firebase Console</a> → 프로젝트 추가</b> (이름 예: production-erp)</li>
+        <li><b>빌드 → Firestore Database → 데이터베이스 만들기</b> → 위치 asia-northeast3(서울) → 테스트 모드로 시작</li>
+        <li><b>프로젝트 설정(⚙️) → 내 앱 → 웹 앱(&lt;/&gt;) 추가</b> → firebaseConfig 객체 복사</li>
+        <li>복사한 <b>firebaseConfig</b>를 위 입력란에 붙여넣고 <b>연결 &amp; 저장</b></li>
+        <li><b>Authentication → 로그인 방법 → 익명</b> 사용 설정 (보안규칙 대응)</li>
+        <li><b>Firestore 규칙</b>을 아래로 설정:
+          <pre class="code">rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /{doc=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
         </li>
       </ol>
     </div>
-
     <div class="card">
-      <h2>🛡️ 3중 안전 보존 구조</h2>
-      <ul style="margin-left:20px;font-size:13px;line-height:1.9;">
-        <li><b>1차: 브라우저 localStorage</b> — 모든 입력은 즉시 로컬에 저장 (오프라인에서도 작동)</li>
-        <li><b>2차: 클라우드 DB(Supabase)</b> — 저장 직후 자동으로 클라우드에 동기화. 브라우저/PC가 망가져도 안전</li>
-        <li><b>3차: JSON 백업 파일</b> — 설정 탭에서 주기적으로 다운로드 → 구글드라이브/원드라이브에 보관 (Supabase가 점검/장애일 때 대비)</li>
-      </ul>
-      <p style="margin-top:8px;font-size:12px;color:var(--text-light);">
-        이 3가지 중 하나만 살아 있어도 데이터를 100% 복구할 수 있습니다.
-      </p>
-    </div>
-  </section>
-
-  <!-- 설정 -->
-  <section id="settings" class="tab">
-    <div class="card">
-      <h2>자동 백업 알림 설정</h2>
-      <div class="row-flex">
-        <div style="flex:1;min-width:200px;"><label>알림 주기 (일)</label><input type="number" id="backupDays" min="1" max="365" /></div>
-        <div style="flex:2;min-width:200px;"><label>마지막 백업일</label><input type="text" id="lastBackupDate" readonly /></div>
-        <button class="btn btn-primary" onclick="saveBackupSettings()">저장</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>데이터 백업/복원 (로컬 파일)</h2>
+      <h2>백업/복원 (로컬 파일)</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-primary" onclick="exportData()">📥 전체 JSON 백업</button>
         <label class="btn btn-secondary" style="cursor:pointer;">📤 JSON 복원<input type="file" accept=".json" style="display:none" onchange="importData(event)" /></label>
-        <button class="btn btn-secondary" onclick="exportCSV('purchases')">매입 CSV</button>
-        <button class="btn btn-secondary" onclick="exportCSV('productions')">생산 CSV</button>
-        <button class="btn btn-secondary" onclick="exportCSV('shipments')">출고 CSV</button>
-        <button class="btn btn-secondary" onclick="exportCSV('inventory')">재고 CSV</button>
         <button class="btn btn-danger" onclick="clearAllData()">⚠ 전체 초기화</button>
+      </div>
+      <div class="row-flex" style="margin-top:16px;">
+        <div style="flex:1;min-width:160px;"><label>백업 알림주기(일)</label><input type="number" id="backupDays" min="1" max="365" /></div>
+        <div style="flex:2;min-width:200px;"><label>마지막 백업</label><input type="text" id="lastBackupDate" readonly /></div>
+        <button class="btn btn-primary" onclick="saveBackupSettings()">저장</button>
       </div>
     </div>
   </section>
 
 </main>
 
-<!-- 수정 모달 -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-box">
     <h3 id="editModalTitle">수정 <button class="close" onclick="closeEditModal()">×</button></h3>
@@ -436,1134 +515,1013 @@ create policy "allow all" on erp_data for all using (true) with check (true);</p
 </div>
 
 <div class="toast" id="toast"></div>
+<!-- SheetJS for Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
 // ========== STATE ==========
-const STORAGE_KEY = 'production_erp_v3';
-const OLD_KEYS = ['production_erp_v2','production_erp_v1'];
+const STORAGE_KEY = 'prod_erp_v2';
 let state = {
-  materials: [], products: [], purchases: [], productions: [], shipments: [],
+  materials: [], semis: [], products: [],
+  purchases: [],        // 원재료 매입 (FIFO 로트)
+  prod1: [],            // 1차생산: 원재료→반제품
+  prod2: [],            // 2차생산: 반제품+원재료→완제품
+  ships: [],            // 출고
+  semiLots: [],         // 반제품 FIFO 로트 (prod1 산출로 생성, prod2/기초에서 차감)
+  opening: { materials:{}, semis:{}, products:{} }, // 기초재고 메타
   settings: { backupDays: 7, lastBackupAt: null },
-  cloud: { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null }
+  cloud: { config:null, workspace:'production', connected:false, lastSyncAt:null }
 };
-let cloudSyncTimer = null;
+let fbApp=null, fbDb=null, fbAuth=null, cloudSyncTimer=null, fbReady=false;
 
 function loadState() {
   try {
-    let raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) for (const k of OLD_KEYS) { const r = localStorage.getItem(k); if (r) { raw=r; break; } }
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw);
-      state = { ...state, ...data };
+      const d = JSON.parse(raw);
+      state = { ...state, ...d };
       state.settings = { backupDays:7, lastBackupAt:null, ...(state.settings||{}) };
-      state.cloud = { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null, ...(state.cloud||{}) };
-      state.products = state.products || [];
-      state.shipments = state.shipments || [];
+      state.cloud = { config:null, workspace:'production', connected:false, lastSyncAt:null, ...(state.cloud||{}) };
+      ['materials','semis','products','purchases','prod1','prod2','ships','semiLots'].forEach(k=>{ if(!Array.isArray(state[k])) state[k]=[]; });
+      state.opening = { materials:{}, semis:{}, products:{}, ...(state.opening||{}) };
     }
-    migrate();
-  } catch(e) { console.error(e); }
-}
-function migrate() {
-  if (state.products.length === 0 && (state.productions.length > 0 || state.shipments.length > 0 || state.finalProductName)) {
-    const dp = { id: uid(), name: state.finalProductName || '완제품', code: '', createdAt: nowISO() };
-    state.products.push(dp);
-    state.productions.forEach(p => { if (!p.productId) p.productId = dp.id; });
-    state.shipments.forEach(s => { if (!s.productId) s.productId = dp.id; });
-  }
-  delete state.finalProductName;
+  } catch(e){ console.error(e); }
 }
 function saveState(triggerCloud=true) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  if (triggerCloud && state.cloud.connected && state.cloud.autoSync) {
-    scheduleCloudSync();
-  }
+  if (triggerCloud && state.cloud.connected) scheduleCloudSync();
 }
-function scheduleCloudSync() {
-  if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
-  cloudSyncTimer = setTimeout(() => cloudPush(false), 1200);
-}
+function scheduleCloudSync(){ if(cloudSyncTimer) clearTimeout(cloudSyncTimer); cloudSyncTimer=setTimeout(()=>fbPush(false),1500); }
 
 // ========== UTIL ==========
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-function todayISO() { return new Date().toISOString().slice(0,10); }
-function nowISO() { return new Date().toISOString(); }
-function fmt(n,d=3) { if (n==null||isNaN(n)) return '0'; return Number(n).toLocaleString('ko-KR',{minimumFractionDigits:0,maximumFractionDigits:d}); }
-function won(n) { if (isNaN(n)) return '0원'; return Math.round(Number(n)).toLocaleString('ko-KR')+'원'; }
-function toast(msg,type='') { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show '+type; setTimeout(()=>el.className='toast',2800); }
-function daysBetween(d1,d2) { return Math.floor((new Date(d2)-new Date(d1))/86400000); }
-function materialName(id) { const m=state.materials.find(x=>x.id===id); return m?m.name:'(삭제됨)'; }
-function productName(id) { const p=state.products.find(x=>x.id===id); return p?p.name:'(삭제됨)'; }
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function nowISO(){ return new Date().toISOString(); }
+function fmt(n,d=3){ if(n==null||isNaN(n)) return '0'; return Number(n).toLocaleString('ko-KR',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+function won(n){ if(isNaN(n)) return '0원'; return Math.round(Number(n)).toLocaleString('ko-KR')+'원'; }
+function toast(msg,type=''){ const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show '+type; setTimeout(()=>el.className='toast',2800); }
+function daysBetween(d1,d2){ return Math.floor((new Date(d2)-new Date(d1))/86400000); }
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function matName(id){ const m=state.materials.find(x=>x.id===id); return m?m.name:'(삭제됨)'; }
+function semiName(id){ const s=state.semis.find(x=>x.id===id); return s?s.name:'(삭제됨)'; }
+function prodName(id){ const p=state.products.find(x=>x.id===id); return p?p.name:'(삭제됨)'; }
 
 // ========== TAX ==========
-function calcTax(amount,type) {
-  amount = Number(amount)||0; let supply=0,vat=0,total=0;
-  if (type==='exempt') { supply=amount; total=amount; }
-  else if (type==='excluded') { supply=amount; vat=Math.round(amount*0.1); total=supply+vat; }
-  else if (type==='included') { supply=Math.round(amount/1.1); vat=amount-supply; total=amount; }
+function calcTax(amount,type){
+  amount=Number(amount)||0; let supply=0,vat=0,total=0;
+  if(type==='exempt'){ supply=amount; total=amount; }
+  else if(type==='excluded'){ supply=amount; vat=Math.round(amount*0.1); total=supply+vat; }
+  else if(type==='included'){ supply=Math.round(amount/1.1); vat=amount-supply; total=amount; }
   return { supply, vat, total };
 }
-function taxLabel(t) { return {exempt:'면세',excluded:'부가세 별도',included:'부가세 포함'}[t]||t; }
-function taxBadgeClass(t) { return {exempt:'badge-tax-exempt',excluded:'badge-tax-excluded',included:'badge-tax-included'}[t]||''; }
+function taxLabel(t){ return {exempt:'면세',excluded:'부가세 별도',included:'부가세 포함'}[t]||t; }
+function taxBadgeClass(t){ return {exempt:'badge-tax-exempt',excluded:'badge-tax-excluded',included:'badge-tax-included'}[t]||''; }
 
-// ========== CLOUD SYNC (Supabase REST) ==========
-function cloudHeaders() {
-  return {
-    'apikey': state.cloud.key,
-    'Authorization': 'Bearer ' + state.cloud.key,
-    'Content-Type': 'application/json',
-    'Prefer': 'resolution=merge-duplicates,return=representation'
-  };
+// ========== FIFO (원재료) ==========
+function fifoAllocateMat(materialId, qty){
+  const lots = state.purchases.filter(p=>p.materialId===materialId && p.remaining>1e-9)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  let need=qty; const alloc=[];
+  for(const lot of lots){ if(need<=1e-9) break; const use=Math.min(lot.remaining,need); alloc.push({lotId:lot.id,qty:use,unitCost:lot.unitCost,date:lot.date}); need-=use; }
+  if(need<1e-9) need=0;
+  return { alloc, shortage:need };
 }
-function updateCloudStatus() {
-  const el = document.getElementById('cloudStatus');
-  if (!state.cloud.connected) {
-    el.className = 'cloud-status disconnected';
-    el.querySelector('.text').textContent = '클라우드 미연결';
-  } else {
-    el.className = 'cloud-status connected';
-    el.querySelector('.text').textContent = `☁️ ${state.cloud.workspace}` + (state.cloud.lastSyncAt ? ' · 동기화 ' + state.cloud.lastSyncAt.slice(11,19) : '');
-  }
-  // Cloud form values
-  const fields = { cloudUrl:'url', cloudKey:'key', cloudWorkspace:'workspace' };
-  for (const id in fields) { const e = document.getElementById(id); if (e) e.value = state.cloud[fields[id]] || ''; }
-  const as = document.getElementById('cloudAutoSync'); if (as) as.value = String(state.cloud.autoSync);
-  const info = document.getElementById('cloudInfo');
-  if (info) {
-    if (state.cloud.connected) {
-      info.innerHTML = `<div class="success-banner">✅ 연결됨 — 워크스페이스: <b>${escapeHtml(state.cloud.workspace)}</b><br>마지막 동기화: ${state.cloud.lastSyncAt || '없음'}</div>`;
-    } else {
-      info.innerHTML = '<div class="alert-banner">⚠ 아직 연결되지 않았습니다. 위 가이드를 따라 5분이면 끝납니다.</div>';
-    }
-  }
-}
-function cloudSetStatus(syncing) {
-  const el = document.getElementById('cloudStatus');
-  if (syncing) { el.className = 'cloud-status syncing'; el.querySelector('.text').textContent = '동기화 중...'; }
-  else updateCloudStatus();
-}
-async function cloudTestAndConnect() {
-  const url = document.getElementById('cloudUrl').value.trim().replace(/\/$/,'');
-  const key = document.getElementById('cloudKey').value.trim();
-  const ws = document.getElementById('cloudWorkspace').value.trim() || 'default';
-  const auto = document.getElementById('cloudAutoSync').value === 'true';
-  if (!url || !key) return toast('URL과 Key를 입력하세요','error');
-  cloudSetStatus(true);
-  try {
-    // Check if table exists by trying to GET
-    const r = await fetch(`${url}/rest/v1/erp_data?workspace=eq.${encodeURIComponent(ws)}&select=workspace,updated_at`, {
-      headers: { apikey:key, Authorization:'Bearer '+key }
-    });
-    if (!r.ok) {
-      const t = await r.text();
-      throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`);
-    }
-    const rows = await r.json();
-    state.cloud = { url, key, workspace: ws, autoSync: auto, connected: true, lastSyncAt: nowISO() };
+function matStock(materialId){ return state.purchases.filter(p=>p.materialId===materialId).reduce((s,p)=>s+p.remaining,0); }
 
-    if (rows.length === 0) {
-      // No data on server → upload current state
-      await cloudPush(false);
-      toast('연결 성공 — 현재 로컬 데이터를 클라우드에 업로드했습니다','success');
-    } else {
-      // Server has data → ask user
-      const serverTime = rows[0].updated_at;
-      const useServer = confirm(`클라우드에 이미 ${ws} 워크스페이스 데이터가 있습니다 (마지막 수정: ${serverTime}).\n\n[확인] 클라우드 데이터로 로컬을 덮어쓰기\n[취소] 현재 로컬 데이터로 클라우드 덮어쓰기`);
-      if (useServer) await cloudPull(false);
-      else await cloudPush(false);
-      toast('연결 성공 — 동기화 완료','success');
-    }
-    saveState(false);
-    renderAll();
-  } catch(e) {
-    state.cloud.connected = false;
-    saveState(false);
-    cloudSetStatus(false);
-    toast('연결 실패: ' + e.message, 'error');
-  }
+// ========== FIFO (반제품) ==========
+function fifoAllocateSemi(semiId, qty){
+  const lots = state.semiLots.filter(l=>l.semiId===semiId && l.remaining>1e-9)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  let need=qty; const alloc=[];
+  for(const lot of lots){ if(need<=1e-9) break; const use=Math.min(lot.remaining,need); alloc.push({lotId:lot.id,qty:use,unitCost:lot.unitCost,date:lot.date}); need-=use; }
+  if(need<1e-9) need=0;
+  return { alloc, shortage:need };
 }
-async function cloudPush(showToast=true) {
-  if (!state.cloud.url || !state.cloud.key) { if (showToast) toast('클라우드 미설정','error'); return; }
-  cloudSetStatus(true);
-  try {
-    const payload = {
-      workspace: state.cloud.workspace,
-      data: {
-        materials: state.materials, products: state.products,
-        purchases: state.purchases, productions: state.productions,
-        shipments: state.shipments, settings: state.settings
-      },
-      updated_at: nowISO()
-    };
-    const r = await fetch(`${state.cloud.url}/rest/v1/erp_data?on_conflict=workspace`, {
-      method: 'POST',
-      headers: cloudHeaders(),
-      body: JSON.stringify(payload)
-    });
-    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`); }
-    state.cloud.connected = true;
-    state.cloud.lastSyncAt = nowISO();
-    saveState(false);
-    updateCloudStatus();
-    if (showToast) toast('클라우드 업로드 완료','success');
-  } catch(e) {
-    cloudSetStatus(false);
-    showCloudError(e.message);
-    if (showToast) toast('업로드 실패: '+e.message,'error');
-  }
-}
-async function cloudPull(showToast=true) {
-  if (!state.cloud.url || !state.cloud.key) { if (showToast) toast('클라우드 미설정','error'); return; }
-  cloudSetStatus(true);
-  try {
-    const r = await fetch(`${state.cloud.url}/rest/v1/erp_data?workspace=eq.${encodeURIComponent(state.cloud.workspace)}&select=*`, {
-      headers: { apikey: state.cloud.key, Authorization: 'Bearer ' + state.cloud.key }
-    });
-    if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t.slice(0,200)}`); }
-    const rows = await r.json();
-    if (rows.length === 0) { if (showToast) toast('클라우드에 데이터 없음','error'); cloudSetStatus(false); return; }
-    const d = rows[0].data;
-    state.materials = d.materials || [];
-    state.products = d.products || [];
-    state.purchases = d.purchases || [];
-    state.productions = d.productions || [];
-    state.shipments = d.shipments || [];
-    if (d.settings) state.settings = { ...state.settings, ...d.settings };
-    state.cloud.connected = true;
-    state.cloud.lastSyncAt = nowISO();
-    saveState(false);
-    renderAll();
-    if (showToast) toast('클라우드에서 다운로드 완료','success');
-  } catch(e) {
-    cloudSetStatus(false);
-    showCloudError(e.message);
-    if (showToast) toast('다운로드 실패: '+e.message,'error');
-  }
-}
-function cloudDisconnect() {
-  if (!confirm('클라우드 연결을 해제할까요? (로컬 데이터는 유지됩니다)')) return;
-  state.cloud = { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null };
-  saveState(false);
-  updateCloudStatus();
-  toast('연결 해제됨','success');
-}
-function showCloudError(msg) {
-  const el = document.getElementById('cloudAlert');
-  el.innerHTML = `☁️ 클라우드 통신 오류: ${escapeHtml(msg)} <button class="btn btn-sm btn-secondary" onclick="document.getElementById('cloudAlert').style.display='none';" style="margin-left:8px;">닫기</button>`;
-  el.style.display = 'block';
-}
-function copySql() {
-  const sql = `create table if not exists erp_data (
-  workspace text primary key,
-  data jsonb not null,
-  updated_at timestamptz default now()
-);
-alter table erp_data enable row level security;
-create policy "allow all" on erp_data for all using (true) with check (true);`;
-  navigator.clipboard.writeText(sql).then(()=>toast('SQL 복사됨','success'));
+function semiStock(semiId){ return state.semiLots.filter(l=>l.semiId===semiId).reduce((s,l)=>s+l.remaining,0); }
+function productStock(productId){
+  const made = state.prod2.filter(p=>p.productId===productId).reduce((s,p)=>s+p.output,0);
+  const shipped = state.ships.filter(s=>s.productId===productId).reduce((s,x)=>s+x.qty,0);
+  return made - shipped;
 }
 
-// ========== EDIT MODAL ==========
-function openEditModal(title, bodyHtml, onSave) {
-  document.getElementById('editModalTitle').firstChild.textContent = title + ' ';
-  document.getElementById('editModalBody').innerHTML = bodyHtml;
-  document.getElementById('editModal').classList.add('show');
-  document.getElementById('editModalSave').onclick = () => {
-    try { if (onSave() !== false) closeEditModal(); }
-    catch(e) { toast(e.message,'error'); }
-  };
+// ========== MASTER ==========
+function addMaterial(){
+  const name=document.getElementById('matName').value.trim();
+  const code=document.getElementById('matCode').value.trim();
+  const unit=document.getElementById('matUnit').value.trim()||'Kg';
+  if(!name) return toast('원재료명','error');
+  if(state.materials.some(m=>m.name===name)) return toast('중복 원재료명','error');
+  state.materials.push({id:uid(),name,code,unit,createdAt:nowISO()});
+  saveState(); ['matName','matCode'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
 }
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('show');
-  document.getElementById('editModalBody').innerHTML = '';
+function addSemi(){
+  const name=document.getElementById('semiName').value.trim();
+  const code=document.getElementById('semiCode').value.trim();
+  const unit=document.getElementById('semiUnit').value.trim()||'Kg';
+  if(!name) return toast('반제품명','error');
+  if(state.semis.some(s=>s.name===name)) return toast('중복','error');
+  state.semis.push({id:uid(),name,code,unit,createdAt:nowISO()});
+  saveState(); ['semiName','semiCode'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
 }
-
-// ----- 원재료 수정 -----
-function editMaterial(id) {
-  const m = state.materials.find(x => x.id === id); if (!m) return;
-  const body = `
-    <div class="grid grid-2">
-      <div><label>품목명 *</label><input type="text" id="emName" value="${escapeHtml(m.name)}" /></div>
-      <div><label>품목코드</label><input type="text" id="emCode" value="${escapeHtml(m.code||'')}" /></div>
-    </div>`;
-  openEditModal('원재료 수정', body, () => {
-    const name = document.getElementById('emName').value.trim();
-    const code = document.getElementById('emCode').value.trim();
-    if (!name) { toast('품목명 필요','error'); return false; }
-    if (state.materials.some(x => x.id !== id && x.name === name)) { toast('중복 품목명','error'); return false; }
-    m.name = name; m.code = code;
-    saveState(); toast('수정됨','success'); renderAll();
-  });
+function addProduct(){
+  const name=document.getElementById('prodName').value.trim();
+  const code=document.getElementById('prodCode').value.trim();
+  const unit=document.getElementById('prodUnit').value.trim()||'Kg';
+  if(!name) return toast('완제품명','error');
+  if(state.products.some(p=>p.name===name)) return toast('중복','error');
+  state.products.push({id:uid(),name,code,unit,createdAt:nowISO()});
+  saveState(); ['prodName','prodCode'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
 }
-
-// ----- 완제품 수정 -----
-function editProduct(id) {
-  const p = state.products.find(x => x.id === id); if (!p) return;
-  const body = `
-    <div class="grid grid-2">
-      <div><label>완제품명 *</label><input type="text" id="epName" value="${escapeHtml(p.name)}" /></div>
-      <div><label>제품코드</label><input type="text" id="epCode" value="${escapeHtml(p.code||'')}" /></div>
-    </div>`;
-  openEditModal('완제품 수정', body, () => {
-    const name = document.getElementById('epName').value.trim();
-    const code = document.getElementById('epCode').value.trim();
-    if (!name) { toast('완제품명 필요','error'); return false; }
-    if (state.products.some(x => x.id !== id && x.name === name)) { toast('중복','error'); return false; }
-    p.name = name; p.code = code;
-    saveState(); toast('수정됨','success'); renderAll();
-  });
+function deleteMaterial(id){
+  if(state.purchases.some(p=>p.materialId===id)) return toast('매입 이력 존재','error');
+  if(!confirm('삭제?')) return;
+  state.materials=state.materials.filter(m=>m.id!==id); saveState(); renderAll();
+}
+function deleteSemi(id){
+  if(state.semiLots.some(l=>l.semiId===id)||state.prod1.some(p=>p.semiId===id)) return toast('이력 존재','error');
+  if(!confirm('삭제?')) return;
+  state.semis=state.semis.filter(s=>s.id!==id); saveState(); renderAll();
+}
+function deleteProduct(id){
+  if(state.prod2.some(p=>p.productId===id)||state.ships.some(s=>s.productId===id)) return toast('이력 존재','error');
+  if(!confirm('삭제?')) return;
+  state.products=state.products.filter(p=>p.id!==id); saveState(); renderAll();
 }
 
-// ----- 매입 수정 -----
-function editPurchase(id) {
-  const p = state.purchases.find(x => x.id === id); if (!p) return;
-  const used = p.quantity - p.remaining;
-  const matOpts = state.materials.map(m => `<option value="${m.id}" ${m.id===p.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
-  const warn = used > 0 ? `<div class="info-box">⚠ 이 매입은 ${fmt(used)}Kg가 이미 생산에 사용되었습니다. 품목 변경 불가, 수량은 ${fmt(used)}Kg 이상이어야 합니다.</div>` : '';
-  const body = `
-    ${warn}
+// 기초재고 설정 (원재료: 매입로트로 생성 / 반제품: semiLot 생성 / 완제품: prod2 가상행)
+function setOpeningMaterial(id){
+  const m=state.materials.find(x=>x.id===id); if(!m) return;
+  const body=`<div class="info-box">기초재고는 <b>${todayISO()}</b> 이전 날짜의 매입 로트로 생성됩니다.</div>
     <div class="grid grid-3">
-      <div><label>입고일 *</label><input type="date" id="epDate" value="${p.date}" /></div>
-      <div><label>품목 *</label><select id="epMat" ${used>0?'disabled':''}>${matOpts}</select></div>
-      <div><label>수량 (Kg) *</label><input type="number" id="epQty" step="0.001" min="${used}" value="${p.quantity}" /></div>
-    </div>
-    <div class="grid grid-3" style="margin-top:12px;">
-      <div><label>금액 (원) *</label><input type="number" id="epAmt" step="1" value="${p.enteredAmount}" /></div>
-      <div><label>세금 구분</label><select id="epTax">
-        <option value="exempt" ${p.taxType==='exempt'?'selected':''}>면세</option>
-        <option value="excluded" ${p.taxType==='excluded'?'selected':''}>부가세 별도</option>
-        <option value="included" ${p.taxType==='included'?'selected':''}>부가세 포함</option>
-      </select></div>
-      <div><label>유통기한</label><input type="date" id="epExp" value="${p.expiration||''}" /></div>
-    </div>
-    <div style="margin-top:12px;"><label>비고</label><textarea id="epNotes">${escapeHtml(p.notes||'')}</textarea></div>
-    <div id="epPrev" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;font-size:12px;"></div>
-  `;
-  openEditModal('매입 수정', body, () => {
-    const date = document.getElementById('epDate').value;
-    const matId = document.getElementById('epMat').value;
-    const qty = Number(document.getElementById('epQty').value);
-    const amt = Number(document.getElementById('epAmt').value);
-    const tax = document.getElementById('epTax').value;
-    const exp = document.getElementById('epExp').value;
-    const notes = document.getElementById('epNotes').value.trim();
-    if (!date || !matId || !(qty>0) || !(amt>=0)) { toast('필수 입력 확인','error'); return false; }
-    if (qty < used - 1e-9) { toast(`수량은 사용량 ${fmt(used)}Kg 이상`,'error'); return false; }
-    const r = calcTax(amt, tax);
-    p.date = date; p.materialId = matId; p.quantity = qty;
-    p.remaining = qty - used;
-    p.enteredAmount = amt; p.taxType = tax;
-    p.supplyPrice = r.supply; p.vat = r.vat; p.totalAmount = r.total;
-    p.unitCost = qty>0 ? r.supply/qty : 0;
-    p.expiration = exp || null; p.notes = notes;
-    saveState(); toast('수정됨','success'); renderAll();
-  });
-  // Live preview
-  const upd = () => {
-    const amt = Number(document.getElementById('epAmt').value)||0;
-    const tax = document.getElementById('epTax').value;
-    const qty = Number(document.getElementById('epQty').value)||0;
-    const r = calcTax(amt, tax);
-    const u = qty>0 ? r.supply/qty : 0;
-    document.getElementById('epPrev').innerHTML = `공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · Kg당 <b>${won(u)}</b>`;
-  };
-  ['epAmt','epTax','epQty'].forEach(id => document.getElementById(id).addEventListener('input', upd));
-  upd();
-}
-
-// ----- 생산 수정 (메타데이터만; BOM·수량 변경은 삭제 후 재등록) -----
-function editProduction(id) {
-  const p = state.productions.find(x => x.id === id); if (!p) return;
-  const prodOpts = state.products.map(pr => `<option value="${pr.id}" ${pr.id===p.productId?'selected':''}>${escapeHtml(pr.name)}</option>`).join('');
-  const usage = p.usages.map(u => `${materialName(u.materialId)}: ${fmt(u.totalUsed)}Kg`).join(', ');
-  const body = `
-    <div class="info-box">ℹ️ 생산은 FIFO 재고 차감과 연결돼 있어, <b>생산수량·투입 원재료(BOM) 변경은 삭제 후 재등록</b>해 주세요. 여기서는 일자/완제품/로트/비고만 수정됩니다.</div>
-    <div class="grid grid-2">
-      <div><label>생산일 *</label><input type="date" id="eprDate" value="${p.date}" /></div>
-      <div><label>완제품 *</label><select id="eprProd">${prodOpts}</select></div>
-    </div>
-    <div class="grid grid-2" style="margin-top:12px;">
-      <div><label>로트번호</label><input type="text" id="eprLot" value="${escapeHtml(p.lotNo||'')}" /></div>
-      <div><label>생산량(읽기전용)</label><input type="text" value="${fmt(p.productQty)} Kg" readonly /></div>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--text-light);">투입: ${usage}</div>
-    <div style="margin-top:12px;"><label>비고</label><textarea id="eprNotes">${escapeHtml(p.notes||'')}</textarea></div>
-  `;
-  openEditModal('생산 수정', body, () => {
-    const date = document.getElementById('eprDate').value;
-    const productId = document.getElementById('eprProd').value;
-    if (!date || !productId) { toast('필수 입력','error'); return false; }
-    p.date = date; p.productId = productId;
-    p.lotNo = document.getElementById('eprLot').value.trim();
-    p.notes = document.getElementById('eprNotes').value.trim();
-    saveState(); toast('수정됨','success'); renderAll();
+      <div><label>기초 수량(${m.unit})</label><input type="number" id="ovQty" step="0.001" min="0" placeholder="0" /></div>
+      <div><label>단가(원/${m.unit})</label><input type="number" id="ovCost" step="0.01" min="0" placeholder="0" /></div>
+      <div><label>기준일</label><input type="date" id="ovDate" value="${todayISO()}" /></div>
+    </div>`;
+  openEditModal(`기초재고 - ${m.name}`, body, ()=>{
+    const q=Number(document.getElementById('ovQty').value), c=Number(document.getElementById('ovCost').value), d=document.getElementById('ovDate').value;
+    if(!(q>0)) { toast('수량','error'); return false; }
+    state.purchases.push({id:uid(),date:d,materialId:id,quantity:q,remaining:q,enteredAmount:Math.round(q*c),taxType:'exempt',supplyPrice:Math.round(q*c),vat:0,totalAmount:Math.round(q*c),unitCost:c,lot:'기초재고',expiration:null,supplier:'',notes:'기초재고',isOpening:true,createdAt:nowISO()});
+    saveState(); toast('기초재고 설정됨','success'); renderAll();
   });
 }
-
-// ----- 출고 수정 -----
-function editShipment(id) {
-  const s = state.shipments.find(x => x.id === id); if (!s) return;
-  const prodOpts = state.products.map(p => `<option value="${p.id}" ${p.id===s.productId?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
-  const body = `
+function setOpeningSemi(id){
+  const s=state.semis.find(x=>x.id===id); if(!s) return;
+  const body=`<div class="info-box">반제품 기초재고를 로트로 생성합니다.</div>
     <div class="grid grid-3">
-      <div><label>출고일 *</label><input type="date" id="esDate" value="${s.date}" /></div>
-      <div><label>완제품 *</label><select id="esProd">${prodOpts}</select></div>
-      <div><label>수량 (Kg) *</label><input type="number" id="esQty" step="0.001" min="0" value="${s.qty}" /></div>
-    </div>
-    <div style="margin-top:12px;"><label>비고</label><input type="text" id="esNotes" value="${escapeHtml(s.notes||'')}" /></div>
-  `;
-  openEditModal('출고 수정', body, () => {
-    const date = document.getElementById('esDate').value;
-    const pid = document.getElementById('esProd').value;
-    const qty = Number(document.getElementById('esQty').value);
-    if (!date || !pid || !(qty>0)) { toast('필수 입력','error'); return false; }
-    // 재고 검증 (편집 후 잔량이 음수가 되면 안됨)
-    const produced = state.productions.filter(x=>x.productId===pid).reduce((a,x)=>a+x.productQty,0);
-    const otherShip = state.shipments.filter(x=>x.productId===pid && x.id!==id).reduce((a,x)=>a+x.qty,0);
-    if (qty > produced - otherShip + 1e-9) { toast(`재고 부족 (가용 ${fmt(produced-otherShip)}Kg)`,'error'); return false; }
-    s.date = date; s.productId = pid; s.qty = qty;
-    s.notes = document.getElementById('esNotes').value.trim();
-    saveState(); toast('수정됨','success'); renderAll();
+      <div><label>기초 수량(${s.unit})</label><input type="number" id="ovQty" step="0.001" min="0" /></div>
+      <div><label>단가(원/${s.unit})</label><input type="number" id="ovCost" step="0.01" min="0" /></div>
+      <div><label>기준일</label><input type="date" id="ovDate" value="${todayISO()}" /></div>
+    </div>`;
+  openEditModal(`기초재고 - ${s.name}`, body, ()=>{
+    const q=Number(document.getElementById('ovQty').value), c=Number(document.getElementById('ovCost').value), d=document.getElementById('ovDate').value;
+    if(!(q>0)){ toast('수량','error'); return false; }
+    state.semiLots.push({id:uid(),date:d,semiId:id,quantity:q,remaining:q,unitCost:c,sourceProd1:null,isOpening:true,createdAt:nowISO()});
+    saveState(); toast('기초재고 설정됨','success'); renderAll();
   });
 }
 
-// ========== TABS / PRINT ==========
-document.querySelectorAll('nav button').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-    renderAll();
-  };
-});
-function printTab(tabId, title) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('print-active'));
-  document.getElementById(tabId).classList.add('print-active');
-  document.getElementById('printTitle').textContent = title;
-  document.getElementById('printMeta').textContent = `출력일: ${todayISO()}`;
-  window.print();
-  setTimeout(() => document.querySelectorAll('.tab').forEach(t => t.classList.remove('print-active')), 500);
+function renderMaterials(){
+  const el=document.getElementById('materialsList');
+  if(state.materials.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let h='<table><thead><tr><th>코드</th><th>원재료</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const m of state.materials){
+    const lots=state.purchases.filter(p=>p.materialId===m.id);
+    const rem=lots.reduce((s,p)=>s+p.remaining,0);
+    const val=lots.reduce((s,p)=>s+p.remaining*p.unitCost,0);
+    h+=`<tr><td>${escapeHtml(m.code||'-')}</td><td><b>${escapeHtml(m.name)}</b></td><td>${escapeHtml(m.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right no-print"><button class="btn btn-secondary btn-sm" onclick="setOpeningMaterial('${m.id}')">기초재고</button><button class="btn btn-edit btn-sm" onclick="editMaterial('${m.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
+}
+function renderSemis(){
+  const el=document.getElementById('semisList');
+  if(state.semis.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let h='<table><thead><tr><th>코드</th><th>반제품</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="text-right">평균단가</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const s of state.semis){
+    const lots=state.semiLots.filter(l=>l.semiId===s.id);
+    const rem=lots.reduce((a,l)=>a+l.remaining,0);
+    const val=lots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
+    const avg=rem>0?val/rem:0;
+    h+=`<tr><td>${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print"><button class="btn btn-secondary btn-sm" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn btn-edit btn-sm" onclick="editSemi('${s.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteSemi('${s.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
+}
+function renderProducts(){
+  const el=document.getElementById('productsList');
+  if(state.products.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  let h='<table><thead><tr><th>코드</th><th>완제품</th><th>단위</th><th class="text-right">생산</th><th class="text-right">출고</th><th class="text-right">재고</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const p of state.products){
+    const made=state.prod2.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.output,0);
+    const ship=state.ships.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
+    h+=`<tr><td>${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td>${escapeHtml(p.unit)}</td><td class="text-right">${fmt(made)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(made-ship)}</b></td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editProduct('${p.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
 }
 
-// ========== MATERIALS / PRODUCTS ==========
-function addMaterial() {
-  const name = document.getElementById('materialName').value.trim();
-  const code = document.getElementById('materialCode').value.trim();
-  if (!name) return toast('품목명','error');
-  if (state.materials.some(m => m.name === name)) return toast('중복','error');
-  state.materials.push({ id: uid(), name, code, createdAt: nowISO() });
-  saveState(); document.getElementById('materialName').value=''; document.getElementById('materialCode').value=''; toast('추가됨','success'); renderAll();
-}
-function deleteMaterial(id) {
-  if (state.purchases.some(p => p.materialId === id)) return toast('매입 이력 존재','error');
-  if (!confirm('삭제?')) return;
-  state.materials = state.materials.filter(m => m.id !== id); saveState(); renderAll();
-}
-function addProduct() {
-  const name = document.getElementById('productName').value.trim();
-  const code = document.getElementById('productCode').value.trim();
-  if (!name) return toast('완제품명','error');
-  if (state.products.some(p => p.name === name)) return toast('중복','error');
-  state.products.push({ id: uid(), name, code, createdAt: nowISO() });
-  saveState(); document.getElementById('productName').value=''; document.getElementById('productCode').value=''; toast('추가됨','success'); renderAll();
-}
-function deleteProduct(id) {
-  if (state.productions.some(p => p.productId === id) || state.shipments.some(s => s.productId === id)) return toast('이력 존재','error');
-  if (!confirm('삭제?')) return;
-  state.products = state.products.filter(p => p.id !== id); saveState(); renderAll();
-}
-function renderMaterials() {
-  const el = document.getElementById('materialsList');
-  if (state.materials.length === 0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let html = '<table><thead><tr><th>코드</th><th>품목명</th><th class="text-right">매입(Kg)</th><th class="text-right">재고(Kg)</th><th class="no-print"></th></tr></thead><tbody>';
-  for (const m of state.materials) {
-    const purch = state.purchases.filter(p=>p.materialId===m.id).reduce((s,p)=>s+p.quantity,0);
-    const rem = state.purchases.filter(p=>p.materialId===m.id).reduce((s,p)=>s+p.remaining,0);
-    html += `<tr><td>${m.code||'-'}</td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(purch)}</td><td class="text-right">${fmt(rem)}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editMaterial('${m.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')">삭제</button></td></tr>`;
-  }
-  el.innerHTML = html + '</tbody></table>';
-}
-function renderProducts() {
-  const el = document.getElementById('productsList');
-  if (state.products.length === 0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let html = '<table><thead><tr><th>코드</th><th>완제품</th><th class="text-right">생산(Kg)</th><th class="text-right">출고(Kg)</th><th class="text-right">재고(Kg)</th><th class="no-print"></th></tr></thead><tbody>';
-  for (const p of state.products) {
-    const prod = state.productions.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.productQty,0);
-    const ship = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-    html += `<tr><td>${p.code||'-'}</td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(prod)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(prod-ship)}</b></td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editProduct('${p.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button></td></tr>`;
-  }
-  el.innerHTML = html + '</tbody></table>';
-}
-function renderSelects() {
-  const matOpts = state.materials.map(m=>`<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
-  const prodOpts = state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-  const set = (id, prefix, opts) => { const el=document.getElementById(id); if(!el) return; const v=el.value; el.innerHTML=prefix+opts; el.value=v; };
+function renderSelects(){
+  const matOpts=state.materials.map(m=>`<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
+  const semiOpts=state.semis.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  const prodOpts=state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  const set=(id,prefix,opts)=>{ const el=document.getElementById(id); if(!el) return; const v=el.value; el.innerHTML=prefix+opts; if(v) el.value=v; };
   set('pMaterial','<option value="">선택...</option>',matOpts);
-  set('filterPurchaseMaterial','<option value="">전체</option>',matOpts);
-  set('prodProduct','<option value="">선택...</option>',prodOpts);
-  set('shipProduct','<option value="">선택...</option>',prodOpts);
-  set('filterProdProduct','<option value="">전체</option>',prodOpts);
-  set('filterLedgerProduct','<option value="">전체</option>',prodOpts);
+  set('fPurMat','<option value="">전체</option>',matOpts);
+  set('p1Semi','<option value="">선택...</option>',semiOpts);
+  set('fP1Semi','<option value="">전체</option>',semiOpts);
+  set('p2Product','<option value="">선택...</option>',prodOpts);
+  set('fP2Product','<option value="">전체</option>',prodOpts);
+  set('sProduct','<option value="">선택...</option>',prodOpts);
+  set('fShipProduct','<option value="">전체</option>',prodOpts);
+  onLedgerKindChange(true);
 }
-
-// ========== PURCHASES ==========
-function updatePurchasePreview() {
-  const amt = Number(document.getElementById('pAmount').value)||0;
-  const type = document.getElementById('pTaxType').value;
-  const qty = Number(document.getElementById('pQuantity').value)||0;
-  const r = calcTax(amt, type);
-  const u = qty>0?r.supply/qty:0;
-  document.getElementById('pPreview').innerHTML = `<b>자동계산</b><br>공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · Kg당 <b>${won(u)}</b>/Kg`;
+</script>
+<script>
+// ========== PURCHASE ==========
+function updatePurchasePreview(){
+  const amt=Number(document.getElementById('pAmount').value)||0;
+  const type=document.getElementById('pTaxType').value;
+  const qty=Number(document.getElementById('pQuantity').value)||0;
+  const r=calcTax(amt,type); const u=qty>0?r.supply/qty:0;
+  document.getElementById('pPreview').innerHTML=`<b>자동계산</b> · 공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · 단가 <b>${won(u)}</b>`;
 }
-document.addEventListener('input', e => {
-  if (['pAmount','pTaxType','pQuantity'].includes(e.target.id)) updatePurchasePreview();
-  if (e.target.id === 'prodQuantity') updateProductionPreview();
-});
-function resetPurchaseForm() {
-  document.getElementById('pDate').value = todayISO();
-  ['pMaterial','pQuantity','pAmount','pExpiration','pNotes'].forEach(id => document.getElementById(id).value='');
-  document.getElementById('pTaxType').value = 'excluded';
-  updatePurchasePreview();
+function resetPurchaseForm(){
+  document.getElementById('pDate').value=todayISO();
+  ['pMaterial','pQuantity','pAmount','pExpiration','pLot','pSupplier','pNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pTaxType').value='excluded'; updatePurchasePreview();
 }
-function savePurchase() {
-  const date = document.getElementById('pDate').value;
-  const materialId = document.getElementById('pMaterial').value;
-  const quantity = Number(document.getElementById('pQuantity').value);
-  const amount = Number(document.getElementById('pAmount').value);
-  const taxType = document.getElementById('pTaxType').value;
-  const expiration = document.getElementById('pExpiration').value;
-  const notes = document.getElementById('pNotes').value.trim();
-  if (!date) return toast('입고일','error');
-  if (!materialId) return toast('품목 선택','error');
-  if (!(quantity>0)) return toast('수량','error');
-  if (!(amount>=0)) return toast('금액','error');
-  const r = calcTax(amount, taxType);
-  const unitCost = quantity>0 ? r.supply/quantity : 0;
-  state.purchases.push({ id:uid(), date, materialId, quantity, remaining:quantity, enteredAmount:amount, taxType, supplyPrice:r.supply, vat:r.vat, totalAmount:r.total, unitCost, expiration:expiration||null, notes, createdAt:nowISO() });
+function savePurchase(){
+  const date=document.getElementById('pDate').value;
+  const materialId=document.getElementById('pMaterial').value;
+  const quantity=Number(document.getElementById('pQuantity').value);
+  const amount=Number(document.getElementById('pAmount').value);
+  const taxType=document.getElementById('pTaxType').value;
+  const expiration=document.getElementById('pExpiration').value;
+  const lot=document.getElementById('pLot').value.trim();
+  const supplier=document.getElementById('pSupplier').value.trim();
+  const notes=document.getElementById('pNotes').value.trim();
+  if(!date) return toast('입고일','error');
+  if(!materialId) return toast('원재료 선택','error');
+  if(!(quantity>0)) return toast('수량','error');
+  if(!(amount>=0)) return toast('금액','error');
+  const r=calcTax(amount,taxType);
+  state.purchases.push({id:uid(),date,materialId,quantity,remaining:quantity,enteredAmount:amount,taxType,supplyPrice:r.supply,vat:r.vat,totalAmount:r.total,unitCost:quantity>0?r.supply/quantity:0,lot,expiration:expiration||null,supplier,notes,createdAt:nowISO()});
   saveState(); resetPurchaseForm(); toast('매입 저장','success'); renderAll();
 }
-function expirationClass(date) {
-  if (!date) return {cls:'',label:''};
-  const d = daysBetween(todayISO(), date);
-  if (d<0) return {cls:'badge-expired',label:'만료'};
-  if (d<=30) return {cls:'badge-warning',label:`D-${d}`};
+function expirationClass(date){
+  if(!date) return {cls:'',label:''};
+  const d=daysBetween(todayISO(),date);
+  if(d<0) return {cls:'badge-expired',label:`${-d}일 경과`};
+  if(d<=30) return {cls:'badge-warning',label:`D-${d}`};
   return {cls:'badge-ok',label:`D-${d}`};
 }
-function renderPurchases() {
-  const fM = document.getElementById('filterPurchaseMaterial')?.value || '';
-  const fS = document.getElementById('filterPurchaseStart')?.value || '';
-  const fE = document.getElementById('filterPurchaseEnd')?.value || '';
-  let list = [...state.purchases];
-  if (fM) list = list.filter(p=>p.materialId===fM);
-  if (fS) list = list.filter(p=>p.date>=fS);
-  if (fE) list = list.filter(p=>p.date<=fE);
-  list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
-  const el = document.getElementById('purchasesList');
-  if (list.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  const totQty=list.reduce((s,p)=>s+p.quantity,0), totSup=list.reduce((s,p)=>s+p.supplyPrice,0), totVat=list.reduce((s,p)=>s+p.vat,0), totAmt=list.reduce((s,p)=>s+p.totalAmount,0);
-  let html = `<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 수량 ${fmt(totQty)}Kg · 공급가 ${won(totSup)} · 부가세 ${won(totVat)} · 합계 <b>${won(totAmt)}</b></div>`;
-  html += `<table><thead><tr><th>입고일</th><th>품목</th><th class="text-right">수량(Kg)</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">부가세</th><th class="text-right">합계</th><th class="text-right">잔량(Kg)</th><th>유통기한</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
-  for (const p of list) {
-    const exp = expirationClass(p.expiration);
-    html += `<tr><td>${p.date}</td><td><b>${materialName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right">${won(p.vat)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${exp.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.notes||'-')}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editPurchase('${p.id}')">✏️ 수정</button><button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button></td></tr>`;
+function getPurchaseFiltered(){
+  const fM=document.getElementById('fPurMat')?.value||'';
+  const fS=document.getElementById('fPurStart')?.value||'';
+  const fE=document.getElementById('fPurEnd')?.value||'';
+  let list=[...state.purchases];
+  if(fM) list=list.filter(p=>p.materialId===fM);
+  if(fS) list=list.filter(p=>p.date>=fS);
+  if(fE) list=list.filter(p=>p.date<=fE);
+  return list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+}
+function renderPurchases(){
+  const list=getPurchaseFiltered(); const el=document.getElementById('purchasesList');
+  if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const tQ=list.reduce((s,p)=>s+p.quantity,0),tS=list.reduce((s,p)=>s+p.supplyPrice,0),tV=list.reduce((s,p)=>s+p.vat,0),tT=list.reduce((s,p)=>s+p.totalAmount,0);
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 수량 ${fmt(tQ)} · 공급가 ${won(tS)} · 부가세 ${won(tV)} · 합계 <b>${won(tT)}</b></div>`;
+  h+='<table><thead><tr><th>입고일</th><th>원재료</th><th class="text-right">수량</th><th>LOT</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">합계</th><th class="text-right">잔량</th><th>유통기한</th><th>공급처</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const p of list){
+    const e=expirationClass(p.expiration);
+    h+=`<tr><td>${p.date}</td><td><b>${matName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td>${escapeHtml(p.lot||'-')}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${e.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.supplier||'-')}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editPurchase('${p.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button></td></tr>`;
   }
-  el.innerHTML = html + '</tbody></table>';
+  el.innerHTML=h+'</tbody></table>';
 }
-function deletePurchase(id) {
-  const p = state.purchases.find(x=>x.id===id); if (!p) return;
-  if (p.remaining<p.quantity) { if (!confirm('일부 사용된 매입. 데이터 불일치 위험. 계속?')) return; }
-  else if (!confirm('삭제?')) return;
-  state.purchases = state.purchases.filter(x=>x.id!==id); saveState(); renderAll();
+function deletePurchase(id){
+  const p=state.purchases.find(x=>x.id===id); if(!p) return;
+  if(p.remaining<p.quantity-1e-9){ if(!confirm('일부 사용된 매입. 삭제 시 데이터 불일치 위험. 계속?')) return; }
+  else if(!confirm('삭제?')) return;
+  state.purchases=state.purchases.filter(x=>x.id!==id); saveState(); renderAll();
 }
 
-// ========== INVENTORY ==========
-function renderInventorySummary() {
-  const el = document.getElementById('inventorySummary');
-  if (state.materials.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let html = `<table><thead><tr><th>품목</th><th class="text-right">매입(Kg)</th><th class="text-right">사용(Kg)</th><th class="text-right">재고(Kg)</th><th class="text-right">평균단가</th><th class="text-right">재고가액</th></tr></thead><tbody>`;
-  for (const m of state.materials) {
-    const lots = state.purchases.filter(p=>p.materialId===m.id);
-    const purch = lots.reduce((s,p)=>s+p.quantity,0);
-    const rem = lots.reduce((s,p)=>s+p.remaining,0);
-    const value = lots.reduce((s,p)=>s+p.remaining*p.unitCost,0);
-    const avg = rem>0?value/rem:0;
-    html += `<tr><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(purch)}</td><td class="text-right">${fmt(purch-rem)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(avg)}</td><td class="text-right">${won(value)}</td></tr>`;
+// ========== PROD1: 원재료 → 반제품 ==========
+let p1BomCounter=0;
+function addP1BomRow(matId='',qty=''){
+  p1BomCounter++;
+  const opts=state.materials.map(m=>`<option value="${m.id}" ${m.id===matId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  const row=document.createElement('div'); row.className='bom-row'; row.id='p1bom_'+p1BomCounter;
+  row.innerHTML=`<select class="bom-material"><option value="">선택...</option>${opts}</select><input type="number" class="bom-qty" step="0.001" min="0" placeholder="투입량" value="${qty}" /><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();updateP1Preview();">삭제</button>`;
+  document.getElementById('p1BomList').appendChild(row);
+  row.querySelector('.bom-material').addEventListener('change',updateP1Preview);
+  row.querySelector('.bom-qty').addEventListener('input',updateP1Preview);
+  updateP1Preview();
+}
+function getP1Bom(){
+  const rows=document.querySelectorAll('#p1BomList .bom-row'); const e=[];
+  rows.forEach(r=>{ const m=r.querySelector('.bom-material').value; const q=Number(r.querySelector('.bom-qty').value); if(m&&q>0) e.push({materialId:m,qty:q}); });
+  const merged={}; for(const x of e) merged[x.materialId]=(merged[x.materialId]||0)+x.qty;
+  return Object.keys(merged).map(k=>({materialId:k,qty:merged[k]}));
+}
+function updateP1Preview(){
+  const entries=getP1Bom();
+  const output=Number(document.getElementById('p1Output').value)||0;
+  const scrap=Number(document.getElementById('p1Scrap').value)||0;
+  const el=document.getElementById('p1Preview');
+  if(entries.length===0){ el.innerHTML='<i>투입 원재료를 추가하세요.</i>'; return; }
+  let h='<b>투입 시뮬레이션 (FIFO)</b><table style="margin-top:8px;"><thead><tr><th>원재료</th><th class="text-right">투입</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
+  let totalCost=0,anyShort=false,inputKg=0;
+  for(const e of entries){
+    const r=fifoAllocateMat(e.materialId,e.qty);
+    const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
+    if(r.shortage>0) anyShort=true;
+    h+=`<tr><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
-  el.innerHTML = html + '</tbody></table>';
+  h+='</tbody></table>';
+  const loss=inputKg-output-scrap;
+  const yieldPct=inputKg>0?(output/inputKg*100):0;
+  const unit=output>0?totalCost/output:0;
+  h+=`<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}</b> · 산출 <b>${fmt(output)}</b> · 파기 <b>${fmt(scrap)}</b> · 로스(자동) <b>${fmt(loss>0?loss:0)}</b> · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · 반제품 단가 <b>${won(unit)}</b>${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼 (확인 필요)</span>':''}</div>`;
+  el.innerHTML=h;
 }
-function renderInventoryLots() {
-  const el = document.getElementById('inventoryLots');
-  const lots = state.purchases.filter(p=>p.remaining>0).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
-  if (lots.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let html = `<table><thead><tr><th>순위</th><th>입고일</th><th>품목</th><th class="text-right">초기(Kg)</th><th class="text-right">잔량(Kg)</th><th class="text-right">단가</th><th class="text-right">가액</th><th>유통기한</th><th>비고</th></tr></thead><tbody>`;
-  const byMat = {};
-  for (const lot of lots) (byMat[lot.materialId]=byMat[lot.materialId]||[]).push(lot);
-  for (const mid of Object.keys(byMat)) byMat[mid].forEach((lot,i)=>{
-    const exp = expirationClass(lot.expiration);
-    html += `<tr><td class="text-center"><b>${i+1}</b></td><td>${lot.date}</td><td><b>${materialName(lot.materialId)}</b></td><td class="text-right">${fmt(lot.quantity)}</td><td class="text-right"><b>${fmt(lot.remaining)}</b></td><td class="text-right">${won(lot.unitCost)}</td><td class="text-right">${won(lot.remaining*lot.unitCost)}</td><td>${lot.expiration?`<span class="badge ${exp.cls}">${lot.expiration} (${exp.label})</span>`:'-'}</td><td>${escapeHtml(lot.notes||'-')}</td></tr>`;
-  });
-  el.innerHTML = html + '</tbody></table>';
+function resetP1Form(){
+  document.getElementById('p1Date').value=todayISO();
+  ['p1Semi','p1Output','p1Lot','p1Scrap','p1ScrapReason','p1Notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p1BomList').innerHTML=''; addP1BomRow();
 }
-
-// ========== PRODUCTION ==========
-let bomCounter = 0;
-function addBomRow(matId='',qty='') {
-  bomCounter++;
-  const opts = state.materials.map(m=>`<option value="${m.id}" ${m.id===matId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
-  const row = document.createElement('div');
-  row.className='bom-row'; row.id='bom_'+bomCounter;
-  row.innerHTML = `<select class="bom-material"><option value="">선택...</option>${opts}</select><input type="number" class="bom-qty" step="0.001" min="0" placeholder="Kg" value="${qty}" /><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();updateProductionPreview();">삭제</button>`;
-  document.getElementById('bomList').appendChild(row);
-  row.querySelector('.bom-material').addEventListener('change', updateProductionPreview);
-  row.querySelector('.bom-qty').addEventListener('input', updateProductionPreview);
-  updateProductionPreview();
-}
-function getBomEntries() {
-  const rows = document.querySelectorAll('#bomList .bom-row');
-  const entries = [];
-  rows.forEach(r=>{
-    const matId = r.querySelector('.bom-material').value;
-    const qty = Number(r.querySelector('.bom-qty').value);
-    if (matId && qty>0) entries.push({materialId:matId, qty});
-  });
-  const merged = {};
-  for (const e of entries) merged[e.materialId] = (merged[e.materialId]||0)+e.qty;
-  return Object.keys(merged).map(k=>({materialId:k, qty:merged[k]}));
-}
-function fifoAllocate(materialId, qty) {
-  const lots = state.purchases.filter(p=>p.materialId===materialId && p.remaining>0).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
-  let need = qty; const allocations = [];
-  for (const lot of lots) {
-    if (need<=0) break;
-    const use = Math.min(lot.remaining, need);
-    allocations.push({lotId:lot.id, qty:use, unitCost:lot.unitCost, date:lot.date, expiration:lot.expiration});
-    need -= use;
+function saveP1(){
+  const date=document.getElementById('p1Date').value;
+  const semiId=document.getElementById('p1Semi').value;
+  const output=Number(document.getElementById('p1Output').value);
+  const lot=document.getElementById('p1Lot').value.trim();
+  const scrap=Number(document.getElementById('p1Scrap').value)||0;
+  const scrapReason=document.getElementById('p1ScrapReason').value.trim();
+  const notes=document.getElementById('p1Notes').value.trim();
+  const entries=getP1Bom();
+  if(!date) return toast('생산일','error');
+  if(!semiId) return toast('반제품 선택','error');
+  if(!(output>0)) return toast('산출량','error');
+  if(entries.length===0) return toast('투입 원재료','error');
+  const plan=[];
+  for(const e of entries){
+    const r=fifoAllocateMat(e.materialId,e.qty);
+    if(r.shortage>0) return toast(`재고부족: ${matName(e.materialId)} ${fmt(r.shortage)}`,'error');
+    plan.push({materialId:e.materialId,totalUsed:e.qty,allocations:r.alloc});
   }
-  if (need<1e-9) need=0;
-  return {allocations, shortage:need};
+  let totalCost=0, inputKg=0;
+  for(const it of plan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const lotp=state.purchases.find(p=>p.id===a.lotId); lotp.remaining=Math.max(0,lotp.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+  const unitCost=output>0?totalCost/output:0;
+  const loss=Math.max(0,inputKg-output-scrap);
+  const p1id=uid();
+  state.prod1.push({id:p1id,date,semiId,output,lot,usages:plan,inputKg,scrap,scrapReason,loss,yield:inputKg>0?output/inputKg:0,totalCost,unitCost,notes,createdAt:nowISO()});
+  // 반제품 로트 생성
+  state.semiLots.push({id:uid(),date,semiId,quantity:output,remaining:output,unitCost,sourceProd1:p1id,createdAt:nowISO()});
+  saveState(); resetP1Form(); toast('반제품 생산 저장','success'); renderAll();
 }
-function updateProductionPreview() {
-  const entries = getBomEntries();
-  const prodQty = Number(document.getElementById('prodQuantity').value)||0;
-  if (entries.length===0) { document.getElementById('prodPreview').innerHTML='<i>투입 원재료를 추가하세요.</i>'; return; }
-  let html = '<b>투입 시뮬레이션(FIFO)</b><table style="margin-top:8px;"><thead><tr><th>원재료</th><th class="text-right">투입량</th><th>로트</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
-  let totalCost=0, anyShort=false;
-  for (const e of entries) {
-    const r = fifoAllocate(e.materialId, e.qty);
-    const cost = r.allocations.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost;
-    const desc = r.allocations.map(a=>`${a.date}: ${fmt(a.qty)}Kg @${won(a.unitCost)}`).join('<br>')||'-';
-    const status = r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}Kg</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
-    if (r.shortage>0) anyShort=true;
-    html += `<tr><td>${materialName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td style="font-size:11px;">${desc}</td><td class="text-right">${won(cost)}</td><td>${status}</td></tr>`;
+function getP1Filtered(){
+  const f=document.getElementById('fP1Semi')?.value||'';
+  const s=document.getElementById('fP1Start')?.value||'';
+  const e=document.getElementById('fP1End')?.value||'';
+  let list=[...state.prod1];
+  if(f) list=list.filter(p=>p.semiId===f);
+  if(s) list=list.filter(p=>p.date>=s);
+  if(e) list=list.filter(p=>p.date<=e);
+  return list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+}
+function renderP1(){
+  const list=getP1Filtered(); const el=document.getElementById('p1List');
+  if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const tO=list.reduce((s,p)=>s+p.output,0),tC=list.reduce((s,p)=>s+p.totalCost,0),tL=list.reduce((s,p)=>s+p.loss,0),tSc=list.reduce((s,p)=>s+p.scrap,0);
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)} · 로스 ${fmt(tL)} · 파기 ${fmt(tSc)} · 원가 <b>${won(tC)}</b></div>`;
+  h+='<table><thead><tr><th>생산일</th><th>반제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const p of list){
+    const u=p.usages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
+    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${fmt(p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP1('${p.id}')">삭제</button></td></tr>`;
   }
-  html += '</tbody></table>';
-  const inputKg = entries.reduce((s,e)=>s+e.qty,0);
-  const y = inputKg>0?(prodQty/inputKg*100):0;
-  const u = prodQty>0?totalCost/prodQty:0;
-  html += `<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}Kg</b> · 생산 <b>${fmt(prodQty)}Kg</b> · 수율 <b>${y.toFixed(2)}%</b><br>총원가 <b>${won(totalCost)}</b> · Kg당 <b>${won(u)}</b>/Kg${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}</div>`;
-  document.getElementById('prodPreview').innerHTML = html;
+  el.innerHTML=h+'</tbody></table>';
 }
-function resetProductionForm() {
-  document.getElementById('prodDate').value = todayISO();
-  ['prodProduct','prodQuantity','prodLot','prodNotes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('bomList').innerHTML=''; addBomRow();
-}
-function checkProduction() {
-  const entries = getBomEntries();
-  if (entries.length===0) return toast('투입 원재료 필요','error');
-  let ok = true;
-  for (const e of entries) if (fifoAllocate(e.materialId,e.qty).shortage>0) { ok=false; break; }
-  toast(ok?'재고 충분 ✓':'재고 부족 ✗', ok?'success':'error');
-}
-function duplicateProduction(id) {
-  const p = state.productions.find(x => x.id === id);
-  if (!p) return;
-
-  // 1) 생산 관리 탭으로 이동
-  const tabBtn = document.querySelector('[data-tab="production"]');
-  if (tabBtn) tabBtn.click();
-
-  // 2) 폼 초기화 후 값 채우기
-  setTimeout(() => {
-    // 날짜는 오늘로 (사용자가 원하면 변경 가능)
-    document.getElementById('prodDate').value = todayISO();
-    // 완제품
-    document.getElementById('prodProduct').value = p.productId;
-    // 생산수량
-    document.getElementById('prodQuantity').value = p.productQty;
-    // 로트번호 (비워두는 게 안전 - 중복 방지)
-    document.getElementById('prodLot').value = '';
-    // 비고
-    document.getElementById('prodNotes').value = p.notes || '';
-
-    // BOM 재구성: 기존 행 모두 제거 후 원본 usages로 행 채우기
-    document.getElementById('bomList').innerHTML = '';
-    if (p.usages && p.usages.length > 0) {
-      p.usages.forEach(u => {
-        addBomRow(u.materialId, u.totalUsed);
-      });
-    } else {
-      addBomRow();
-    }
-
-    updateProductionPreview();
-
-    // 상단으로 스크롤 + 안내
-    const sec = document.getElementById('production');
-    if (sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
-    toast('복사됨 - 날짜·내용 수정 후 [생산 저장]','success');
-  }, 50);
+function deleteP1(id){
+  const p=state.prod1.find(x=>x.id===id); if(!p) return;
+  const lot=state.semiLots.find(l=>l.sourceProd1===id);
+  if(lot && lot.remaining<lot.quantity-1e-9) return toast('생성된 반제품이 이미 사용됨. 2차생산 먼저 삭제','error');
+  if(!confirm('삭제 시 원재료 잔량 복원 + 반제품 로트 제거. 계속?')) return;
+  for(const u of p.usages) for(const a of u.allocations){ const lp=state.purchases.find(x=>x.id===a.lotId); if(lp) lp.remaining+=a.qty; }
+  state.semiLots=state.semiLots.filter(l=>l.sourceProd1!==id);
+  state.prod1=state.prod1.filter(x=>x.id!==id); saveState(); renderAll();
 }
 
-function saveProduction() {
-  const date = document.getElementById('prodDate').value;
-  const productId = document.getElementById('prodProduct').value;
-  const productQty = Number(document.getElementById('prodQuantity').value);
-  const lotNo = document.getElementById('prodLot').value.trim();
-  const notes = document.getElementById('prodNotes').value.trim();
-  const entries = getBomEntries();
-  if (!date) return toast('생산일','error');
-  if (!productId) return toast('완제품 선택','error');
-  if (!(productQty>0)) return toast('생산수량','error');
-  if (entries.length===0) return toast('투입 원재료','error');
-  const plan = [];
-  for (const e of entries) {
-    const r = fifoAllocate(e.materialId, e.qty);
-    if (r.shortage>0) return toast(`재고부족: ${materialName(e.materialId)} ${fmt(r.shortage)}Kg`,'error');
-    plan.push({materialId:e.materialId, totalUsed:e.qty, allocations:r.allocations});
+// ========== PROD2: 반제품 + 원재료 → 완제품 ==========
+let p2SemiCounter=0, p2BomCounter=0;
+function addP2SemiRow(semiId='',qty=''){
+  p2SemiCounter++;
+  const opts=state.semis.map(s=>`<option value="${s.id}" ${s.id===semiId?'selected':''}>${escapeHtml(s.name)} (재고 ${fmt(semiStock(s.id))})</option>`).join('');
+  const row=document.createElement('div'); row.className='bom-row'; row.id='p2semi_'+p2SemiCounter;
+  row.innerHTML=`<select class="p2semi-id"><option value="">선택...</option>${opts}</select><input type="number" class="p2semi-qty" step="0.001" min="0" placeholder="투입량" value="${qty}" /><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();updateP2Preview();">삭제</button>`;
+  document.getElementById('p2SemiList').appendChild(row);
+  row.querySelector('.p2semi-id').addEventListener('change',updateP2Preview);
+  row.querySelector('.p2semi-qty').addEventListener('input',updateP2Preview);
+  updateP2Preview();
+}
+function addP2BomRow(matId='',qty=''){
+  p2BomCounter++;
+  const opts=state.materials.map(m=>`<option value="${m.id}" ${m.id===matId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  const row=document.createElement('div'); row.className='bom-row'; row.id='p2bom_'+p2BomCounter;
+  row.innerHTML=`<select class="bom-material"><option value="">선택...</option>${opts}</select><input type="number" class="bom-qty" step="0.001" min="0" placeholder="투입량" value="${qty}" /><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();updateP2Preview();">삭제</button>`;
+  document.getElementById('p2BomList').appendChild(row);
+  row.querySelector('.bom-material').addEventListener('change',updateP2Preview);
+  row.querySelector('.bom-qty').addEventListener('input',updateP2Preview);
+  updateP2Preview();
+}
+function getP2Semi(){
+  const rows=document.querySelectorAll('#p2SemiList .bom-row'); const e=[];
+  rows.forEach(r=>{ const s=r.querySelector('.p2semi-id').value; const q=Number(r.querySelector('.p2semi-qty').value); if(s&&q>0) e.push({semiId:s,qty:q}); });
+  const merged={}; for(const x of e) merged[x.semiId]=(merged[x.semiId]||0)+x.qty;
+  return Object.keys(merged).map(k=>({semiId:k,qty:merged[k]}));
+}
+function getP2Bom(){
+  const rows=document.querySelectorAll('#p2BomList .bom-row'); const e=[];
+  rows.forEach(r=>{ const m=r.querySelector('.bom-material').value; const q=Number(r.querySelector('.bom-qty').value); if(m&&q>0) e.push({materialId:m,qty:q}); });
+  const merged={}; for(const x of e) merged[x.materialId]=(merged[x.materialId]||0)+x.qty;
+  return Object.keys(merged).map(k=>({materialId:k,qty:merged[k]}));
+}
+function updateP2Preview(){
+  const semiEntries=getP2Semi(), matEntries=getP2Bom();
+  const output=Number(document.getElementById('p2Output').value)||0;
+  const scrap=Number(document.getElementById('p2Scrap').value)||0;
+  const el=document.getElementById('p2Preview');
+  if(semiEntries.length===0&&matEntries.length===0){ el.innerHTML='<i>투입 반제품/원재료를 추가하세요.</i>'; return; }
+  let h='<b>투입 시뮬레이션</b><table style="margin-top:8px;"><thead><tr><th>구분</th><th>품목</th><th class="text-right">투입</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
+  let totalCost=0,anyShort=false,inputKg=0;
+  for(const e of semiEntries){
+    const r=fifoAllocateSemi(e.semiId,e.qty);
+    const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
+    if(r.shortage>0) anyShort=true;
+    h+=`<tr><td><span class="badge badge-semi">반제품</span></td><td>${semiName(e.semiId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
-  let totalCost = 0;
-  for (const it of plan) for (const a of it.allocations) {
-    const lot = state.purchases.find(p=>p.id===a.lotId);
-    lot.remaining = Math.max(0, lot.remaining - a.qty);
-    totalCost += a.qty*a.unitCost;
+  for(const e of matEntries){
+    const r=fifoAllocateMat(e.materialId,e.qty);
+    const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
+    if(r.shortage>0) anyShort=true;
+    h+=`<tr><td><span class="badge badge-mat">원재료</span></td><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
-  state.productions.push({ id:uid(), date, productId, lotNo, productQty, usages:plan, totalCost, unitCost:totalCost/productQty, notes, createdAt:nowISO() });
-  saveState(); resetProductionForm(); toast('생산 저장','success'); renderAll();
+  h+='</tbody></table>';
+  const loss=inputKg-output-scrap;
+  const yieldPct=inputKg>0?(output/inputKg*100):0;
+  const unit=output>0?totalCost/output:0;
+  h+=`<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}</b> · 산출 <b>${fmt(output)}</b> · 파기 <b>${fmt(scrap)}</b> · 로스(자동) <b>${fmt(loss>0?loss:0)}</b> · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · 완제품 단가 <b>${won(unit)}</b>${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼</span>':''}</div>`;
+  el.innerHTML=h;
 }
-function renderProductions() {
-  const el = document.getElementById('productionsList');
-  const f = document.getElementById('filterProdProduct')?.value||'';
-  let list = [...state.productions]; if (f) list=list.filter(p=>p.productId===f);
-  list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
-  if (list.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  const totQ=list.reduce((s,p)=>s+p.productQty,0), totC=list.reduce((s,p)=>s+p.totalCost,0);
-  let html = `<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 생산 ${fmt(totQ)}Kg · 원가 <b>${won(totC)}</b></div>`;
-  html += `<table><thead><tr><th>생산일</th><th>완제품</th><th>로트</th><th class="text-right">생산(Kg)</th><th>투입</th><th class="text-right">총원가</th><th class="text-right">Kg당</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
-  for (const p of list) {
-    const u = p.usages.map(x=>`${materialName(x.materialId)}: ${fmt(x.totalUsed)}Kg`).join('<br>');
-    html += `<tr><td>${p.date}</td><td><b>${productName(p.productId)}</b></td><td>${p.lotNo||'-'}</td><td class="text-right"><b>${fmt(p.productQty)}</b></td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td>${escapeHtml(p.notes||'-')}</td><td class="no-print"><button class="btn btn-secondary btn-sm" onclick="showProductionDetail('${p.id}')">상세</button> <button class="btn btn-secondary btn-sm" onclick="duplicateProduction('${p.id}')" title="이 생산을 복사해서 새로 입력">📋 복사</button> <button class="btn btn-edit btn-sm" onclick="editProduction('${p.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteProduction('${p.id}')">삭제</button></td></tr>`;
+function resetP2Form(){
+  document.getElementById('p2Date').value=todayISO();
+  ['p2Product','p2Output','p2Lot','p2Scrap','p2ScrapReason','p2Notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p2SemiList').innerHTML=''; document.getElementById('p2BomList').innerHTML='';
+  addP2SemiRow(); addP2BomRow();
+}
+function saveP2(){
+  const date=document.getElementById('p2Date').value;
+  const productId=document.getElementById('p2Product').value;
+  const output=Number(document.getElementById('p2Output').value);
+  const lot=document.getElementById('p2Lot').value.trim();
+  const scrap=Number(document.getElementById('p2Scrap').value)||0;
+  const scrapReason=document.getElementById('p2ScrapReason').value.trim();
+  const notes=document.getElementById('p2Notes').value.trim();
+  const semiEntries=getP2Semi(), matEntries=getP2Bom();
+  if(!date) return toast('생산일','error');
+  if(!productId) return toast('완제품 선택','error');
+  if(!(output>0)) return toast('산출량','error');
+  if(semiEntries.length===0&&matEntries.length===0) return toast('투입 필요','error');
+  const semiPlan=[], matPlan=[];
+  for(const e of semiEntries){
+    const r=fifoAllocateSemi(e.semiId,e.qty);
+    if(r.shortage>0) return toast(`반제품부족: ${semiName(e.semiId)} ${fmt(r.shortage)}`,'error');
+    semiPlan.push({semiId:e.semiId,totalUsed:e.qty,allocations:r.alloc});
   }
-  el.innerHTML = html + '</tbody></table>';
+  for(const e of matEntries){
+    const r=fifoAllocateMat(e.materialId,e.qty);
+    if(r.shortage>0) return toast(`원재료부족: ${matName(e.materialId)} ${fmt(r.shortage)}`,'error');
+    matPlan.push({materialId:e.materialId,totalUsed:e.qty,allocations:r.alloc});
+  }
+  let totalCost=0, inputKg=0;
+  for(const it of semiPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+  for(const it of matPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+  const unitCost=output>0?totalCost/output:0;
+  const loss=Math.max(0,inputKg-output-scrap);
+  state.prod2.push({id:uid(),date,productId,output,lot,semiUsages:semiPlan,matUsages:matPlan,inputKg,scrap,scrapReason,loss,yield:inputKg>0?output/inputKg:0,totalCost,unitCost,notes,createdAt:nowISO()});
+  saveState(); resetP2Form(); toast('완제품 생산 저장','success'); renderAll();
 }
-function showProductionDetail(id) {
-  const p = state.productions.find(x=>x.id===id); if (!p) return;
-  let t = `생산일: ${p.date}\n완제품: ${productName(p.productId)}\n생산량: ${fmt(p.productQty)}Kg\n총원가: ${won(p.totalCost)}\nKg당: ${won(p.unitCost)}\n\n[투입]\n`;
-  for (const u of p.usages) { t+=`\n■ ${materialName(u.materialId)}: ${fmt(u.totalUsed)}Kg\n`; for (const a of u.allocations) t+=`  - ${a.date} ${fmt(a.qty)}Kg × ${won(a.unitCost)}\n`; }
-  alert(t);
+function getP2Filtered(){
+  const f=document.getElementById('fP2Product')?.value||'';
+  const s=document.getElementById('fP2Start')?.value||'';
+  const e=document.getElementById('fP2End')?.value||'';
+  let list=[...state.prod2];
+  if(f) list=list.filter(p=>p.productId===f);
+  if(s) list=list.filter(p=>p.date>=s);
+  if(e) list=list.filter(p=>p.date<=e);
+  return list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
 }
-function deleteProduction(id) {
-  const p = state.productions.find(x=>x.id===id); if (!p) return;
-  if (!confirm('삭제 시 원재료 잔량 복원됨. 계속?')) return;
-  for (const u of p.usages) for (const a of u.allocations) { const lot=state.purchases.find(x=>x.id===a.lotId); if (lot) lot.remaining+=a.qty; }
-  state.productions = state.productions.filter(x=>x.id!==id); saveState(); renderAll();
+function renderP2(){
+  const list=getP2Filtered(); const el=document.getElementById('p2List');
+  if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const tO=list.reduce((s,p)=>s+p.output,0),tC=list.reduce((s,p)=>s+p.totalCost,0),tL=list.reduce((s,p)=>s+p.loss,0),tSc=list.reduce((s,p)=>s+p.scrap,0);
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)} · 로스 ${fmt(tL)} · 파기 ${fmt(tSc)} · 원가 <b>${won(tC)}</b></div>`;
+  h+='<table><thead><tr><th>생산일</th><th>완제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const p of list){
+    const su=p.semiUsages.map(x=>`${semiName(x.semiId)}:${fmt(x.totalUsed)}`).join('<br>');
+    const mu=p.matUsages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
+    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${fmt(p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP2('${p.id}')">삭제</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
+}
+function deleteP2(id){
+  const p=state.prod2.find(x=>x.id===id); if(!p) return;
+  const made=state.prod2.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.output,0);
+  const shipped=state.ships.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.qty,0);
+  if(shipped>made-p.output+1e-9) return toast('출고분이 남는 재고보다 큼. 출고 먼저 삭제','error');
+  if(!confirm('삭제 시 반제품/원재료 잔량 복원. 계속?')) return;
+  for(const u of p.semiUsages) for(const a of u.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; }
+  for(const u of p.matUsages) for(const a of u.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; }
+  state.prod2=state.prod2.filter(x=>x.id!==id); saveState(); renderAll();
 }
 
-// ========== SHIPMENT ==========
-function saveShipment() {
-  const date = document.getElementById('shipDate').value;
-  const productId = document.getElementById('shipProduct').value;
-  const qty = Number(document.getElementById('shipQty').value);
-  const notes = document.getElementById('shipNotes').value.trim();
-  if (!date) return toast('출고일','error');
-  if (!productId) return toast('완제품 선택','error');
-  if (!(qty>0)) return toast('수량','error');
-  const prod = state.productions.filter(p=>p.productId===productId).reduce((s,p)=>s+p.productQty,0);
-  const ship = state.shipments.filter(s=>s.productId===productId).reduce((s,p)=>s+p.qty,0);
-  if (qty>prod-ship+1e-9) return toast(`재고 부족 (${fmt(prod-ship)}Kg)`,'error');
-  state.shipments.push({id:uid(), date, productId, qty, notes, createdAt:nowISO()});
+// ========== SHIP ==========
+function saveShip(){
+  const date=document.getElementById('sDate').value;
+  const productId=document.getElementById('sProduct').value;
+  const qty=Number(document.getElementById('sQty').value);
+  const amount=Number(document.getElementById('sAmount').value)||0;
+  const notes=document.getElementById('sNotes').value.trim();
+  if(!date) return toast('출고일','error');
+  if(!productId) return toast('완제품 선택','error');
+  if(!(qty>0)) return toast('수량','error');
+  const stock=productStock(productId);
+  if(qty>stock+1e-9) return toast(`재고 부족 (가용 ${fmt(stock)})`,'error');
+  state.ships.push({id:uid(),date,productId,qty,amount,notes,createdAt:nowISO()});
   saveState();
-  document.getElementById('shipDate').value = todayISO();
-  document.getElementById('shipQty').value=''; document.getElementById('shipNotes').value='';
+  document.getElementById('sDate').value=todayISO();
+  ['sQty','sAmount','sNotes'].forEach(id=>document.getElementById(id).value='');
   toast('출고 저장','success'); renderAll();
 }
-function deleteShipment(id) {
-  if (!confirm('삭제?')) return;
-  state.shipments = state.shipments.filter(x=>x.id!==id); saveState(); renderAll();
+function getShipFiltered(){
+  const f=document.getElementById('fShipProduct')?.value||'';
+  const s=document.getElementById('fShipStart')?.value||'';
+  const e=document.getElementById('fShipEnd')?.value||'';
+  let list=[...state.ships];
+  if(f) list=list.filter(x=>x.productId===f);
+  if(s) list=list.filter(x=>x.date>=s);
+  if(e) list=list.filter(x=>x.date<=e);
+  return list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
 }
-function renderProductSummary() {
-  const el = document.getElementById('productSummary');
-  if (state.products.length===0) { el.innerHTML='<div class="empty-state">완제품 등록 필요</div>'; return; }
-  let html = `<table><thead><tr><th>코드</th><th>완제품</th><th class="text-right">생산(Kg)</th><th class="text-right">출고(Kg)</th><th class="text-right">재고(Kg)</th><th class="text-right">원가</th><th class="text-right">평균 Kg당</th></tr></thead><tbody>`;
-  for (const p of state.products) {
-    const ps = state.productions.filter(x=>x.productId===p.id);
-    const produced = ps.reduce((s,x)=>s+x.productQty,0);
-    const cost = ps.reduce((s,x)=>s+x.totalCost,0);
-    const ship = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-    const avg = produced>0?cost/produced:0;
-    html += `<tr><td>${p.code||'-'}</td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(produced)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b style="color:var(--primary);">${fmt(produced-ship)}</b></td><td class="text-right">${won(cost)}</td><td class="text-right">${won(avg)}</td></tr>`;
+function renderShips(){
+  const list=getShipFiltered(); const el=document.getElementById('shipsList');
+  if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
+  const tQ=list.reduce((s,x)=>s+x.qty,0),tA=list.reduce((s,x)=>s+(x.amount||0),0);
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 출고 ${fmt(tQ)} · 판매액 <b>${won(tA)}</b></div>`;
+  h+='<table><thead><tr><th>출고일</th><th>완제품</th><th class="text-right">수량</th><th class="text-right">판매액</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const x of list){
+    h+=`<tr><td>${x.date}</td><td><b>${prodName(x.productId)}</b></td><td class="text-right">${fmt(x.qty)}</td><td class="text-right">${won(x.amount||0)}</td><td>${escapeHtml(x.notes||'-')}</td><td class="no-print"><button class="btn btn-edit btn-sm" onclick="editShip('${x.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteShip('${x.id}')">삭제</button></td></tr>`;
   }
-  el.innerHTML = html + '</tbody></table>';
+  el.innerHTML=h+'</tbody></table>';
 }
-function renderProductLedger() {
-  const f = document.getElementById('filterLedgerProduct')?.value||'';
-  const ledger = [];
-  for (const p of state.productions) if (!f||p.productId===f) ledger.push({type:'생산',date:p.date,productId:p.productId,qty:p.productQty,notes:p.notes,lot:p.lotNo,id:p.id});
-  for (const s of state.shipments) if (!f||s.productId===f) ledger.push({type:'출고',date:s.date,productId:s.productId,qty:-s.qty,notes:s.notes,lot:'',id:s.id,isShip:true});
-  ledger.sort((a,b)=>a.date.localeCompare(b.date));
-  const bal = {};
-  const rows = ledger.map(r=>{ bal[r.productId]=(bal[r.productId]||0)+r.qty; return {...r, balance:bal[r.productId]}; }).reverse();
-  const el = document.getElementById('productLedger');
-  if (rows.length===0) { el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let html = `<table><thead><tr><th>일자</th><th>완제품</th><th>구분</th><th>로트</th><th class="text-right">수량(Kg)</th><th class="text-right">잔량(Kg)</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>`;
-  for (const r of rows) {
-    const c = r.type==='생산'?'var(--success)':'var(--danger)';
-    const actions = r.isShip
-      ? `<button class="btn btn-edit btn-sm" onclick="editShipment('${r.id}')">✏️ 수정</button> <button class="btn btn-danger btn-sm" onclick="deleteShipment('${r.id}')">삭제</button>`
-      : `<button class="btn btn-edit btn-sm" onclick="editProduction('${r.id}')">✏️ 수정</button>`;
-    html += `<tr><td>${r.date}</td><td><b>${productName(r.productId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td>${r.lot||'-'}</td><td class="text-right" style="color:${c};font-weight:600;">${r.qty>0?'+':''}${fmt(r.qty)}</td><td class="text-right"><b>${fmt(r.balance)}</b></td><td>${escapeHtml(r.notes||'-')}</td><td class="no-print">${actions}</td></tr>`;
+function deleteShip(id){ if(!confirm('삭제?')) return; state.ships=state.ships.filter(x=>x.id!==id); saveState(); renderAll(); }
+</script>
+<script>
+// ========== 수불부 (LEDGER) ==========
+function onLedgerKindChange(keepItem){
+  const kind=document.getElementById('ledKind').value;
+  const sel=document.getElementById('ledItem'); if(!sel) return;
+  const prev=keepItem?sel.value:'';
+  let opts='<option value="">전체</option>';
+  if(kind==='material') opts+=state.materials.map(m=>`<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
+  else if(kind==='semi') opts+=state.semis.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  else opts+=state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  sel.innerHTML=opts; if(prev) sel.value=prev;
+  if(!keepItem) renderLedger();
+}
+function ledSetRange(type){
+  const now=new Date(); let s='';
+  if(type==='month') s=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  document.getElementById('ledStart').value=s;
+  document.getElementById('ledEnd').value=type==='all'?'':todayISO();
+  if(type==='all') document.getElementById('ledStart').value='';
+  renderLedger();
+}
+// 특정 품목의 수불 이벤트 배열 생성
+function buildLedgerEvents(kind, itemId){
+  const ev=[];
+  if(kind==='material'){
+    for(const p of state.purchases){ if(itemId&&p.materialId!==itemId) continue; ev.push({date:p.date,itemId:p.materialId,inQty:p.quantity,outQty:0,type:p.isOpening?'기초':'매입입고',note:p.lot||p.supplier||p.notes||'',ord:p.createdAt}); }
+    // 원재료 출고 = 생산 투입
+    for(const pr of state.prod1) for(const u of pr.usages){ if(itemId&&u.materialId!==itemId) continue; ev.push({date:pr.date,itemId:u.materialId,inQty:0,outQty:u.totalUsed,type:'1차투입',note:semiName(pr.semiId),ord:pr.createdAt}); }
+    for(const pr of state.prod2) for(const u of pr.matUsages){ if(itemId&&u.materialId!==itemId) continue; ev.push({date:pr.date,itemId:u.materialId,inQty:0,outQty:u.totalUsed,type:'2차투입',note:prodName(pr.productId),ord:pr.createdAt}); }
+  } else if(kind==='semi'){
+    for(const l of state.semiLots){ if(itemId&&l.semiId!==itemId) continue; ev.push({date:l.date,itemId:l.semiId,inQty:l.quantity,outQty:0,scrap:0,type:l.isOpening?'기초':'1차생산',note:'',ord:l.createdAt}); }
+    for(const pr of state.prod1){ if(itemId&&pr.semiId!==itemId) continue; if(pr.scrap>0) ev.push({date:pr.date,itemId:pr.semiId,inQty:0,outQty:0,scrap:pr.scrap,type:'파기',note:pr.scrapReason||'',ord:pr.createdAt+'z'}); }
+    for(const pr of state.prod2) for(const u of pr.semiUsages){ if(itemId&&u.semiId!==itemId) continue; ev.push({date:pr.date,itemId:u.semiId,inQty:0,outQty:u.totalUsed,scrap:0,type:'2차투입',note:prodName(pr.productId),ord:pr.createdAt}); }
+  } else {
+    for(const pr of state.prod2){ if(itemId&&pr.productId!==itemId) continue; ev.push({date:pr.date,itemId:pr.productId,inQty:pr.output,outQty:0,scrap:pr.scrap||0,type:'2차생산',note:pr.lot||'',ord:pr.createdAt}); }
+    for(const s of state.ships){ if(itemId&&s.productId!==itemId) continue; ev.push({date:s.date,itemId:s.productId,inQty:0,outQty:s.qty,scrap:0,type:'출고',note:s.notes||'',ord:s.createdAt}); }
   }
-  el.innerHTML = html + '</tbody></table>';
+  ev.sort((a,b)=>a.date.localeCompare(b.date)||String(a.ord).localeCompare(String(b.ord)));
+  return ev;
+}
+function renderLedger(){
+  const kind=document.getElementById('ledKind').value;
+  const itemId=document.getElementById('ledItem').value;
+  const s=document.getElementById('ledStart').value, e=document.getElementById('ledEnd').value;
+  const nameFn = kind==='material'?matName : kind==='semi'?semiName : prodName;
+  let ev=buildLedgerEvents(kind,itemId);
+  // 잔량 계산은 전체기간 누적 후, 표시만 기간필터
+  const bal={};
+  const rows=[];
+  for(const x of ev){
+    bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
+    rows.push({...x,balance:bal[x.itemId]});
+  }
+  let shown=rows;
+  if(s) shown=shown.filter(r=>r.date>=s);
+  if(e) shown=shown.filter(r=>r.date<=e);
+  shown=shown.slice().reverse();
+  const el=document.getElementById('ledgerBody');
+  if(shown.length===0){ el.innerHTML='<div class="empty-state">내역 없음</div>'; return; }
+  const tin=shown.reduce((a,r)=>a+(r.inQty||0),0), tout=shown.reduce((a,r)=>a+(r.outQty||0),0), tscr=shown.reduce((a,r)=>a+(r.scrap||0),0);
+  const hasScrap = kind!=='material';
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${shown.length}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
+  h+=`<table><thead><tr><th>일자</th><th>품목</th><th>구분</th><th class="text-right">입고</th><th class="text-right">출고</th>${hasScrap?'<th class="text-right">파기</th>':''}<th class="text-right">잔량</th><th>비고</th></tr></thead><tbody>`;
+  for(const r of shown){
+    const c=(r.inQty>0)?'var(--success)':((r.outQty>0)?'var(--danger)':'var(--warning)');
+    h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${fmt(r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
+}
+function exportLedger(){
+  const kind=document.getElementById('ledKind').value;
+  const itemId=document.getElementById('ledItem').value;
+  const s=document.getElementById('ledStart').value, e=document.getElementById('ledEnd').value;
+  const nameFn = kind==='material'?matName : kind==='semi'?semiName : prodName;
+  let ev=buildLedgerEvents(kind,itemId); const bal={}; const rows=[];
+  for(const x of ev){ bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0); rows.push({...x,balance:bal[x.itemId]}); }
+  let shown=rows; if(s) shown=shown.filter(r=>r.date>=s); if(e) shown=shown.filter(r=>r.date<=e);
+  const aoa=[['일자','품목','구분','입고','출고','파기','잔량','비고']];
+  for(const r of shown) aoa.push([r.date,nameFn(r.itemId),r.type,r.inQty||0,r.outQty||0,r.scrap||0,r.balance,r.note||'']);
+  writeXlsx(aoa, `수불부_${kind}_${todayISO()}`);
 }
 
 // ========== DASHBOARD ==========
-function renderDashboard() {
-  const purch = state.purchases.reduce((s,p)=>s+p.quantity,0);
-  const rem = state.purchases.reduce((s,p)=>s+p.remaining,0);
-  const amt = state.purchases.reduce((s,p)=>s+p.totalAmount,0);
-  const prod = state.productions.reduce((s,p)=>s+p.productQty,0);
-  const ship = state.shipments.reduce((s,p)=>s+p.qty,0);
-  document.getElementById('dashboardSummary').innerHTML = `
-    <div class="summary-card"><div class="label">원재료 매입</div><div class="value">${fmt(purch)}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">원재료 재고</div><div class="value">${fmt(rem)}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">매입 합계</div><div class="value">${won(amt)}</div></div>
-    <div class="summary-card"><div class="label">완제품 생산</div><div class="value">${fmt(prod)}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">완제품 재고</div><div class="value" style="color:var(--primary);">${fmt(prod-ship)}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">완제품 종류</div><div class="value">${state.products.length}<span class="unit">종</span></div></div>`;
-  const psEl = document.getElementById('productStockSummary');
-  if (state.products.length===0) psEl.innerHTML='<div class="empty-state">완제품 없음</div>';
-  else {
-    let h = '<table><thead><tr><th>완제품</th><th class="text-right">생산</th><th class="text-right">출고</th><th class="text-right">재고</th></tr></thead><tbody>';
-    for (const p of state.products) {
-      const pp = state.productions.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.productQty,0);
-      const ss = state.shipments.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-      h += `<tr><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(pp)}</td><td class="text-right">${fmt(ss)}</td><td class="text-right"><b>${fmt(pp-ss)}</b></td></tr>`;
-    }
-    psEl.innerHTML = h + '</tbody></table>';
-  }
-  const today = todayISO();
-  const alerts = state.purchases.filter(p=>p.remaining>0&&p.expiration).map(p=>({...p,days:daysBetween(today,p.expiration)})).filter(p=>p.days<=30).sort((a,b)=>a.days-b.days);
-  const aEl = document.getElementById('expirationAlerts');
-  if (alerts.length===0) aEl.innerHTML='<div class="empty-state">없음</div>';
-  else {
-    let h='<table><thead><tr><th>품목</th><th>입고일</th><th class="text-right">잔량</th><th>유통기한</th><th>상태</th></tr></thead><tbody>';
-    for (const a of alerts) { const ec=expirationClass(a.expiration); const lbl=a.days<0?`${-a.days}일 경과`:`D-${a.days}`; h+=`<tr><td><b>${materialName(a.materialId)}</b></td><td>${a.date}</td><td class="text-right">${fmt(a.remaining)}</td><td>${a.expiration}</td><td><span class="badge ${ec.cls}">${lbl}</span></td></tr>`; }
-    aEl.innerHTML = h + '</tbody></table>';
-  }
-  const rp = [...state.purchases].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
-  document.getElementById('recentPurchases').innerHTML = rp.length===0?'<div class="empty-state">없음</div>': '<table><thead><tr><th>일자</th><th>품목</th><th class="text-right">수량</th><th class="text-right">합계</th></tr></thead><tbody>'+rp.map(p=>`<tr><td>${p.date}</td><td>${materialName(p.materialId)}</td><td class="text-right">${fmt(p.quantity)}</td><td class="text-right">${won(p.totalAmount)}</td></tr>`).join('')+'</tbody></table>';
-  const rpr = [...state.productions].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
-  document.getElementById('recentProductions').innerHTML = rpr.length===0?'<div class="empty-state">없음</div>': '<table><thead><tr><th>일자</th><th>완제품</th><th class="text-right">생산</th><th class="text-right">원가</th></tr></thead><tbody>'+rpr.map(p=>`<tr><td>${p.date}</td><td>${productName(p.productId)}</td><td class="text-right">${fmt(p.productQty)}</td><td class="text-right">${won(p.totalCost)}</td></tr>`).join('')+'</tbody></table>';
+function dashSetRange(type){
+  const now=new Date();
+  if(type==='month'){ document.getElementById('dashStart').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`; document.getElementById('dashEnd').value=todayISO(); }
+  else if(type==='year'){ document.getElementById('dashStart').value=`${now.getFullYear()}-01-01`; document.getElementById('dashEnd').value=todayISO(); }
+  else { document.getElementById('dashStart').value=''; document.getElementById('dashEnd').value=''; }
+  renderDashboard();
+}
+function inRange(date,s,e){ if(s&&date<s) return false; if(e&&date>e) return false; return true; }
+function renderDashboard(){
+  const s=document.getElementById('dashStart')?.value||'', e=document.getElementById('dashEnd')?.value||'';
+  const pur=state.purchases.filter(p=>inRange(p.date,s,e));
+  const p1=state.prod1.filter(p=>inRange(p.date,s,e));
+  const p2=state.prod2.filter(p=>inRange(p.date,s,e));
+  const sh=state.ships.filter(x=>inRange(x.date,s,e));
+  const purAmt=pur.reduce((a,p)=>a+p.totalAmount,0);
+  const p2Cost=p2.reduce((a,p)=>a+p.totalCost,0);
+  const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
+  const matRem=state.materials.reduce((a,m)=>a+matStock(m.id),0);
+  const semiRem=state.semis.reduce((a,x)=>a+semiStock(x.id),0);
+  document.getElementById('dashboardSummary').innerHTML=`
+    <div class="summary-card"><div class="label">매입액${s||e?'(기간)':''}</div><div class="value" style="font-size:18px;">${won(purAmt)}</div></div>
+    <div class="summary-card"><div class="label">1차 생산(반제품)</div><div class="value">${fmt(p1.reduce((a,p)=>a+p.output,0))}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">2차 생산(완제품)</div><div class="value">${fmt(p2.reduce((a,p)=>a+p.output,0))}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">출고</div><div class="value">${fmt(sh.reduce((a,x)=>a+x.qty,0))}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">판매액${s||e?'(기간)':''}</div><div class="value" style="font-size:18px;">${won(sales)}</div></div>
+    <div class="summary-card"><div class="label">손익(판매-생산원가)</div><div class="value" style="font-size:18px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>
+    <div class="summary-card"><div class="label">원재료 재고</div><div class="value">${fmt(matRem)}<span class="unit">Kg</span></div></div>
+    <div class="summary-card"><div class="label">반제품 재고</div><div class="value" style="color:var(--semi);">${fmt(semiRem)}<span class="unit">Kg</span></div></div>`;
+  // 재고 요약
+  let sh2='<table><thead><tr><th>구분</th><th>품목</th><th class="text-right">재고</th><th class="text-right">재고가액</th></tr></thead><tbody>';
+  for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
+  for(const x of state.semis){ const st=semiStock(x.id); const val=state.semiLots.filter(l=>l.semiId===x.id).reduce((a,l)=>a+l.remaining*l.unitCost,0); sh2+=`<tr><td><span class="badge badge-semi">반제품</span></td><td><b>${escapeHtml(x.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
+  for(const p of state.products){ const st=productStock(p.id); sh2+=`<tr><td><span class="badge badge-final">완제품</span></td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">-</td></tr>`; }
+  document.getElementById('stockSummary').innerHTML = (state.materials.length+state.semis.length+state.products.length)? sh2+'</tbody></table>' : '<div class="empty-state">품목 없음</div>';
+  // 유통기한
+  const today=todayISO();
+  const al=state.purchases.filter(p=>p.remaining>0&&p.expiration).map(p=>({...p,days:daysBetween(today,p.expiration)})).filter(p=>p.days<=30).sort((a,b)=>a.days-b.days);
+  document.getElementById('expirationAlerts').innerHTML = al.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>원재료</th><th>입고일</th><th class="text-right">잔량</th><th>유통기한</th><th>상태</th></tr></thead><tbody>'+al.map(a=>{const ec=expirationClass(a.expiration);const lbl=a.days<0?`${-a.days}일 경과`:`D-${a.days}`;return `<tr><td><b>${matName(a.materialId)}</b></td><td>${a.date}</td><td class="text-right">${fmt(a.remaining)}</td><td>${a.expiration}</td><td><span class="badge ${ec.cls}">${lbl}</span></td></tr>`;}).join('')+'</tbody></table>';
+  const rp=[...state.purchases].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  document.getElementById('recentPurchases').innerHTML = rp.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>일자</th><th>원재료</th><th class="text-right">수량</th><th class="text-right">합계</th></tr></thead><tbody>'+rp.map(p=>`<tr><td>${p.date}</td><td>${matName(p.materialId)}</td><td class="text-right">${fmt(p.quantity)}</td><td class="text-right">${won(p.totalAmount)}</td></tr>`).join('')+'</tbody></table>';
+  const rpr=[...state.prod1.map(p=>({...p,_t:'반제품',_n:semiName(p.semiId)})),...state.prod2.map(p=>({...p,_t:'완제품',_n:prodName(p.productId)}))].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  document.getElementById('recentProductions').innerHTML = rpr.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>일자</th><th>구분</th><th>품목</th><th class="text-right">산출</th><th class="text-right">원가</th></tr></thead><tbody>'+rpr.map(p=>`<tr><td>${p.date}</td><td>${p._t}</td><td>${p._n}</td><td class="text-right">${fmt(p.output)}</td><td class="text-right">${won(p.totalCost)}</td></tr>`).join('')+'</tbody></table>';
 }
 
-// ========== BACKUP ALERT ==========
-function checkBackupAlert() {
-  const el = document.getElementById('backupAlert');
-  const days = state.settings.backupDays || 7;
-  const last = state.settings.lastBackupAt;
-  // If cloud is connected and synced recently, hide alert
-  if (state.cloud.connected && state.cloud.lastSyncAt) {
-    const elapsed = daysBetween(state.cloud.lastSyncAt.slice(0,10), todayISO());
-    if (elapsed < days) { el.style.display='none'; return; }
-  }
-  if (!last) {
-    el.style.display='flex';
-    el.innerHTML = '<div>⚠ 클라우드 미연결 + 백업 기록 없음 — 클라우드 연결 또는 JSON 백업 권장</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>';
-    return;
-  }
-  const elapsed = daysBetween(last.slice(0,10), todayISO());
-  if (elapsed >= days) {
-    el.style.display='flex';
-    el.innerHTML = `<div>⚠ 마지막 백업 ${elapsed}일 경과</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>`;
-  } else el.style.display='none';
+// ========== REPORT ==========
+function repSetRange(type){
+  const now=new Date();
+  if(type==='year'){ document.getElementById('repStart').value=`${now.getFullYear()}-01-01`; document.getElementById('repEnd').value=todayISO(); }
+  else { document.getElementById('repStart').value=''; document.getElementById('repEnd').value=''; }
+  renderReport();
 }
-function saveBackupSettings() {
-  const d = parseInt(document.getElementById('backupDays').value);
-  if (isNaN(d)||d<1) return toast('1 이상','error');
-  state.settings.backupDays = d; saveState(); toast('저장됨','success'); checkBackupAlert();
+function renderReport(){
+  const s=document.getElementById('repStart')?.value||'', e=document.getElementById('repEnd')?.value||'';
+  const p1=state.prod1.filter(p=>inRange(p.date,s,e));
+  const p2=state.prod2.filter(p=>inRange(p.date,s,e));
+  const sh=state.ships.filter(x=>inRange(x.date,s,e));
+  const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
+  const p2cost=p2.reduce((a,p)=>a+p.totalCost,0);
+  const p1yield=p1.reduce((a,p)=>a+p.inputKg,0)>0? p1.reduce((a,p)=>a+p.output,0)/p1.reduce((a,p)=>a+p.inputKg,0)*100:0;
+  const p2yield=p2.reduce((a,p)=>a+p.inputKg,0)>0? p2.reduce((a,p)=>a+p.output,0)/p2.reduce((a,p)=>a+p.inputKg,0)*100:0;
+  document.getElementById('reportSummary').innerHTML=`
+    <div class="summary-card"><div class="label">판매액</div><div class="value" style="font-size:18px;">${won(sales)}</div></div>
+    <div class="summary-card"><div class="label">완제품 생산원가</div><div class="value" style="font-size:18px;">${won(p2cost)}</div></div>
+    <div class="summary-card"><div class="label">손익</div><div class="value" style="font-size:18px;color:${sales-p2cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2cost)}</div></div>
+    <div class="summary-card"><div class="label">1차 평균수율</div><div class="value">${p1yield.toFixed(1)}<span class="unit">%</span></div></div>
+    <div class="summary-card"><div class="label">2차 평균수율</div><div class="value">${p2yield.toFixed(1)}<span class="unit">%</span></div></div>`;
+  // 월별
+  const months={};
+  for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
+  for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0}); months[m].sales+=(x.amount||0); }
+  const mk=Object.keys(months).sort();
+  document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
+  // 반제품 원가/수율
+  document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량</th><th class="text-right">평균수율</th><th class="text-right">평균단가</th><th class="text-right">파기</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
+  // 완제품 원가/수율
+  document.getElementById('reportProduct').innerHTML = state.products.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>완제품</th><th class="text-right">생산량</th><th class="text-right">평균수율</th><th class="text-right">평균단가</th><th class="text-right">파기</th></tr></thead><tbody>'+state.products.map(pr=>{const ps=p2.filter(x=>x.productId===pr.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(pr.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
 }
 
-// ========== EXPORT/IMPORT ==========
-function exportData() {
-  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=`erp_backup_${todayISO()}.json`; a.click();
-  URL.revokeObjectURL(url);
-  state.settings.lastBackupAt = nowISO(); saveState();
-  toast('백업 완료','success'); checkBackupAlert();
-  document.getElementById('lastBackupDate').value = state.settings.lastBackupAt;
+// ========== EXCEL ==========
+function writeXlsx(aoa, filename){
+  const ws=XLSX.utils.aoa_to_sheet(aoa); const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Sheet1'); XLSX.writeFile(wb,filename+'.xlsx');
 }
-function importData(ev) {
-  const f = ev.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!data.purchases) throw new Error('형식 오류');
-      if (!confirm('현재 데이터 덮어쓰기?')) return;
-      state = { materials:[], products:[], purchases:[], productions:[], shipments:[], settings:{backupDays:7,lastBackupAt:null}, cloud:state.cloud, ...data };
-      state.cloud = state.cloud || { url:'', key:'', workspace:'default', autoSync:true, connected:false, lastSyncAt:null };
-      migrate(); saveState(); toast('복원됨','success'); renderAll();
-    } catch(err) { toast('파일 오류: '+err.message,'error'); }
+function exportFiltered(kind){
+  let aoa=[];
+  if(kind==='purchases'){ const l=getPurchaseFiltered(); aoa=[['입고일','원재료','수량','LOT','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','공급처','비고']]; l.forEach(p=>aoa.push([p.date,matName(p.materialId),p.quantity,p.lot||'',taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',p.supplier||'',p.notes||''])); }
+  else if(kind==='prod1'){ const l=getP1Filtered(); aoa=[['생산일','반제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','투입상세','비고']]; l.forEach(p=>aoa.push([p.date,semiName(p.semiId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.usages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
+  else if(kind==='prod2'){ const l=getP2Filtered(); aoa=[['생산일','완제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','반제품투입','원재료투입','비고']]; l.forEach(p=>aoa.push([p.date,prodName(p.productId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.semiUsages.map(u=>`${semiName(u.semiId)}:${u.totalUsed}`).join('; '),p.matUsages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
+  else if(kind==='ships'){ const l=getShipFiltered(); aoa=[['출고일','완제품','수량','판매액','비고']]; l.forEach(x=>aoa.push([x.date,prodName(x.productId),x.qty,x.amount||0,x.notes||''])); }
+  writeXlsx(aoa, `${kind}_${todayISO()}`);
+}
+function downloadTemplate(){
+  const kind=document.getElementById('excelKind').value;
+  let aoa=[];
+  if(kind==='purchases') aoa=[['입고일','원재료명','수량','금액','세금구분','LOT','유통기한','공급처','비고'],['2025-01-05','생닭',100,300000,'부가세별도','L2501','2025-01-20','A거래처','']];
+  else if(kind==='prod1') aoa=[['생산일','반제품명','산출량','LOT','파기량','파기사유','비고','원재료1','투입량1','원재료2','투입량2'],['2025-01-05','염지닭',92,'S2501',0,'','','생닭',60,'염지제',40]];
+  else if(kind==='prod2') aoa=[['생산일','완제품명','산출량','LOT','파기량','파기사유','비고','반제품','반제품투입','원재료1','투입량1'],['2025-01-05','후라이드',85,'F2501',2,'포장불량','','염지닭',80,'튀김가루',10]];
+  else if(kind==='ships') aoa=[['출고일','완제품명','수량','판매액','비고'],['2025-01-06','후라이드',50,500000,'B거래처']];
+  writeXlsx(aoa, `양식_${kind}`);
+}
+let _excelParsed=null;
+function parseExcelPreview(){
+  const f=document.getElementById('excelFile').files[0];
+  if(!f) return toast('파일 선택','error');
+  const kind=document.getElementById('excelKind').value;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''}).filter(r=>r.some(c=>String(c).trim()!==''));
+      if(rows.length<2){ toast('데이터 없음','error'); return; }
+      _excelParsed={kind,rows};
+      const preview=rows.slice(0,6).map(r=>'<tr>'+r.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')+'</tr>').join('');
+      document.getElementById('excelPreview').innerHTML=`<div class="info-box">총 ${rows.length-1}행 감지 (헤더 제외). 아래 미리보기 확인 후 "가져오기 확정".</div><table>${preview}</table>`;
+      document.getElementById('excelCommitBtn').style.display='inline-block';
+    }catch(err){ toast('파싱 오류: '+err.message,'error'); }
   };
+  reader.readAsArrayBuffer(f);
+}
+function findMat(name){ let m=state.materials.find(x=>x.name===String(name).trim()); if(!m){ m={id:uid(),name:String(name).trim(),code:'',unit:'Kg',createdAt:nowISO()}; state.materials.push(m); } return m.id; }
+function findSemi(name){ let m=state.semis.find(x=>x.name===String(name).trim()); if(!m){ m={id:uid(),name:String(name).trim(),code:'',unit:'Kg',createdAt:nowISO()}; state.semis.push(m); } return m.id; }
+function findProd(name){ let m=state.products.find(x=>x.name===String(name).trim()); if(!m){ m={id:uid(),name:String(name).trim(),code:'',unit:'Kg',createdAt:nowISO()}; state.products.push(m); } return m.id; }
+function normDate(v){ if(!v) return todayISO(); const s=String(v).trim(); if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); const d=new Date(v); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; return todayISO(); }
+function taxFromKr(v){ const s=String(v).replace(/\s/g,''); if(s.includes('면세')) return 'exempt'; if(s.includes('포함')) return 'included'; return 'excluded'; }
+function commitExcelImport(){
+  if(!_excelParsed) return;
+  const {kind,rows}=_excelParsed; const body=rows.slice(1); let cnt=0;
+  try{
+    if(kind==='purchases'){
+      for(const r of body){ if(!r[0]&&!r[1]) continue; const q=Number(r[2])||0,amt=Number(r[3])||0; if(!(q>0)) continue; const tax=taxFromKr(r[4]); const tx=calcTax(amt,tax); state.purchases.push({id:uid(),date:normDate(r[0]),materialId:findMat(r[1]),quantity:q,remaining:q,enteredAmount:amt,taxType:tax,supplyPrice:tx.supply,vat:tx.vat,totalAmount:tx.total,unitCost:q>0?tx.supply/q:0,lot:String(r[5]||''),expiration:r[6]?normDate(r[6]):null,supplier:String(r[7]||''),notes:String(r[8]||''),createdAt:nowISO()}); cnt++; }
+    } else if(kind==='prod1'){
+      for(const r of body){ if(!r[1]) continue; const out=Number(r[2])||0; if(!(out>0)) continue; const semiId=findSemi(r[1]); const usages=[]; let inputKg=0;
+        for(let c=7;c<r.length;c+=2){ const mn=r[c],mq=Number(r[c+1])||0; if(mn&&mq>0){ const mid=findMat(mn); const al=fifoAllocateMat(mid,mq); usages.push({materialId:mid,totalUsed:mq,allocations:al.alloc}); inputKg+=mq; for(const a of al.alloc){ const lp=state.purchases.find(p=>p.id===a.lotId); if(lp) lp.remaining=Math.max(0,lp.remaining-a.qty); } } }
+        let totalCost=0; for(const u of usages) for(const a of u.allocations) totalCost+=a.qty*a.unitCost;
+        const scrap=Number(r[4])||0; const p1id=uid(); const unitCost=out>0?totalCost/out:0;
+        state.prod1.push({id:p1id,date:normDate(r[0]),semiId,output:out,lot:String(r[3]||''),usages,inputKg,scrap,scrapReason:String(r[5]||''),loss:Math.max(0,inputKg-out-scrap),yield:inputKg>0?out/inputKg:0,totalCost,unitCost,notes:String(r[6]||''),createdAt:nowISO()});
+        state.semiLots.push({id:uid(),date:normDate(r[0]),semiId,quantity:out,remaining:out,unitCost,sourceProd1:p1id,createdAt:nowISO()}); cnt++;
+      }
+    } else if(kind==='prod2'){
+      for(const r of body){ if(!r[1]) continue; const out=Number(r[2])||0; if(!(out>0)) continue; const productId=findProd(r[1]);
+        const semiUsages=[],matUsages=[]; let inputKg=0,totalCost=0;
+        const sn=r[7],sq=Number(r[8])||0; if(sn&&sq>0){ const sid=findSemi(sn); const al=fifoAllocateSemi(sid,sq); semiUsages.push({semiId:sid,totalUsed:sq,allocations:al.alloc}); inputKg+=sq; for(const a of al.alloc){ const l=state.semiLots.find(x=>x.id===a.lotId); if(l) l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+        for(let c=9;c<r.length;c+=2){ const mn=r[c],mq=Number(r[c+1])||0; if(mn&&mq>0){ const mid=findMat(mn); const al=fifoAllocateMat(mid,mq); matUsages.push({materialId:mid,totalUsed:mq,allocations:al.alloc}); inputKg+=mq; for(const a of al.alloc){ const lp=state.purchases.find(p=>p.id===a.lotId); if(lp) lp.remaining=Math.max(0,lp.remaining-a.qty); totalCost+=a.qty*a.unitCost; } } }
+        const scrap=Number(r[4])||0;
+        state.prod2.push({id:uid(),date:normDate(r[0]),productId,output:out,lot:String(r[3]||''),semiUsages,matUsages,inputKg,scrap,scrapReason:String(r[5]||''),loss:Math.max(0,inputKg-out-scrap),yield:inputKg>0?out/inputKg:0,totalCost,unitCost:out>0?totalCost/out:0,notes:String(r[6]||''),createdAt:nowISO()}); cnt++;
+      }
+    } else if(kind==='ships'){
+      for(const r of body){ if(!r[1]) continue; const q=Number(r[2])||0; if(!(q>0)) continue; state.ships.push({id:uid(),date:normDate(r[0]),productId:findProd(r[1]),qty:q,amount:Number(r[3])||0,notes:String(r[4]||''),createdAt:nowISO()}); cnt++; }
+    }
+    saveState(); toast(`${cnt}건 가져오기 완료`,'success');
+    document.getElementById('excelPreview').innerHTML=`<div class="success-banner">✅ ${cnt}건 가져오기 완료</div>`;
+    document.getElementById('excelCommitBtn').style.display='none'; _excelParsed=null;
+    document.getElementById('excelFile').value=''; renderAll();
+  }catch(err){ toast('가져오기 오류: '+err.message,'error'); }
+}
+
+// ========== FIREBASE ==========
+function updateCloudStatus(){
+  const el=document.getElementById('cloudStatus');
+  if(!state.cloud.connected){ el.className='cloud-status disconnected'; el.querySelector('.text').textContent='클라우드 미연결'; }
+  else { el.className='cloud-status connected'; el.querySelector('.text').textContent='☁️ 연결됨'+(state.cloud.lastSyncAt?' · '+state.cloud.lastSyncAt.slice(11,19):''); }
+  const cfg=document.getElementById('fbConfig'); if(cfg&&state.cloud.config&&!cfg.value) cfg.value=JSON.stringify(state.cloud.config,null,2);
+  const info=document.getElementById('fbInfo');
+  if(info) info.innerHTML = state.cloud.connected?`<div class="success-banner">✅ 연결됨 · 마지막 동기화: ${state.cloud.lastSyncAt||'없음'}</div>`:'<div class="alert-banner">⚠ 미연결. 가이드를 따라 firebaseConfig를 붙여넣으세요.</div>';
+}
+async function fbInit(config){
+  if(fbApp){ try{await fbApp.delete();}catch(e){} fbApp=null; }
+  fbApp=firebase.initializeApp(config); fbAuth=firebase.auth(); fbDb=firebase.firestore();
+  await new Promise((res,rej)=>{
+    fbAuth.onAuthStateChanged(u=>{ if(u){ fbReady=true; res(); } });
+    fbAuth.signInAnonymously().catch(rej);
+    setTimeout(()=>fbReady?res():rej(new Error('인증 타임아웃 - 익명 로그인 활성화 확인')),8000);
+  });
+}
+async function fbConnect(){
+  const raw=document.getElementById('fbConfig').value.trim();
+  if(!raw) return toast('firebaseConfig 입력','error');
+  let config; try{ config=JSON.parse(raw); }catch(e){ return toast('JSON 형식 오류','error'); }
+  const el=document.getElementById('cloudStatus'); el.className='cloud-status syncing'; el.querySelector('.text').textContent='연결 중...';
+  try{
+    await fbInit(config);
+    state.cloud.config=config; state.cloud.connected=true;
+    const doc=await fbDb.collection('erp').doc('main').get();
+    if(doc.exists){
+      const d=doc.data().data;
+      if(confirm('클라우드에 데이터가 있습니다.\n[확인] 클라우드→로컬 덮어쓰기\n[취소] 로컬→클라우드 업로드')){ applyCloudData(d); toast('다운로드 완료','success'); }
+      else { await fbPush(false); toast('업로드 완료','success'); }
+    } else { await fbPush(false); toast('연결 성공 · 초기 업로드','success'); }
+    state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); renderAll();
+  }catch(e){ state.cloud.connected=false; updateCloudStatus(); toast('연결 실패: '+e.message,'error'); }
+}
+function applyCloudData(d){
+  ['materials','semis','products','purchases','prod1','prod2','ships','semiLots'].forEach(k=>{ if(Array.isArray(d[k])) state[k]=d[k]; });
+  if(d.opening) state.opening=d.opening;
+  if(d.settings) state.settings={...state.settings,...d.settings};
+  saveState(false);
+}
+function cloudPayload(){ return { materials:state.materials,semis:state.semis,products:state.products,purchases:state.purchases,prod1:state.prod1,prod2:state.prod2,ships:state.ships,semiLots:state.semiLots,opening:state.opening,settings:state.settings }; }
+async function fbPush(showToast=true){
+  if(!state.cloud.connected||!fbDb){ if(showToast) toast('미연결','error'); return; }
+  const el=document.getElementById('cloudStatus'); el.className='cloud-status syncing'; el.querySelector('.text').textContent='동기화 중...';
+  try{ await fbDb.collection('erp').doc('main').set({data:cloudPayload(),updatedAt:nowISO()}); state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); if(showToast) toast('업로드 완료','success'); }
+  catch(e){ updateCloudStatus(); if(showToast) toast('업로드 실패: '+e.message,'error'); }
+}
+async function fbPull(showToast=true){
+  if(!state.cloud.connected||!fbDb){ if(showToast) toast('미연결','error'); return; }
+  try{ const doc=await fbDb.collection('erp').doc('main').get(); if(!doc.exists){ if(showToast) toast('클라우드 데이터 없음','error'); return; } applyCloudData(doc.data().data); state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); renderAll(); if(showToast) toast('다운로드 완료','success'); }
+  catch(e){ if(showToast) toast('다운로드 실패: '+e.message,'error'); }
+}
+function fbDisconnect(){ if(!confirm('연결 해제? (로컬 데이터 유지)')) return; state.cloud={config:null,workspace:'production',connected:false,lastSyncAt:null}; saveState(false); updateCloudStatus(); toast('해제됨','success'); }
+
+// ========== EDIT MODAL ==========
+function openEditModal(title,bodyHtml,onSave){
+  document.getElementById('editModalTitle').firstChild.textContent=title+' ';
+  document.getElementById('editModalBody').innerHTML=bodyHtml;
+  document.getElementById('editModal').classList.add('show');
+  document.getElementById('editModalSave').onclick=()=>{ try{ if(onSave()!==false) closeEditModal(); }catch(e){ toast(e.message,'error'); } };
+}
+function closeEditModal(){ document.getElementById('editModal').classList.remove('show'); document.getElementById('editModalBody').innerHTML=''; }
+function editMaterial(id){ const m=state.materials.find(x=>x.id===id); if(!m) return; openEditModal('원재료 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="emN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="emC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="emU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('emN').value.trim(); if(!n){toast('이름','error');return false;} if(state.materials.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('emC').value.trim();m.unit=document.getElementById('emU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
+function editSemi(id){ const m=state.semis.find(x=>x.id===id); if(!m) return; openEditModal('반제품 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="esN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="esC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="esU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('esN').value.trim(); if(!n){toast('이름','error');return false;} if(state.semis.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('esC').value.trim();m.unit=document.getElementById('esU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
+function editProduct(id){ const m=state.products.find(x=>x.id===id); if(!m) return; openEditModal('완제품 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="epN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="epC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="epU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('epN').value.trim(); if(!n){toast('이름','error');return false;} if(state.products.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('epC').value.trim();m.unit=document.getElementById('epU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
+function editPurchase(id){
+  const p=state.purchases.find(x=>x.id===id); if(!p) return;
+  const used=p.quantity-p.remaining;
+  const matOpts=state.materials.map(m=>`<option value="${m.id}" ${m.id===p.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  const warn=used>1e-9?`<div class="warn-box">이 매입은 ${fmt(used)} 사용됨. 수량은 ${fmt(used)} 이상, 품목 변경 불가.</div>`:'';
+  openEditModal('매입 수정',`${warn}<div class="grid grid-4"><div><label>입고일</label><input type="date" id="epD" value="${p.date}"/></div><div><label>원재료</label><select id="epM" ${used>1e-9?'disabled':''}>${matOpts}</select></div><div><label>수량</label><input type="number" id="epQ" step="0.001" min="${used}" value="${p.quantity}"/></div><div><label>LOT</label><input type="text" id="epL" value="${escapeHtml(p.lot||'')}"/></div></div><div class="grid grid-3" style="margin-top:10px;"><div><label>금액</label><input type="number" id="epA" value="${p.enteredAmount}"/></div><div><label>세금</label><select id="epT"><option value="exempt" ${p.taxType==='exempt'?'selected':''}>면세</option><option value="excluded" ${p.taxType==='excluded'?'selected':''}>부가세 별도</option><option value="included" ${p.taxType==='included'?'selected':''}>부가세 포함</option></select></div><div><label>유통기한</label><input type="date" id="epE" value="${p.expiration||''}"/></div></div>`,()=>{
+    const q=Number(document.getElementById('epQ').value); if(q<used-1e-9){ toast('수량 부족','error'); return false; }
+    const amt=Number(document.getElementById('epA').value); const tax=document.getElementById('epT').value; const r=calcTax(amt,tax);
+    p.date=document.getElementById('epD').value; if(used<=1e-9) p.materialId=document.getElementById('epM').value;
+    p.quantity=q; p.remaining=q-used; p.enteredAmount=amt; p.taxType=tax; p.supplyPrice=r.supply; p.vat=r.vat; p.totalAmount=r.total; p.unitCost=q>0?r.supply/q:0; p.lot=document.getElementById('epL').value.trim(); p.expiration=document.getElementById('epE').value||null;
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+function editShip(id){
+  const s=state.ships.find(x=>x.id===id); if(!s) return;
+  const opts=state.products.map(p=>`<option value="${p.id}" ${p.id===s.productId?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+  openEditModal('출고 수정',`<div class="grid grid-4"><div><label>출고일</label><input type="date" id="eshD" value="${s.date}"/></div><div><label>완제품</label><select id="eshP">${opts}</select></div><div><label>수량</label><input type="number" id="eshQ" step="0.001" value="${s.qty}"/></div><div><label>판매액</label><input type="number" id="eshA" value="${s.amount||0}"/></div></div><div style="margin-top:10px;"><label>비고</label><input type="text" id="eshN" value="${escapeHtml(s.notes||'')}"/></div>`,()=>{
+    const pid=document.getElementById('eshP').value; const q=Number(document.getElementById('eshQ').value);
+    const made=state.prod2.filter(x=>x.productId===pid).reduce((a,x)=>a+x.output,0);
+    const other=state.ships.filter(x=>x.productId===pid&&x.id!==id).reduce((a,x)=>a+x.qty,0);
+    if(q>made-other+1e-9){ toast(`재고 부족 (가용 ${fmt(made-other)})`,'error'); return false; }
+    s.date=document.getElementById('eshD').value; s.productId=pid; s.qty=q; s.amount=Number(document.getElementById('eshA').value)||0; s.notes=document.getElementById('eshN').value.trim();
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+}
+
+// ========== BACKUP / EXPORT ==========
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`erp_backup_${todayISO()}.json`; a.click(); URL.revokeObjectURL(url);
+  state.settings.lastBackupAt=nowISO(); saveState(); toast('백업 완료','success'); checkBackupAlert();
+  const lb=document.getElementById('lastBackupDate'); if(lb) lb.value=state.settings.lastBackupAt;
+}
+function importData(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(!d.materials&&!d.purchases) throw new Error('형식 오류'); if(!confirm('현재 데이터 덮어쓰기?')) return; const cloud=state.cloud; state={...state,...d,cloud}; ['materials','semis','products','purchases','prod1','prod2','ships','semiLots'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];}); saveState(); toast('복원됨','success'); renderAll(); }catch(err){ toast('오류: '+err.message,'error'); } };
   r.readAsText(f);
 }
-function exportCSV(kind) {
-  let h=[], rows=[];
-  if (kind==='purchases') { h=['입고일','품목','수량','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','비고']; rows=state.purchases.map(p=>[p.date,materialName(p.materialId),p.quantity,taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',(p.notes||'').replace(/[\r\n,]/g,' ')]); }
-  else if (kind==='productions') { h=['생산일','완제품','로트','생산량','투입','총원가','Kg당원가','비고']; rows=state.productions.map(p=>[p.date,productName(p.productId),p.lotNo||'',p.productQty,p.usages.map(u=>`${materialName(u.materialId)}:${u.totalUsed}Kg`).join('; '),Math.round(p.totalCost),Math.round(p.unitCost),(p.notes||'').replace(/[\r\n,]/g,' ')]); }
-  else if (kind==='shipments') { h=['출고일','완제품','수량','비고']; rows=state.shipments.map(s=>[s.date,productName(s.productId),s.qty,(s.notes||'').replace(/[\r\n,]/g,' ')]); }
-  else if (kind==='inventory') { h=['품목','매입','사용','재고','평균단가','재고가액']; rows=state.materials.map(m=>{ const ls=state.purchases.filter(p=>p.materialId===m.id); const pu=ls.reduce((s,p)=>s+p.quantity,0); const re=ls.reduce((s,p)=>s+p.remaining,0); const v=ls.reduce((s,p)=>s+p.remaining*p.unitCost,0); return [m.name,pu,pu-re,re,re>0?Math.round(v/re):0,Math.round(v)]; }); }
-  const csv = [h,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=`${kind}_${todayISO()}.csv`; a.click();
-  URL.revokeObjectURL(url);
-}
-function clearAllData() {
-  if (!confirm('모든 데이터 삭제?')) return;
-  if (!confirm('정말? (복구 불가)')) return;
-  state = { materials:[], products:[], purchases:[], productions:[], shipments:[], settings:{backupDays:7,lastBackupAt:null}, cloud:state.cloud };
+function clearAllData(){
+  if(!confirm('모든 데이터 삭제?')) return; if(!confirm('정말? 복구 불가')) return;
+  const cloud=state.cloud;
+  state={materials:[],semis:[],products:[],purchases:[],prod1:[],prod2:[],ships:[],semiLots:[],opening:{materials:{},semis:{},products:{}},settings:{backupDays:7,lastBackupAt:null},cloud};
   saveState(); renderAll(); toast('초기화됨','success');
+}
+function checkBackupAlert(){
+  const el=document.getElementById('backupAlert'); const days=state.settings.backupDays||7; const last=state.settings.lastBackupAt;
+  if(state.cloud.connected&&state.cloud.lastSyncAt){ const el2=daysBetween(state.cloud.lastSyncAt.slice(0,10),todayISO()); if(el2<days){ el.style.display='none'; return; } }
+  if(!last){ el.style.display='flex'; el.innerHTML='<div>⚠ 클라우드 미연결 + 백업 없음 — 백업 권장</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>'; return; }
+  const elapsed=daysBetween(last.slice(0,10),todayISO());
+  if(elapsed>=days){ el.style.display='flex'; el.innerHTML=`<div>⚠ 마지막 백업 ${elapsed}일 경과</div><button class="btn btn-primary btn-sm" onclick="exportData()">지금 백업</button>`; }
+  else el.style.display='none';
+}
+function saveBackupSettings(){ const d=parseInt(document.getElementById('backupDays').value); if(isNaN(d)||d<1) return toast('1 이상','error'); state.settings.backupDays=d; saveState(); toast('저장됨','success'); checkBackupAlert(); }
+
+// ========== TABS / PRINT ==========
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.onclick=()=>{ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); renderAll(); };
+});
+function printTab(tabId,title){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active'));
+  document.getElementById(tabId).classList.add('print-active');
+  document.getElementById('printTitle').textContent=title;
+  document.getElementById('printMeta').textContent=`출력일: ${todayISO()}`;
+  window.print();
+  setTimeout(()=>document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active')),500);
 }
 
 // ========== RENDER ==========
-function renderAll() {
-  renderMaterials(); renderProducts(); renderSelects();
-  renderPurchases(); renderInventorySummary(); renderInventoryLots();
-  renderProductions(); renderProductSummary(); renderProductLedger();
-  renderDashboard(); updateCloudStatus(); checkBackupAlert();
-  const bd = document.getElementById('backupDays'); if (bd) bd.value = state.settings.backupDays||7;
-  const lb = document.getElementById('lastBackupDate'); if (lb) lb.value = state.settings.lastBackupAt||'없음';
+function renderAll(){
+  renderMaterials(); renderSemis(); renderProducts(); renderSelects();
+  renderPurchases(); renderP1(); renderP2(); renderShips();
+  renderLedger(); renderDashboard(); renderReport();
+  updateCloudStatus(); checkBackupAlert();
+  const bd=document.getElementById('backupDays'); if(bd) bd.value=state.settings.backupDays||7;
+  const lb=document.getElementById('lastBackupDate'); if(lb) lb.value=state.settings.lastBackupAt||'없음';
 }
 
 // ========== INIT ==========
 loadState();
-['pDate','prodDate','shipDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayISO(); });
-addBomRow(); updatePurchasePreview(); renderAll();
-
-// Auto-pull from cloud on init if connected
-if (state.cloud.connected && state.cloud.url && state.cloud.key) {
-  cloudPull(false).catch(()=>{});
-}
+['pDate','p1Date','p2Date','sDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayISO(); });
+addP1BomRow(); addP2SemiRow(); addP2BomRow();
+updatePurchasePreview(); renderAll();
+if(state.cloud.connected&&state.cloud.config){ fbInit(state.cloud.config).then(()=>fbPull(false)).catch(()=>{ state.cloud.connected=false; updateCloudStatus(); }); }
 </script>
 <script>window.WS_CURRENT_APP="production";</script>
-<!-- ===== Workspace Sidebar (PC only, hidden on mobile) ===== -->
 <style id="ws-launcher-style">
 @media (min-width: 1024px) {
   body { padding-left: 220px !important; }
-  #ws-launcher {
-    position: fixed !important;
-    left: 0 !important; top: 0 !important; bottom: 0 !important;
-    width: 220px !important;
-    background: linear-gradient(180deg, #0a0d12 0%, #0f1320 100%) !important;
-    border-right: 1px solid rgba(255,255,255,0.08) !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 22px 14px !important;
-    font-family: -apple-system, 'Segoe UI', 'Pretendard', sans-serif !important;
-    color: #f0f3f9 !important;
-    overflow-y: auto !important;
-    box-sizing: border-box !important;
-  }
-  #ws-launcher,
-  #ws-launcher *,
-  #ws-launcher *::before,
-  #ws-launcher *::after { box-sizing: border-box !important; }
-
-  #ws-launcher .ws-brand {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    padding: 0 8px 18px !important;
-    margin-bottom: 14px !important;
-    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-    background: transparent !important;
-  }
-  #ws-launcher .ws-logo {
-    width: 32px !important; height: 32px !important;
-    border-radius: 9px !important;
-    background: linear-gradient(135deg, #7c8cff 0%, #b67cff 50%, #ff7cae 100%) !important;
-    display: grid !important; place-items: center !important;
-    box-shadow: 0 6px 20px rgba(124,140,255,0.25) !important;
-    flex-shrink: 0 !important;
-  }
+  #ws-launcher { position: fixed !important; left: 0 !important; top: 0 !important; bottom: 0 !important; width: 220px !important; background: linear-gradient(180deg, #0a0d12 0%, #0f1320 100%) !important; border-right: 1px solid rgba(255,255,255,0.08) !important; z-index: 99999 !important; display: flex !important; flex-direction: column !important; padding: 22px 14px !important; font-family: -apple-system, 'Segoe UI', 'Pretendard', sans-serif !important; color: #f0f3f9 !important; overflow-y: auto !important; box-sizing: border-box !important; }
+  #ws-launcher, #ws-launcher *, #ws-launcher *::before, #ws-launcher *::after { box-sizing: border-box !important; }
+  #ws-launcher .ws-brand { display: flex !important; align-items: center !important; gap: 10px !important; padding: 0 8px 18px !important; margin-bottom: 14px !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; background: transparent !important; }
+  #ws-launcher .ws-logo { width: 32px !important; height: 32px !important; border-radius: 9px !important; background: linear-gradient(135deg, #7c8cff 0%, #b67cff 50%, #ff7cae 100%) !important; display: grid !important; place-items: center !important; box-shadow: 0 6px 20px rgba(124,140,255,0.25) !important; flex-shrink: 0 !important; }
   #ws-launcher .ws-logo svg { width: 16px !important; height: 16px !important; color: #fff !important; }
-  #ws-launcher .ws-title {
-    font-size: 14px !important; font-weight: 700 !important;
-    letter-spacing: -0.2px !important;
-    color: #f0f3f9 !important;
-    line-height: 1.2 !important;
-    background: transparent !important;
-  }
-  #ws-launcher .ws-sub {
-    font-size: 9px !important; color: #555c6e !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1.5px !important;
-    margin-top: 2px !important;
-    font-weight: 600 !important;
-    background: transparent !important;
-  }
-  #ws-launcher .ws-label {
-    font-size: 9px !important; color: #555c6e !important;
-    text-transform: uppercase !important;
-    letter-spacing: 2px !important;
-    font-weight: 600 !important;
-    padding: 0 12px !important;
-    margin-bottom: 8px !important;
-    background: transparent !important;
-  }
-  #ws-launcher .ws-nav {
-    display: flex !important; flex-direction: column !important;
-    gap: 3px !important;
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-  #ws-launcher a.ws-item,
-  #ws-launcher a.ws-item:link,
-  #ws-launcher a.ws-item:visited {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    padding: 9px 11px !important;
-    border-radius: 8px !important;
-    color: #8a93a6 !important;
-    text-decoration: none !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    border: 1px solid transparent !important;
-    transition: all 0.15s ease !important;
-    position: relative !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    width: auto !important;
-  }
-  #ws-launcher a.ws-item:hover {
-    background: rgba(255,255,255,0.04) !important;
-    color: #f0f3f9 !important;
-  }
-  #ws-launcher a.ws-item.ws-active,
-  #ws-launcher a.ws-item.ws-active:link,
-  #ws-launcher a.ws-item.ws-active:visited,
-  #ws-launcher a.ws-item.ws-active:hover {
-    background: rgba(124,140,255,0.15) !important;
-    color: #ffffff !important;
-    border-color: rgba(124,140,255,0.3) !important;
-  }
-  #ws-launcher a.ws-item.ws-active::before {
-    content: '' !important;
-    position: absolute !important;
-    left: 0 !important; top: 8px !important; bottom: 8px !important;
-    width: 2px !important;
-    background: linear-gradient(180deg, #7c8cff, #ff7cae) !important;
-    border-radius: 2px !important;
-    display: block !important;
-  }
-  /* 모든 자식 텍스트도 명시적으로 색상 적용 (앱 CSS의 span 오버라이드 방지) */
-  #ws-launcher a.ws-item > span {
-    color: inherit !important;
-    background: transparent !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    line-height: 1.4 !important;
-  }
-  #ws-launcher a.ws-item.ws-active > span:not(.ws-icon) {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-  }
-  #ws-launcher .ws-icon {
-    width: 26px !important; height: 26px !important;
-    border-radius: 7px !important;
-    display: grid !important; place-items: center !important;
-    font-size: 14px !important;
-    background: rgba(255,255,255,0.05) !important;
-    flex-shrink: 0 !important;
-    color: inherit !important;
-  }
-  #ws-launcher a.ws-active .ws-icon {
-    background: rgba(124,140,255,0.2) !important;
-  }
-  #ws-launcher .ws-foot {
-    margin-top: auto !important;
-    padding-top: 14px !important;
-    border-top: 1px solid rgba(255,255,255,0.06) !important;
-    font-size: 10px !important;
-    color: #555c6e !important;
-    text-align: center !important;
-    background: transparent !important;
-  }
-  #ws-launcher .ws-foot .ws-dot {
-    display: inline-block !important;
-    width: 6px !important; height: 6px !important;
-    border-radius: 50% !important;
-    background: #00d97e !important;
-    margin-right: 5px !important;
-    box-shadow: 0 0 6px #00d97e !important;
-  }
+  #ws-launcher .ws-title { font-size: 14px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; color: #f0f3f9 !important; line-height: 1.2 !important; background: transparent !important; }
+  #ws-launcher .ws-sub { font-size: 9px !important; color: #555c6e !important; text-transform: uppercase !important; letter-spacing: 1.5px !important; margin-top: 2px !important; font-weight: 600 !important; background: transparent !important; }
+  #ws-launcher .ws-label { font-size: 9px !important; color: #555c6e !important; text-transform: uppercase !important; letter-spacing: 2px !important; font-weight: 600 !important; padding: 0 12px !important; margin-bottom: 8px !important; background: transparent !important; }
+  #ws-launcher .ws-nav { display: flex !important; flex-direction: column !important; gap: 3px !important; background: transparent !important; border: none !important; padding: 0 !important; overflow: visible !important; }
+  #ws-launcher a.ws-item, #ws-launcher a.ws-item:link, #ws-launcher a.ws-item:visited { display: flex !important; align-items: center !important; gap: 10px !important; padding: 9px 11px !important; border-radius: 8px !important; color: #8a93a6 !important; text-decoration: none !important; font-size: 12px !important; font-weight: 500 !important; border: 1px solid transparent !important; transition: all 0.15s ease !important; position: relative !important; background: transparent !important; box-shadow: none !important; width: auto !important; }
+  #ws-launcher a.ws-item:hover { background: rgba(255,255,255,0.04) !important; color: #f0f3f9 !important; }
+  #ws-launcher a.ws-item.ws-active, #ws-launcher a.ws-item.ws-active:link, #ws-launcher a.ws-item.ws-active:visited, #ws-launcher a.ws-item.ws-active:hover { background: rgba(124,140,255,0.15) !important; color: #ffffff !important; border-color: rgba(124,140,255,0.3) !important; }
+  #ws-launcher a.ws-item.ws-active::before { content: '' !important; position: absolute !important; left: 0 !important; top: 8px !important; bottom: 8px !important; width: 2px !important; background: linear-gradient(180deg, #7c8cff, #ff7cae) !important; border-radius: 2px !important; display: block !important; }
+  #ws-launcher a.ws-item > span { color: inherit !important; background: transparent !important; font-size: 12px !important; font-weight: 500 !important; line-height: 1.4 !important; }
+  #ws-launcher a.ws-item.ws-active > span:not(.ws-icon) { color: #ffffff !important; font-weight: 600 !important; }
+  #ws-launcher .ws-icon { width: 26px !important; height: 26px !important; border-radius: 7px !important; display: grid !important; place-items: center !important; font-size: 14px !important; background: rgba(255,255,255,0.05) !important; flex-shrink: 0 !important; color: inherit !important; }
+  #ws-launcher a.ws-active .ws-icon { background: rgba(124,140,255,0.2) !important; }
+  #ws-launcher .ws-foot { margin-top: auto !important; padding-top: 14px !important; border-top: 1px solid rgba(255,255,255,0.06) !important; font-size: 10px !important; color: #555c6e !important; text-align: center !important; background: transparent !important; }
+  #ws-launcher .ws-foot .ws-dot { display: inline-block !important; width: 6px !important; height: 6px !important; border-radius: 50% !important; background: #00d97e !important; margin-right: 5px !important; box-shadow: 0 0 6px #00d97e !important; }
 }
-@media (max-width: 1023px) {
-  #ws-launcher { display: none !important; }
-}
-@media print {
-  #ws-launcher { display: none !important; }
-  body { padding-left: 0 !important; }
-}
+@media (max-width: 1023px) { #ws-launcher { display: none !important; } }
+@media print { #ws-launcher { display: none !important; } body { padding-left: 0 !important; } }
 </style>
 
 <aside id="ws-launcher">
   <div class="ws-brand">
-    <div class="ws-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    </div>
-    <div>
-      <div class="ws-title">Workspace</div>
-      <div class="ws-sub">Console</div>
-    </div>
+    <div class="ws-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+    <div><div class="ws-title">Workspace</div><div class="ws-sub">Console</div></div>
   </div>
   <div class="ws-label">Applications</div>
   <nav class="ws-nav">
-    <a class="ws-item" data-app="daily-report" href="https://charllottesooh.github.io/Daily-account-report/">
-      <span class="ws-icon">📊</span><span>일일보고</span>
-    </a>
-    <a class="ws-item" data-app="purchase" href="https://charllottesooh.github.io/my-erp/">
-      <span class="ws-icon">💳</span><span>일일결제</span>
-    </a>
-    <a class="ws-item" data-app="franchise" href="https://charllottesooh.github.io/franchise-manager/">
-      <span class="ws-icon">🏪</span><span>가맹점 변동</span>
-    </a>
-    <a class="ws-item" data-app="production" href="https://charllottesooh.github.io/production_erp/">
-      <span class="ws-icon">🏭</span><span>제품생산 ERP</span>
-    </a>
+    <a class="ws-item" data-app="daily-report" href="https://charllottesooh.github.io/Daily-account-report/"><span class="ws-icon">📊</span><span>일일보고</span></a>
+    <a class="ws-item" data-app="purchase" href="https://charllottesooh.github.io/my-erp/"><span class="ws-icon">💳</span><span>일일결제</span></a>
+    <a class="ws-item" data-app="franchise" href="https://charllottesooh.github.io/franchise-manager/"><span class="ws-icon">🏪</span><span>가맹점 변동</span></a>
+    <a class="ws-item" data-app="production" href="https://charllottesooh.github.io/production_erp/"><span class="ws-icon">🏭</span><span>제품생산 ERP</span></a>
   </nav>
   <div class="ws-foot"><span class="ws-dot"></span>Workspace v2</div>
 </aside>
-
 <script>
-(function(){
-  var current = window.WS_CURRENT_APP || '';
-  if (!current) return;
-  var items = document.querySelectorAll('#ws-launcher a.ws-item');
-  items.forEach(function(el){
-    if (el.dataset.app === current) el.classList.add('ws-active');
-  });
-})();
+(function(){ var c=window.WS_CURRENT_APP||''; if(!c) return; document.querySelectorAll('#ws-launcher a.ws-item').forEach(function(el){ if(el.dataset.app===c) el.classList.add('ws-active'); }); })();
 </script>
-<!-- ===== /Workspace Sidebar ===== -->
-
-
 </body>
 </html>
