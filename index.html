@@ -295,6 +295,14 @@
       </div>
       <div id="productsList"></div>
     </div>
+
+    <!-- 재고조정 이력 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic" style="background:#fef3c7;color:#92400e;">⚖️</div><div><div class="nm">재고조정 이력</div><div class="meta">실사 조정 내역 · 되돌리기 가능</div></div></div>
+      </div>
+      <div id="adjustList"></div>
+    </div>
   </section>
 
   <!-- ===== PURCHASE ===== -->
@@ -761,26 +769,54 @@ function adjustStockMaterial(id){
     const diff=target-cur; // +면 증가, -면 감소
     if(Math.abs(diff)<1e-9){ toast('차이 없음 (조정 불필요)','error'); return false; }
     if(diff<0){
-      // 소진: FIFO 오래된 로트부터 차감
-      let need=-diff;
+      // 소진: FIFO 오래된 로트부터 차감, 되돌리기용 내역 저장
+      let need=-diff; const restore=[];
       const lots=state.purchases.filter(p=>p.materialId===id&&p.remaining>1e-9).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
-      for(const lot of lots){ if(need<=1e-9) break; const use=Math.min(lot.remaining,need); lot.remaining=Math.max(0,lot.remaining-use); need-=use; }
-      // 조정 기록용 (음수 로트가 아니라 소진 이벤트로 별도 저장)
+      for(const lot of lots){ if(need<=1e-9) break; const use=Math.min(lot.remaining,need); lot.remaining=Math.max(0,lot.remaining-use); restore.push({lotId:lot.id,qty:use}); need-=use; }
       state.adjustments=state.adjustments||[];
-      state.adjustments.push({id:uid(),date:d,kind:'material',itemId:id,delta:diff,reason,createdAt:nowISO()});
+      state.adjustments.push({id:uid(),date:d,kind:'material',itemId:id,delta:diff,reason,restore,addLotId:null,createdAt:nowISO()});
     } else {
-      // 증가: 새 로트 추가 (직전 평균단가 또는 최근 단가 사용)
+      // 증가: 새 로트 추가 (평균단가), 되돌리기용 로트ID 저장
       const lots=state.purchases.filter(p=>p.materialId===id);
       const totRem=lots.reduce((s,p)=>s+p.remaining,0);
       const avgCost=totRem>0?lots.reduce((s,p)=>s+p.remaining*p.unitCost,0)/totRem:(lots.length?lots[lots.length-1].unitCost:0);
-      state.purchases.push({id:uid(),date:d,materialId:id,quantity:diff,remaining:diff,enteredAmount:Math.round(diff*avgCost),taxType:'exempt',supplyPrice:Math.round(diff*avgCost),vat:0,totalAmount:Math.round(diff*avgCost),unitCost:avgCost,lot:'재고조정',expiration:null,supplier:'',notes:reason,isAdjust:true,createdAt:nowISO()});
+      const newLotId=uid();
+      state.purchases.push({id:newLotId,date:d,materialId:id,quantity:diff,remaining:diff,enteredAmount:Math.round(diff*avgCost),taxType:'exempt',supplyPrice:Math.round(diff*avgCost),vat:0,totalAmount:Math.round(diff*avgCost),unitCost:avgCost,lot:'재고조정',expiration:null,supplier:'',notes:reason,isAdjust:true,createdAt:nowISO()});
       state.adjustments=state.adjustments||[];
-      state.adjustments.push({id:uid(),date:d,kind:'material',itemId:id,delta:diff,reason,createdAt:nowISO()});
+      state.adjustments.push({id:uid(),date:d,kind:'material',itemId:id,delta:diff,reason,restore:null,addLotId:newLotId,createdAt:nowISO()});
     }
     saveState(); toast(`재고조정 완료 (${diff>0?'+':''}${fmt(diff)})`,'success'); renderAll();
   });
   // 미리보기 실시간
   setTimeout(()=>{ const qEl=document.getElementById('ajQty'); if(qEl) qEl.addEventListener('input',()=>{ const t=Number(qEl.value); const pv=document.getElementById('ajPreview'); if(!pv) return; if(isNaN(t)||qEl.value===''){ pv.textContent='실사 재고량을 입력하세요.'; return; } const diff=t-cur; pv.innerHTML=`장부 ${fmt(cur)} → 실사 <b>${fmt(t)}</b> · 조정 <b style="color:${diff<0?'var(--danger)':'var(--success)'};">${diff>0?'+':''}${fmt(diff)} ${m.unit}</b>${diff<0?' (오래된 입고분부터 소진)':' (신규 로트 추가)'}`; }); },100);
+}
+// 재고조정 이력 되돌리기 (재고 원상복구 후 조정 기록 삭제)
+function revertAdjustment(adjId){
+  const aj=(state.adjustments||[]).find(a=>a.id===adjId); if(!aj) return;
+  const nm = aj.kind==='material'?matName(aj.itemId):semiName(aj.itemId);
+  if(!confirm(`이 재고조정을 되돌릴까요?\n\n${aj.date} · ${nm} · ${aj.delta>0?'+':''}${fmt(aj.delta)}\n\n재고가 조정 전 상태로 복구됩니다.`)) return;
+  if(aj.delta<0 && aj.restore){
+    // 소진했던 로트에 수량 복구
+    for(const r of aj.restore){ const lot=state.purchases.find(p=>p.id===r.lotId); if(lot) lot.remaining+=r.qty; }
+  } else if(aj.delta>0 && aj.addLotId){
+    // 추가했던 로트 제거 (단, 이미 생산에 쓰였으면 막기)
+    const lot=state.purchases.find(p=>p.id===aj.addLotId);
+    if(lot && lot.remaining<lot.quantity-1e-9){ toast('추가된 재고가 이미 생산에 사용됨. 되돌릴 수 없음','error'); return; }
+    state.purchases=state.purchases.filter(p=>p.id!==aj.addLotId);
+  }
+  state.adjustments=state.adjustments.filter(a=>a.id!==adjId);
+  saveState(); toast('재고조정 되돌림','success'); renderAll();
+}
+function renderAdjustments(){
+  const el=document.getElementById('adjustList'); if(!el) return;
+  const list=[...(state.adjustments||[])].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+  if(list.length===0){ el.innerHTML='<div class="empty-state">재고조정 이력 없음</div>'; return; }
+  let h='<table><thead><tr><th>기준일</th><th>품목</th><th class="text-right">조정량</th><th>사유</th><th class="no-print"></th></tr></thead><tbody>';
+  for(const aj of list){
+    const nm = aj.kind==='material'?matName(aj.itemId):semiName(aj.itemId);
+    h+=`<tr><td>${aj.date}</td><td><b>${escapeHtml(nm)}</b></td><td class="text-right" style="color:${aj.delta<0?'var(--danger)':'var(--success)'};font-weight:600;">${aj.delta>0?'+':''}${fmt(aj.delta)}</td><td style="color:var(--text-light);">${escapeHtml(aj.reason||'-')}</td><td class="text-right no-print"><button class="btn-chip" onclick="revertAdjustment('${aj.id}')">되돌리기</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
 }
 
 function toggleAddBar(which){
@@ -1587,6 +1623,7 @@ function printTab(tabId,title){
 // ========== RENDER ==========
 function renderAll(){
   renderMaterials(); renderSemis(); renderProducts(); renderSelects();
+  renderAdjustments();
   renderPurchases(); renderP1(); renderP2(); renderShips();
   renderLedger(); renderDashboard(); renderReport();
   updateCloudStatus(); checkBackupAlert();
