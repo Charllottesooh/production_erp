@@ -196,28 +196,36 @@
   .ps-sign { display: flex; justify-content: flex-end; gap: 0; margin-top: 30px; }
   .ps-sign table { border-collapse: collapse; font-size: 12px; }
   .ps-sign th, .ps-sign td { border: 1px solid #333; text-align: center; }
-  .ps-sign th { background: #f0f0f0; padding: 6px 20px; }
+  .ps-sign th { background: #f0f0f0; padding: 6px 20px; color: #000; font-weight: 800; }
   .ps-sign td { height: 50px; width: 90px; }
-  .ps-foot { margin-top: 20px; font-size: 11px; color: #888; text-align: center; }
+  /* 회색바탕 셀: 글자 검정 볼드 (검사관용 가독성) */
+  .ps-meta th, .ps-tbl th, .ps-tbl tfoot td { color: #000 !important; font-weight: 800 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* 인쇄 방향: 기본 세로, 목록 인쇄 시 가로 */
+  @page { size: A4 portrait; margin: 14mm; }
+  @page landscapePage { size: A4 landscape; margin: 10mm; }
   @media print {
-    @page { size: A4 portrait; margin: 14mm; }
-    body.printing-sheet .prod-sheet { display: block !important; }
+    body.printing-list { page: landscapePage; }
   }
+  /* 생산일지 인쇄: 세로 */
   @media print {
-    @page { size: A4 landscape; margin: 10mm; }
-    body { background: white; font-size: 11px; }
-    header, nav, .btn, .no-print, .alert-banner, .success-banner, #ws-launcher { display: none !important; }
-    body { padding-left: 0 !important; }
-    main { padding: 0; max-width: 100%; }
-    .tab { display: none !important; } .tab.print-active { display: block !important; }
-    .card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; padding: 12px; margin-bottom: 12px; }
-    .card h2 { font-size: 13px; padding-bottom: 6px; margin-bottom: 8px; }
-    .print-header { display: block; }
-    table { font-size: 10px; }
-    th, td { padding: 4px 6px; }
-    th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .badge { border: 1px solid #999; padding: 1px 4px; }
-    .no-print-card { display: none !important; }
+    body.printing-sheet .prod-sheet { display: block !important; }
+    body.printing-sheet .ps-meta th, body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl tfoot td { background: #f0f0f0 !important; }
+  }
+  /* 목록 인쇄: 가로 */
+  @media print {
+    body.printing-list { background: white; font-size: 11px; }
+    body.printing-list header, body.printing-list nav, body.printing-list .btn, body.printing-list .no-print, body.printing-list .alert-banner, body.printing-list .success-banner, body.printing-list #ws-launcher { display: none !important; }
+    body.printing-list { padding-left: 0 !important; }
+    body.printing-list main { padding: 0; max-width: 100%; }
+    body.printing-list .tab { display: none !important; } body.printing-list .tab.print-active { display: block !important; }
+    body.printing-list .card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; padding: 12px; margin-bottom: 12px; }
+    body.printing-list .card h2 { font-size: 13px; padding-bottom: 6px; margin-bottom: 8px; }
+    body.printing-list .print-header { display: block; }
+    body.printing-list table { font-size: 10px; }
+    body.printing-list th, body.printing-list td { padding: 4px 6px; }
+    body.printing-list th { background: #eee !important; color:#000 !important; font-weight:800 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body.printing-list .badge { border: 1px solid #999; padding: 1px 4px; }
+    body.printing-list .no-print-card { display: none !important; }
   }
 </style>
 </head>
@@ -226,7 +234,7 @@
 <header class="no-print">
   <div class="header-flex">
     <div>
-      <h1>🏭 생산관리 ERP</h1>
+      <h1>🏭 생산관리 ERP <span style="font-size:12px;opacity:0.7;font-weight:400;">v2.5</span></h1>
       <div class="subtitle">원재료 → 반제품 → 완제품 2단계 · 수불부 · FIFO 원가 · 클라우드</div>
     </div>
     <div id="cloudStatus" class="cloud-status disconnected"><span class="dot"></span><span class="text">클라우드 미연결</span></div>
@@ -424,7 +432,7 @@
       </div>
     </div>
     <div class="card semi">
-      <h2>1차 생산 이력 <button class="btn btn-print no-print" onclick="printTab('prod1','1차 생산 이력')">🖨️ 인쇄</button></h2>
+      <h2>1차 생산 이력 <button class="btn btn-secondary btn-sm no-print" onclick="fillLotsP1()">🏷 LOT 일괄생성</button> <button class="btn btn-print no-print" onclick="printTab('prod1','1차 생산 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
         <div style="flex:1;"><label>반제품</label><select id="fP1Semi" onchange="renderP1()"><option value="">전체</option></select></div>
         <div style="flex:1;"><label>시작</label><input type="date" id="fP1Start" onchange="renderP1()" /></div>
@@ -477,7 +485,7 @@
       </div>
     </div>
     <div class="card final">
-      <h2>2차 생산 이력 <button class="btn btn-print no-print" onclick="printTab('prod2','2차 생산 이력')">🖨️ 인쇄</button></h2>
+      <h2>2차 생산 이력 <button class="btn btn-secondary btn-sm no-print" onclick="fillLotsP2()">🏷 LOT 일괄생성</button> <button class="btn btn-print no-print" onclick="printTab('prod2','2차 생산 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
         <div style="flex:1;"><label>완제품</label><select id="fP2Product" onchange="renderP2()"><option value="">전체</option></select></div>
         <div style="flex:1;"><label>시작</label><input type="date" id="fP2Start" onchange="renderP2()" /></div>
@@ -1617,6 +1625,34 @@ function editP2GetMat(){ const m={}; for(const r of _editP2Mat){ if(r.materialId
 
 // ========== 생산일지 인쇄 (A4 세로) ==========
 const COMPANY_NAME='둘둘치킨';
+function fillLotsP1(){
+  const targets=state.prod1.filter(p=>!p.lot||!p.lot.trim());
+  if(targets.length===0){ toast('LOT이 비어있는 1차 생산이 없습니다','success'); return; }
+  if(!confirm(`LOT 미입력 1차 생산 ${targets.length}건에 자동 LOT을 생성할까요?`)) return;
+  const sorted=[...state.prod1].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||'').localeCompare(b.createdAt||''));
+  const cnt={};
+  for(const p of sorted){
+    const s=state.semis.find(x=>x.id===p.semiId); const code=(s&&s.code)?s.code:'SP';
+    const ymd=p.date.replace(/-/g,'').slice(2); const key=code+ymd;
+    cnt[key]=(cnt[key]||0)+1;
+    if(!p.lot||!p.lot.trim()) p.lot=`${code}-${ymd}-${String(cnt[key]).padStart(2,'0')}`;
+  }
+  saveState(); toast(`${targets.length}건 LOT 생성 완료`,'success'); renderAll();
+}
+function fillLotsP2(){
+  const targets=state.prod2.filter(p=>!p.lot||!p.lot.trim());
+  if(targets.length===0){ toast('LOT이 비어있는 2차 생산이 없습니다','success'); return; }
+  if(!confirm(`LOT 미입력 2차 생산 ${targets.length}건에 자동 LOT을 생성할까요?`)) return;
+  const sorted=[...state.prod2].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||'').localeCompare(b.createdAt||''));
+  const cnt={};
+  for(const p of sorted){
+    const pr=state.products.find(x=>x.id===p.productId); const code=(pr&&pr.code)?pr.code:'FG';
+    const ymd=p.date.replace(/-/g,'').slice(2); const key=code+ymd;
+    cnt[key]=(cnt[key]||0)+1;
+    if(!p.lot||!p.lot.trim()) p.lot=`${code}-${ymd}-${String(cnt[key]).padStart(2,'0')}`;
+  }
+  saveState(); toast(`${targets.length}건 LOT 생성 완료`,'success'); renderAll();
+}
 function kgTxt(qty,kgPer){ return kgPer>0?`${fmt(qty)}개 (${fmt(qty*kgPer,1)}kg)`:`${fmt(qty)}`; }
 function printProd1(id){
   const p=state.prod1.find(x=>x.id===id); if(!p) return;
@@ -1647,7 +1683,6 @@ function printProd1(id){
     </table>
     ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
     <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
-    <div class="ps-foot">출력일: ${todayISO()} · ${COMPANY_NAME} 생산관리시스템</div>
   </div>`;
   doPrintSheet(html);
 }
@@ -1680,12 +1715,12 @@ function printProd2(id){
     </table>
     ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
     <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
-    <div class="ps-foot">출력일: ${todayISO()} · ${COMPANY_NAME} 생산관리시스템</div>
   </div>`;
   doPrintSheet(html);
 }
 function doPrintSheet(html){
   const el=document.getElementById('prodSheet'); el.innerHTML=html;
+  document.body.classList.remove('printing-list');
   document.body.classList.add('printing-sheet');
   window.print();
   setTimeout(()=>{ document.body.classList.remove('printing-sheet'); el.innerHTML=''; },300);
@@ -2111,8 +2146,10 @@ function printTab(tabId,title){
   document.getElementById(tabId).classList.add('print-active');
   document.getElementById('printTitle').textContent=title;
   document.getElementById('printMeta').textContent=`출력일: ${todayISO()}`;
+  document.body.classList.remove('printing-sheet');
+  document.body.classList.add('printing-list');
   window.print();
-  setTimeout(()=>document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active')),500);
+  setTimeout(()=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active')); document.body.classList.remove('printing-list'); },500);
 }
 
 // ========== RENDER ==========
