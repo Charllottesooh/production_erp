@@ -276,10 +276,11 @@
         <div class="ttl"><div class="sec-ic semi">🧫</div><div><div class="nm">반제품</div><div class="meta" id="semiMeta"></div></div></div>
         <button class="add-btn semi no-print" onclick="toggleAddBar('semi')"><span class="add-ico">＋</span>반제품 추가</button>
       </div>
-      <div class="add-bar no-print" id="addBarSemi" style="display:none;grid-template-columns:2fr 1fr 1fr auto;">
+      <div class="add-bar no-print" id="addBarSemi" style="display:none;grid-template-columns:2fr 1fr 0.8fr 1fr auto;">
         <div><div class="mini">반제품명 *</div><input type="text" id="semiName" placeholder="예: 염지닭" onkeydown="if(event.key==='Enter')addSemi()" /></div>
         <div><div class="mini">코드</div><input type="text" id="semiCode" placeholder="SP-001" onkeydown="if(event.key==='Enter')addSemi()" /></div>
-        <div><div class="mini">단위</div><input type="text" id="semiUnit" value="Kg" /></div>
+        <div><div class="mini">단위</div><input type="text" id="semiUnit" value="개" /></div>
+        <div><div class="mini">1개당 kg</div><input type="number" id="semiKg" step="0.001" min="0" placeholder="예: 2" /></div>
         <button class="btn btn-semi" style="height:36px;" onclick="addSemi()">추가</button>
       </div>
       <div id="semisList"></div>
@@ -291,10 +292,11 @@
         <div class="ttl"><div class="sec-ic final">🍗</div><div><div class="nm">완제품</div><div class="meta" id="prodMeta"></div></div></div>
         <button class="add-btn final no-print" onclick="toggleAddBar('prod')"><span class="add-ico">＋</span>완제품 추가</button>
       </div>
-      <div class="add-bar no-print" id="addBarProd" style="display:none;grid-template-columns:2fr 1fr 1fr auto;">
+      <div class="add-bar no-print" id="addBarProd" style="display:none;grid-template-columns:2fr 1fr 0.8fr 1fr auto;">
         <div><div class="mini">완제품명 *</div><input type="text" id="prodName" placeholder="예: 후라이드치킨" onkeydown="if(event.key==='Enter')addProduct()" /></div>
         <div><div class="mini">코드</div><input type="text" id="prodCode" placeholder="FG-001" onkeydown="if(event.key==='Enter')addProduct()" /></div>
-        <div><div class="mini">단위</div><input type="text" id="prodUnit" value="Kg" /></div>
+        <div><div class="mini">단위</div><input type="text" id="prodUnit" value="개" /></div>
+        <div><div class="mini">1개당 kg</div><input type="number" id="prodKg" step="0.001" min="0" placeholder="예: 5" /></div>
         <button class="btn btn-success" style="height:36px;" onclick="addProduct()">추가</button>
       </div>
       <div id="productsList"></div>
@@ -707,21 +709,29 @@ function addMaterial(){
 function addSemi(){
   const name=document.getElementById('semiName').value.trim();
   const code=document.getElementById('semiCode').value.trim();
-  const unit=document.getElementById('semiUnit').value.trim()||'Kg';
+  const unit=document.getElementById('semiUnit').value.trim()||'개';
+  const kgPer=Number(document.getElementById('semiKg').value)||0;
   if(!name) return toast('반제품명','error');
   if(state.semis.some(s=>s.name===name)) return toast('중복','error');
-  state.semis.push({id:uid(),name,code,unit,createdAt:nowISO()});
-  saveState(); ['semiName','semiCode'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
+  state.semis.push({id:uid(),name,code,unit,kgPer,createdAt:nowISO()});
+  saveState(); ['semiName','semiCode','semiKg'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
 }
 function addProduct(){
   const name=document.getElementById('prodName').value.trim();
   const code=document.getElementById('prodCode').value.trim();
-  const unit=document.getElementById('prodUnit').value.trim()||'Kg';
+  const unit=document.getElementById('prodUnit').value.trim()||'개';
+  const kgPer=Number(document.getElementById('prodKg').value)||0;
   if(!name) return toast('완제품명','error');
   if(state.products.some(p=>p.name===name)) return toast('중복','error');
-  state.products.push({id:uid(),name,code,unit,createdAt:nowISO()});
-  saveState(); ['prodName','prodCode'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
+  state.products.push({id:uid(),name,code,unit,kgPer,createdAt:nowISO()});
+  saveState(); ['prodName','prodCode','prodKg'].forEach(id=>document.getElementById(id).value=''); toast('추가됨','success'); renderAll();
 }
+// 개수 + kg 병기 표시 헬퍼
+function semiKgOf(id){ const s=state.semis.find(x=>x.id===id); return s&&s.kgPer>0?s.kgPer:0; }
+function prodKgOf(id){ const p=state.products.find(x=>x.id===id); return p&&p.kgPer>0?p.kgPer:0; }
+function qtyWithKg(qty, kgPer){ if(kgPer>0) return `${fmt(qty)} <span style="color:var(--text-light);font-size:0.88em;">(${fmt(qty*kgPer,1)}kg)</span>`; return fmt(qty); }
+function semiQtyKg(id, qty){ return qtyWithKg(qty, semiKgOf(id)); }
+function prodQtyKg(id, qty){ return qtyWithKg(qty, prodKgOf(id)); }
 function deleteMaterial(id){
   if(state.purchases.some(p=>p.materialId===id)) return toast('매입 이력 존재','error');
   if(!confirm('삭제?')) return;
@@ -921,7 +931,7 @@ function renderSemis(){
     const rem=lots.reduce((a,l)=>a+l.remaining,0);
     const val=lots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
     const avg=rem>0?val/rem:0;
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#c4b5fd;color:#6d28d9;" onclick="editSemiRecipe('${s.id}')">${s.recipe&&s.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${semiQtyKg(s.id,rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#c4b5fd;color:#6d28d9;" onclick="editSemiRecipe('${s.id}')">${s.recipe&&s.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -934,7 +944,7 @@ function renderProducts(){
   for(const p of state.products){
     const made=state.prod2.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.output,0);
     const ship=state.ships.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${fmt(made)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(made-ship)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#86efac;color:#15803d;" onclick="editProductRecipe('${p.id}')">${p.recipe&&p.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${prodQtyKg(p.id,made)}</td><td class="text-right">${prodQtyKg(p.id,ship)}</td><td class="text-right"><b>${prodQtyKg(p.id,made-ship)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#86efac;color:#15803d;" onclick="editProductRecipe('${p.id}')">${p.recipe&&p.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1147,7 +1157,7 @@ function renderP1(){
   h+='<table><thead><tr><th>생산일</th><th>반제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
   for(const p of list){
     const u=p.usages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${fmt(p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP1('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${semiQtyKg(p.semiId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP1('${p.id}')">삭제</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1310,7 +1320,7 @@ function renderP2(){
   for(const p of list){
     const su=p.semiUsages.map(x=>`${semiName(x.semiId)}:${fmt(x.totalUsed)}`).join('<br>');
     const mu=p.matUsages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${fmt(p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP2('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${prodQtyKg(p.productId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP2('${p.id}')">삭제</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1430,9 +1440,10 @@ function renderLedger(){
   const hasScrap = kind!=='material';
   let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${shown.length}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
   h+=`<table><thead><tr><th>일자</th><th>품목</th><th>구분</th><th class="text-right">입고</th><th class="text-right">출고</th>${hasScrap?'<th class="text-right">파기</th>':''}<th class="text-right">잔량</th><th>비고</th></tr></thead><tbody>`;
+  const kgFn = kind==='semi'?(id,q)=>semiQtyKg(id,q) : kind==='product'?(id,q)=>prodQtyKg(id,q) : (id,q)=>fmt(q);
   for(const r of shown){
     const c=(r.inQty>0)?'var(--success)':((r.outQty>0)?'var(--danger)':'var(--warning)');
-    h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${fmt(r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
+    h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${kgFn(r.itemId,r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1482,8 +1493,8 @@ function renderDashboard(){
   // 재고 요약
   let sh2='<table><thead><tr><th>구분</th><th>품목</th><th class="text-right">재고</th><th class="text-right">재고가액</th></tr></thead><tbody>';
   for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
-  for(const x of state.semis){ const st=semiStock(x.id); const val=state.semiLots.filter(l=>l.semiId===x.id).reduce((a,l)=>a+l.remaining*l.unitCost,0); sh2+=`<tr><td><span class="badge badge-semi">반제품</span></td><td><b>${escapeHtml(x.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
-  for(const p of state.products){ const st=productStock(p.id); sh2+=`<tr><td><span class="badge badge-final">완제품</span></td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">-</td></tr>`; }
+  for(const x of state.semis){ const st=semiStock(x.id); const val=state.semiLots.filter(l=>l.semiId===x.id).reduce((a,l)=>a+l.remaining*l.unitCost,0); sh2+=`<tr><td><span class="badge badge-semi">반제품</span></td><td><b>${escapeHtml(x.name)}</b></td><td class="text-right">${semiQtyKg(x.id,st)}</td><td class="text-right">${won(val)}</td></tr>`; }
+  for(const p of state.products){ const st=productStock(p.id); sh2+=`<tr><td><span class="badge badge-final">완제품</span></td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${prodQtyKg(p.id,st)}</td><td class="text-right">-</td></tr>`; }
   document.getElementById('stockSummary').innerHTML = (state.materials.length+state.semis.length+state.products.length)? sh2+'</tbody></table>' : '<div class="empty-state">품목 없음</div>';
   // 유통기한
   const today=todayISO();
@@ -1672,8 +1683,8 @@ function openEditModal(title,bodyHtml,onSave){
 }
 function closeEditModal(){ document.getElementById('editModal').classList.remove('show'); document.getElementById('editModalBody').innerHTML=''; }
 function editMaterial(id){ const m=state.materials.find(x=>x.id===id); if(!m) return; openEditModal('원재료 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="emN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="emC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="emU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('emN').value.trim(); if(!n){toast('이름','error');return false;} if(state.materials.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('emC').value.trim();m.unit=document.getElementById('emU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
-function editSemi(id){ const m=state.semis.find(x=>x.id===id); if(!m) return; openEditModal('반제품 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="esN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="esC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="esU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('esN').value.trim(); if(!n){toast('이름','error');return false;} if(state.semis.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('esC').value.trim();m.unit=document.getElementById('esU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
-function editProduct(id){ const m=state.products.find(x=>x.id===id); if(!m) return; openEditModal('완제품 수정',`<div class="grid grid-3"><div><label>이름 *</label><input type="text" id="epN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="epC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="epU" value="${escapeHtml(m.unit||'Kg')}"/></div></div>`,()=>{ const n=document.getElementById('epN').value.trim(); if(!n){toast('이름','error');return false;} if(state.products.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('epC').value.trim();m.unit=document.getElementById('epU').value.trim()||'Kg'; saveState();toast('수정됨','success');renderAll(); }); }
+function editSemi(id){ const m=state.semis.find(x=>x.id===id); if(!m) return; openEditModal('반제품 수정',`<div class="grid grid-4"><div><label>이름 *</label><input type="text" id="esN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="esC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="esU" value="${escapeHtml(m.unit||'개')}"/></div><div><label>1개당 kg</label><input type="number" id="esK" step="0.001" min="0" value="${m.kgPer||''}"/></div></div>`,()=>{ const n=document.getElementById('esN').value.trim(); if(!n){toast('이름','error');return false;} if(state.semis.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('esC').value.trim();m.unit=document.getElementById('esU').value.trim()||'개';m.kgPer=Number(document.getElementById('esK').value)||0; saveState();toast('수정됨','success');renderAll(); }); }
+function editProduct(id){ const m=state.products.find(x=>x.id===id); if(!m) return; openEditModal('완제품 수정',`<div class="grid grid-4"><div><label>이름 *</label><input type="text" id="epN" value="${escapeHtml(m.name)}"/></div><div><label>코드</label><input type="text" id="epC" value="${escapeHtml(m.code||'')}"/></div><div><label>단위</label><input type="text" id="epU" value="${escapeHtml(m.unit||'개')}"/></div><div><label>1개당 kg</label><input type="number" id="epK" step="0.001" min="0" value="${m.kgPer||''}"/></div></div>`,()=>{ const n=document.getElementById('epN').value.trim(); if(!n){toast('이름','error');return false;} if(state.products.some(x=>x.id!==id&&x.name===n)){toast('중복','error');return false;} m.name=n;m.code=document.getElementById('epC').value.trim();m.unit=document.getElementById('epU').value.trim()||'개';m.kgPer=Number(document.getElementById('epK').value)||0; saveState();toast('수정됨','success');renderAll(); }); }
 function editPurchase(id){
   const p=state.purchases.find(x=>x.id===id); if(!p) return;
   const used=p.quantity-p.remaining;
