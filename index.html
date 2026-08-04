@@ -1217,7 +1217,7 @@ function renderP1(){
   h+='<table><thead><tr><th>생산일</th><th>반제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
   for(const p of list){
     const u=p.usages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${semiQtyKg(p.semiId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP1('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${semiQtyKg(p.semiId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn-icon edit" title="수정" onclick="editP1('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP1('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1230,6 +1230,78 @@ function deleteP1(id){
   state.semiLots=state.semiLots.filter(l=>l.sourceProd1!==id);
   state.prod1=state.prod1.filter(x=>x.id!==id); saveState(); renderAll();
 }
+let _editP1Rows=[];
+function editP1(id){
+  const p=state.prod1.find(x=>x.id===id); if(!p) return;
+  const lot=state.semiLots.find(l=>l.sourceProd1===id);
+  if(lot && lot.remaining<lot.quantity-1e-9) return toast('생성된 반제품이 이미 2차생산에 사용됨. 수정하려면 2차생산 먼저 삭제','error');
+  const semiOpts=state.semis.map(s=>`<option value="${s.id}" ${s.id===p.semiId?'selected':''}>${escapeHtml(s.name)}</option>`).join('');
+  _editP1Rows=p.usages.map(u=>({materialId:u.materialId,qty:u.totalUsed}));
+  const body=`
+    <div class="grid grid-4">
+      <div><label>생산일</label><input type="date" id="e1Date" value="${p.date}"/></div>
+      <div><label>반제품</label><select id="e1Semi">${semiOpts}</select></div>
+      <div><label>산출량</label><input type="number" id="e1Out" step="0.001" min="0" value="${p.output}"/></div>
+      <div><label>LOT</label><input type="text" id="e1Lot" value="${escapeHtml(p.lot||'')}"/></div>
+    </div>
+    <div style="margin-top:12px;"><label>투입 원재료</label><div id="e1BomList"></div>
+      <button class="btn btn-secondary btn-sm" onclick="editP1AddRow()">+ 원재료 추가</button>
+    </div>
+    <div class="grid grid-2" style="margin-top:12px;">
+      <div><label>파기량</label><input type="number" id="e1Scrap" step="0.001" min="0" value="${p.scrap||0}"/></div>
+      <div><label>파기 사유</label><input type="text" id="e1ScrapR" value="${escapeHtml(p.scrapReason||'')}"/></div>
+    </div>
+    <div style="margin-top:12px;"><label>비고</label><input type="text" id="e1Notes" value="${escapeHtml(p.notes||'')}"/></div>
+    <div class="warn-box" style="margin-top:12px;">저장 시 기존 투입 원재료를 되돌리고 새 값으로 다시 계산합니다.</div>`;
+  openEditModal(`1차 생산 수정 - ${semiName(p.semiId)}`, body, ()=>{
+    const date=document.getElementById('e1Date').value;
+    const semiId=document.getElementById('e1Semi').value;
+    const output=Number(document.getElementById('e1Out').value);
+    const newLot=document.getElementById('e1Lot').value.trim();
+    const scrap=Number(document.getElementById('e1Scrap').value)||0;
+    const scrapReason=document.getElementById('e1ScrapR').value.trim();
+    const notes=document.getElementById('e1Notes').value.trim();
+    if(!(output>0)){ toast('산출량','error'); return false; }
+    const entries=editP1GetRows();
+    if(entries.length===0){ toast('투입 원재료','error'); return false; }
+    // 1) 기존 투입 되돌리기
+    for(const u of p.usages) for(const a of u.allocations){ const lp=state.purchases.find(x=>x.id===a.lotId); if(lp) lp.remaining+=a.qty; }
+    // 2) 새 투입 FIFO 재계산 (되돌린 상태에서)
+    const plan=[];
+    for(const e of entries){
+      const r=fifoAllocateMat(e.materialId,e.qty);
+      if(r.shortage>0){
+        // 실패 시 되돌린 것을 다시 차감(원상)하여 데이터 보존
+        for(const u of p.usages) for(const a of u.allocations){ const lp=state.purchases.find(x=>x.id===a.lotId); if(lp) lp.remaining-=a.qty; }
+        toast(`재고부족: ${matName(e.materialId)} ${fmt(r.shortage)}`,'error'); return false;
+      }
+      plan.push({materialId:e.materialId,totalUsed:e.qty,allocations:r.alloc});
+    }
+    let totalCost=0, inputKg=0;
+    for(const it of plan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const lp=state.purchases.find(x=>x.id===a.lotId); lp.remaining=Math.max(0,lp.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+    const unitCost=output>0?totalCost/output:0;
+    // 3) prod1 갱신
+    p.date=date; p.semiId=semiId; p.output=output; p.lot=newLot; p.usages=plan; p.inputKg=inputKg; p.scrap=scrap; p.scrapReason=scrapReason; p.loss=Math.max(0,inputKg-output-scrap); p.yield=inputKg>0?output/inputKg:0; p.totalCost=totalCost; p.unitCost=unitCost;
+    // 4) 반제품 로트 갱신
+    const slot=state.semiLots.find(l=>l.sourceProd1===id);
+    if(slot){ slot.date=date; slot.semiId=semiId; slot.quantity=output; slot.remaining=output; slot.unitCost=unitCost; }
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+  setTimeout(()=>editP1RenderRows(),60);
+}
+function editP1RenderRows(){
+  const box=document.getElementById('e1BomList'); if(!box) return;
+  box.innerHTML='';
+  _editP1Rows.forEach((r,idx)=>{
+    const opts=state.materials.map(m=>`<option value="${m.id}" ${m.id===r.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+    const row=document.createElement('div'); row.className='bom-row'; row.style.gridTemplateColumns='2fr 1fr auto';
+    row.innerHTML=`<select onchange="_editP1Rows[${idx}].materialId=this.value"><option value="">선택...</option>${opts}</select><input type="number" step="0.001" min="0" value="${r.qty}" oninput="_editP1Rows[${idx}].qty=Number(this.value)||0" /><button class="btn btn-danger btn-sm" onclick="editP1DelRow(${idx})">삭제</button>`;
+    box.appendChild(row);
+  });
+}
+function editP1AddRow(){ _editP1Rows.push({materialId:'',qty:0}); editP1RenderRows(); }
+function editP1DelRow(idx){ _editP1Rows.splice(idx,1); editP1RenderRows(); }
+function editP1GetRows(){ const merged={}; for(const r of _editP1Rows){ if(r.materialId&&r.qty>0) merged[r.materialId]=(merged[r.materialId]||0)+r.qty; } return Object.keys(merged).map(k=>({materialId:k,qty:merged[k]})); }
 
 // ========== PROD2: 반제품 + 원재료 → 완제품 ==========
 let p2SemiCounter=0, p2BomCounter=0;
@@ -1380,7 +1452,7 @@ function renderP2(){
   for(const p of list){
     const su=p.semiUsages.map(x=>`${semiName(x.semiId)}:${fmt(x.totalUsed)}`).join('<br>');
     const mu=p.matUsages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${prodQtyKg(p.productId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteP2('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${prodQtyKg(p.productId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn-icon edit" title="수정" onclick="editP2('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP2('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1394,8 +1466,85 @@ function deleteP2(id){
   for(const u of p.matUsages) for(const a of u.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; }
   state.prod2=state.prod2.filter(x=>x.id!==id); saveState(); renderAll();
 }
-
-// ========== SHIP ==========
+let _editP2Semi=[], _editP2Mat=[];
+function editP2(id){
+  const p=state.prod2.find(x=>x.id===id); if(!p) return;
+  const made=state.prod2.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.output,0);
+  const shipped=state.ships.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.qty,0);
+  if(shipped>made-p.output+1e-9) return toast('이 완제품의 출고분이 남는 재고보다 큼. 출고 먼저 삭제 후 수정','error');
+  const prodOpts=state.products.map(x=>`<option value="${x.id}" ${x.id===p.productId?'selected':''}>${escapeHtml(x.name)}</option>`).join('');
+  _editP2Semi=p.semiUsages.map(u=>({semiId:u.semiId,qty:u.totalUsed}));
+  _editP2Mat=p.matUsages.map(u=>({materialId:u.materialId,qty:u.totalUsed}));
+  const body=`
+    <div class="grid grid-4">
+      <div><label>생산일</label><input type="date" id="e2Date" value="${p.date}"/></div>
+      <div><label>완제품</label><select id="e2Prod">${prodOpts}</select></div>
+      <div><label>산출량</label><input type="number" id="e2Out" step="0.001" min="0" value="${p.output}"/></div>
+      <div><label>LOT</label><input type="text" id="e2Lot" value="${escapeHtml(p.lot||'')}"/></div>
+    </div>
+    <div style="margin-top:12px;"><label>투입 반제품</label><div id="e2SemiList"></div>
+      <button class="btn btn-secondary btn-sm" onclick="editP2AddSemi()">+ 반제품 추가</button>
+    </div>
+    <div style="margin-top:12px;"><label>투입 원재료</label><div id="e2MatList"></div>
+      <button class="btn btn-secondary btn-sm" onclick="editP2AddMat()">+ 원재료 추가</button>
+    </div>
+    <div class="grid grid-2" style="margin-top:12px;">
+      <div><label>파기량</label><input type="number" id="e2Scrap" step="0.001" min="0" value="${p.scrap||0}"/></div>
+      <div><label>파기 사유</label><input type="text" id="e2ScrapR" value="${escapeHtml(p.scrapReason||'')}"/></div>
+    </div>
+    <div style="margin-top:12px;"><label>비고</label><input type="text" id="e2Notes" value="${escapeHtml(p.notes||'')}"/></div>
+    <div class="warn-box" style="margin-top:12px;">저장 시 기존 투입 반제품·원재료를 되돌리고 새 값으로 다시 계산합니다.</div>`;
+  openEditModal(`2차 생산 수정 - ${prodName(p.productId)}`, body, ()=>{
+    const date=document.getElementById('e2Date').value;
+    const productId=document.getElementById('e2Prod').value;
+    const output=Number(document.getElementById('e2Out').value);
+    const newLot=document.getElementById('e2Lot').value.trim();
+    const scrap=Number(document.getElementById('e2Scrap').value)||0;
+    const scrapReason=document.getElementById('e2ScrapR').value.trim();
+    const notes=document.getElementById('e2Notes').value.trim();
+    if(!(output>0)){ toast('산출량','error'); return false; }
+    const semiEntries=editP2GetSemi(), matEntries=editP2GetMat();
+    if(semiEntries.length===0&&matEntries.length===0){ toast('투입 필요','error'); return false; }
+    // 1) 기존 투입 되돌리기
+    const undo=()=>{ for(const u of p.semiUsages) for(const a of u.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; } for(const u of p.matUsages) for(const a of u.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; } };
+    const redo=()=>{ for(const u of p.semiUsages) for(const a of u.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); if(l) l.remaining-=a.qty; } for(const u of p.matUsages) for(const a of u.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); if(l) l.remaining-=a.qty; } };
+    undo();
+    // 2) 새 투입 재계산
+    const semiPlan=[], matPlan=[];
+    for(const e of semiEntries){ const r=fifoAllocateSemi(e.semiId,e.qty); if(r.shortage>0){ redo(); toast(`반제품부족: ${semiName(e.semiId)} ${fmt(r.shortage)}`,'error'); return false; } semiPlan.push({semiId:e.semiId,totalUsed:e.qty,allocations:r.alloc}); }
+    for(const e of matEntries){ const r=fifoAllocateMat(e.materialId,e.qty); if(r.shortage>0){ redo(); toast(`원재료부족: ${matName(e.materialId)} ${fmt(r.shortage)}`,'error'); return false; } matPlan.push({materialId:e.materialId,totalUsed:e.qty,allocations:r.alloc}); }
+    let totalCost=0, inputKg=0;
+    for(const it of semiPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+    for(const it of matPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
+    p.date=date; p.productId=productId; p.output=output; p.lot=newLot; p.semiUsages=semiPlan; p.matUsages=matPlan; p.inputKg=inputKg; p.scrap=scrap; p.scrapReason=scrapReason; p.loss=Math.max(0,inputKg-output-scrap); p.yield=inputKg>0?output/inputKg:0; p.totalCost=totalCost; p.unitCost=output>0?totalCost/output:0;
+    saveState(); toast('수정됨','success'); renderAll();
+  });
+  setTimeout(()=>{ editP2RenderSemi(); editP2RenderMat(); },60);
+}
+function editP2RenderSemi(){
+  const box=document.getElementById('e2SemiList'); if(!box) return; box.innerHTML='';
+  _editP2Semi.forEach((r,idx)=>{
+    const opts=state.semis.map(s=>`<option value="${s.id}" ${s.id===r.semiId?'selected':''}>${escapeHtml(s.name)} (재고 ${fmt(semiStock(s.id))})</option>`).join('');
+    const row=document.createElement('div'); row.className='bom-row'; row.style.gridTemplateColumns='2fr 1fr auto';
+    row.innerHTML=`<select onchange="_editP2Semi[${idx}].semiId=this.value"><option value="">선택...</option>${opts}</select><input type="number" step="0.001" min="0" value="${r.qty}" oninput="_editP2Semi[${idx}].qty=Number(this.value)||0" /><button class="btn btn-danger btn-sm" onclick="editP2DelSemi(${idx})">삭제</button>`;
+    box.appendChild(row);
+  });
+}
+function editP2RenderMat(){
+  const box=document.getElementById('e2MatList'); if(!box) return; box.innerHTML='';
+  _editP2Mat.forEach((r,idx)=>{
+    const opts=state.materials.map(m=>`<option value="${m.id}" ${m.id===r.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+    const row=document.createElement('div'); row.className='bom-row'; row.style.gridTemplateColumns='2fr 1fr auto';
+    row.innerHTML=`<select onchange="_editP2Mat[${idx}].materialId=this.value"><option value="">선택...</option>${opts}</select><input type="number" step="0.001" min="0" value="${r.qty}" oninput="_editP2Mat[${idx}].qty=Number(this.value)||0" /><button class="btn btn-danger btn-sm" onclick="editP2DelMat(${idx})">삭제</button>`;
+    box.appendChild(row);
+  });
+}
+function editP2AddSemi(){ _editP2Semi.push({semiId:'',qty:0}); editP2RenderSemi(); }
+function editP2DelSemi(idx){ _editP2Semi.splice(idx,1); editP2RenderSemi(); }
+function editP2AddMat(){ _editP2Mat.push({materialId:'',qty:0}); editP2RenderMat(); }
+function editP2DelMat(idx){ _editP2Mat.splice(idx,1); editP2RenderMat(); }
+function editP2GetSemi(){ const m={}; for(const r of _editP2Semi){ if(r.semiId&&r.qty>0) m[r.semiId]=(m[r.semiId]||0)+r.qty; } return Object.keys(m).map(k=>({semiId:k,qty:m[k]})); }
+function editP2GetMat(){ const m={}; for(const r of _editP2Mat){ if(r.materialId&&r.qty>0) m[r.materialId]=(m[r.materialId]||0)+r.qty; } return Object.keys(m).map(k=>({materialId:k,qty:m[k]})); }
 function saveShip(){
   const date=document.getElementById('sDate').value;
   const productId=document.getElementById('sProduct').value;
