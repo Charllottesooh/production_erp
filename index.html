@@ -117,6 +117,52 @@
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .seg button { background: white; border: none; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-light); }
   .seg button.active { background: var(--primary); color: white; }
+  /* ===== v2 리디자인 ===== */
+  .sec { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .sec-head .ttl { display: flex; align-items: center; gap: 11px; }
+  .sec-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+  .sec-ic.mat { background: #e0f2fe; color: #075985; }
+  .sec-ic.semi { background: #ede9fe; color: #5b21b6; }
+  .sec-ic.final { background: #dcfce7; color: #166534; }
+  .sec-head .nm { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.25; }
+  .sec-head .meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+  .sec.mat { border-top: 3px solid var(--primary); }
+  .sec.semi { border-top: 3px solid var(--semi); }
+  .sec.final { border-top: 3px solid var(--success); }
+  .add-bar { display: grid; gap: 10px; padding: 12px 18px; background: var(--bg); border-bottom: 1px solid var(--border); align-items: end; }
+  .add-bar .mini { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 600; }
+  .add-bar input { height: 36px; }
+  .sec table { font-size: 13px; }
+  .sec thead th { background: var(--bg); }
+  .sec tbody tr:first-child td { border-top: none; }
+  .btn-icon { height: 30px; width: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; margin-left: 4px; font-size: 15px; color: var(--text-light); transition: all .15s; vertical-align: middle; }
+  .btn-icon:hover { background: var(--hover); color: var(--text); }
+  .btn-icon.del:hover { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
+  .btn-icon.edit:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+  .btn-chip { height: 30px; padding: 0 11px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; margin-left: 4px; color: var(--text-light); vertical-align: middle; transition: all .15s; }
+  .btn-chip:hover { background: var(--hover); color: var(--text); }
+  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border: none; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600; color: white; }
+  .add-btn.mat { background: var(--primary); } .add-btn.mat:hover { background: var(--primary-hover); }
+  .add-btn.semi { background: var(--semi); } .add-btn.semi:hover { background: #7c3aed; }
+  .add-btn.final { background: var(--success); } .add-btn.final:hover { background: #059669; }
+  .add-ico { font-size: 17px; line-height: 1; }
+  /* 대시보드 리디자인 */
+  .dash-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
+  .dash-toolbar .dt-label { font-size: 12px; font-weight: 700; color: var(--text-light); display: flex; align-items: center; gap: 6px; }
+  .dash-toolbar input[type=date] { height: 34px; width: auto; min-width: 140px; }
+  .dash-toolbar .spacer { flex: 1; }
+  .dash-toolbar .seg button { padding: 6px 12px; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; position: relative; }
+  .stat .k { font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
+  .stat .v { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; }
+  .stat .v .u { font-size: 12px; color: var(--text-light); font-weight: 500; margin-left: 3px; }
+  .stat.accent-b { border-left: 3px solid var(--primary); }
+  .stat.accent-s { border-left: 3px solid var(--semi); }
+  .stat.accent-g { border-left: 3px solid var(--success); }
+  .stat.accent-o { border-left: 3px solid var(--warning); }
+  @media (max-width: 600px){ .add-bar { grid-template-columns: 1fr !important; } }
   @media print {
     @page { size: A4 landscape; margin: 10mm; }
     body { background: white; font-size: 11px; }
@@ -171,19 +217,22 @@
 
   <!-- ===== DASHBOARD ===== -->
   <section id="dashboard" class="tab active">
-    <div class="card no-print-card">
-      <h2>기간 지정 조회</h2>
-      <div class="row-flex">
-        <div style="flex:1;min-width:140px;"><label>시작일</label><input type="date" id="dashStart" onchange="renderDashboard()" /></div>
-        <div style="flex:1;min-width:140px;"><label>종료일</label><input type="date" id="dashEnd" onchange="renderDashboard()" /></div>
-        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('month')">이번달</button>
-        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('year')">올해</button>
-        <button class="btn btn-secondary btn-sm" onclick="dashSetRange('all')">전체</button>
+    <div class="dash-toolbar no-print">
+      <span class="dt-label">📅 기간</span>
+      <input type="date" id="dashStart" onchange="renderDashboard()" />
+      <span style="color:var(--text-light);">~</span>
+      <input type="date" id="dashEnd" onchange="renderDashboard()" />
+      <div class="seg" style="margin-left:4px;">
+        <button onclick="dashSetRange('month')">이번달</button>
+        <button onclick="dashSetRange('year')">올해</button>
+        <button onclick="dashSetRange('all')">전체</button>
       </div>
+      <div class="spacer"></div>
+      <button class="btn btn-print no-print" onclick="printTab('dashboard','대시보드')">🖨️ 인쇄</button>
     </div>
-    <div class="summary-grid" id="dashboardSummary"></div>
+    <div class="stat-row" id="dashboardSummary"></div>
     <div class="card">
-      <h2>재고 요약 (원재료·반제품·완제품) <button class="btn btn-print no-print" onclick="printTab('dashboard','대시보드')">🖨️ 인쇄</button></h2>
+      <h2>재고 요약 (원재료·반제품·완제품)</h2>
       <div id="stockSummary"></div>
     </div>
     <div class="card">
@@ -198,47 +247,50 @@
 
   <!-- ===== MASTER ===== -->
   <section id="master" class="tab">
-    <div class="info-box no-print">품목을 등록하고, 필요하면 <b>기초재고(시작 수량·단가)</b>를 넣으세요. 3년치 과거 이력 대신 시작 시점 재고만 세팅하면 됩니다.</div>
+    <div class="info-box no-print">품목을 등록하고, 필요하면 각 품목의 <b>기초재고</b> 버튼으로 시작 수량·단가를 넣으세요. 3년치 과거 이력 대신 시작 시점 재고만 세팅하면 됩니다.</div>
 
-    <div class="card no-print-card">
-      <h2>원재료 등록</h2>
-      <div class="row-flex">
-        <div style="flex:2;min-width:160px;"><label>원재료명 *</label><input type="text" id="matName" placeholder="예: 생닭" /></div>
-        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="matCode" placeholder="RM-001" /></div>
-        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="matUnit" placeholder="Kg" value="Kg" /></div>
-        <button class="btn btn-primary" onclick="addMaterial()">+ 추가</button>
+    <!-- 원재료 -->
+    <div class="sec mat">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic mat">📦</div><div><div class="nm">원재료</div><div class="meta" id="matMeta"></div></div></div>
+        <button class="add-btn mat no-print" onclick="toggleAddBar('mat')"><span class="add-ico">＋</span>원재료 추가</button>
       </div>
-    </div>
-    <div class="card">
-      <h2>원재료 목록 <button class="btn btn-print no-print" onclick="printTab('master','마스터')">🖨️ 인쇄</button></h2>
+      <div class="add-bar no-print" id="addBarMat" style="display:none;grid-template-columns:2fr 1fr 1fr auto;">
+        <div><div class="mini">원재료명 *</div><input type="text" id="matName" placeholder="예: 생닭" onkeydown="if(event.key==='Enter')addMaterial()" /></div>
+        <div><div class="mini">코드</div><input type="text" id="matCode" placeholder="RM-001" onkeydown="if(event.key==='Enter')addMaterial()" /></div>
+        <div><div class="mini">단위</div><input type="text" id="matUnit" value="Kg" /></div>
+        <button class="btn btn-primary" style="height:36px;" onclick="addMaterial()">추가</button>
+      </div>
       <div id="materialsList"></div>
     </div>
 
-    <div class="card no-print-card semi">
-      <h2>반제품 등록</h2>
-      <div class="row-flex">
-        <div style="flex:2;min-width:160px;"><label>반제품명 *</label><input type="text" id="semiName" placeholder="예: 염지닭(반제품)" /></div>
-        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="semiCode" placeholder="SP-001" /></div>
-        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="semiUnit" placeholder="Kg" value="Kg" /></div>
-        <button class="btn btn-semi" onclick="addSemi()">+ 추가</button>
+    <!-- 반제품 -->
+    <div class="sec semi">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic semi">🧫</div><div><div class="nm">반제품</div><div class="meta" id="semiMeta"></div></div></div>
+        <button class="add-btn semi no-print" onclick="toggleAddBar('semi')"><span class="add-ico">＋</span>반제품 추가</button>
       </div>
-    </div>
-    <div class="card semi">
-      <h2>반제품 목록</h2>
+      <div class="add-bar no-print" id="addBarSemi" style="display:none;grid-template-columns:2fr 1fr 1fr auto;">
+        <div><div class="mini">반제품명 *</div><input type="text" id="semiName" placeholder="예: 염지닭" onkeydown="if(event.key==='Enter')addSemi()" /></div>
+        <div><div class="mini">코드</div><input type="text" id="semiCode" placeholder="SP-001" onkeydown="if(event.key==='Enter')addSemi()" /></div>
+        <div><div class="mini">단위</div><input type="text" id="semiUnit" value="Kg" /></div>
+        <button class="btn btn-semi" style="height:36px;" onclick="addSemi()">추가</button>
+      </div>
       <div id="semisList"></div>
     </div>
 
-    <div class="card no-print-card final">
-      <h2>완제품 등록</h2>
-      <div class="row-flex">
-        <div style="flex:2;min-width:160px;"><label>완제품명 *</label><input type="text" id="prodName" placeholder="예: 후라이드치킨" /></div>
-        <div style="flex:1;min-width:110px;"><label>코드</label><input type="text" id="prodCode" placeholder="FG-001" /></div>
-        <div style="flex:1;min-width:90px;"><label>단위</label><input type="text" id="prodUnit" placeholder="Kg" value="Kg" /></div>
-        <button class="btn btn-success" onclick="addProduct()">+ 추가</button>
+    <!-- 완제품 -->
+    <div class="sec final">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic final">🍗</div><div><div class="nm">완제품</div><div class="meta" id="prodMeta"></div></div></div>
+        <button class="add-btn final no-print" onclick="toggleAddBar('prod')"><span class="add-ico">＋</span>완제품 추가</button>
       </div>
-    </div>
-    <div class="card final">
-      <h2>완제품 목록</h2>
+      <div class="add-bar no-print" id="addBarProd" style="display:none;grid-template-columns:2fr 1fr 1fr auto;">
+        <div><div class="mini">완제품명 *</div><input type="text" id="prodName" placeholder="예: 후라이드치킨" onkeydown="if(event.key==='Enter')addProduct()" /></div>
+        <div><div class="mini">코드</div><input type="text" id="prodCode" placeholder="FG-001" onkeydown="if(event.key==='Enter')addProduct()" /></div>
+        <div><div class="mini">단위</div><input type="text" id="prodUnit" value="Kg" /></div>
+        <button class="btn btn-success" style="height:36px;" onclick="addProduct()">추가</button>
+      </div>
       <div id="productsList"></div>
     </div>
   </section>
@@ -249,9 +301,13 @@
       <h2>원재료 매입 입고</h2>
       <div class="grid grid-4">
         <div><label>입고일 *</label><input type="date" id="pDate" /></div>
-        <div><label>원재료 *</label><select id="pMaterial"></select></div>
-        <div><label>수량 *</label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" /></div>
+        <div><label>원재료 *</label><select id="pMaterial" onchange="updatePurchasePreview()"></select></div>
+        <div><label>수량 * <span style="color:var(--primary);font-weight:400;">(Kg 단위로 입력)</span></label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" oninput="updatePurchasePreview()" /></div>
+        <div><label>포장 비고 <span style="color:var(--text-light);font-weight:400;">(예: 20Kg 5포)</span></label><input type="text" id="pPack" placeholder="몇 포대 / 몇 박스" /></div>
+      </div>
+      <div class="grid grid-4" style="margin-top:12px;">
         <div><label>LOT번호</label><input type="text" id="pLot" placeholder="입고 로트" /></div>
+        <div style="grid-column:span 3;"></div>
       </div>
       <div class="grid grid-4" style="margin-top:12px;">
         <div><label>금액(원) *</label><input type="number" id="pAmount" step="1" min="0" placeholder="0" /></div>
@@ -684,39 +740,54 @@ function setOpeningSemi(id){
   });
 }
 
+function toggleAddBar(which){
+  const map={mat:'addBarMat',semi:'addBarSemi',prod:'addBarProd'};
+  const el=document.getElementById(map[which]); if(!el) return;
+  const show=el.style.display==='none';
+  el.style.display=show?'grid':'none';
+  if(show){ const f=el.querySelector('input'); if(f) setTimeout(()=>f.focus(),50); }
+}
 function renderMaterials(){
   const el=document.getElementById('materialsList');
-  if(state.materials.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let h='<table><thead><tr><th>코드</th><th>원재료</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="no-print"></th></tr></thead><tbody>';
+  const meta=document.getElementById('matMeta');
+  const totVal=state.purchases.reduce((s,p)=>s+p.remaining*p.unitCost,0);
+  if(meta) meta.textContent=`${state.materials.length}개 품목 · 재고가액 ${won(totVal)}`;
+  if(state.materials.length===0){ el.innerHTML='<div class="empty-state">＋ 버튼으로 원재료를 추가하세요</div>'; return; }
+  let h='<table><thead><tr><th style="padding-left:18px;">코드</th><th>원재료</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
   for(const m of state.materials){
     const lots=state.purchases.filter(p=>p.materialId===m.id);
     const rem=lots.reduce((s,p)=>s+p.remaining,0);
     const val=lots.reduce((s,p)=>s+p.remaining*p.unitCost,0);
-    h+=`<tr><td>${escapeHtml(m.code||'-')}</td><td><b>${escapeHtml(m.name)}</b></td><td>${escapeHtml(m.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right no-print"><button class="btn btn-secondary btn-sm" onclick="setOpeningMaterial('${m.id}')">기초재고</button><button class="btn btn-edit btn-sm" onclick="editMaterial('${m.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(m.code||'-')}</td><td><b>${escapeHtml(m.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(m.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningMaterial('${m.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editMaterial('${m.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteMaterial('${m.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
 function renderSemis(){
   const el=document.getElementById('semisList');
-  if(state.semis.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let h='<table><thead><tr><th>코드</th><th>반제품</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="text-right">평균단가</th><th class="no-print"></th></tr></thead><tbody>';
+  const meta=document.getElementById('semiMeta');
+  const totVal=state.semiLots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
+  if(meta) meta.textContent=`${state.semis.length}개 품목 · 재고가액 ${won(totVal)}`;
+  if(state.semis.length===0){ el.innerHTML='<div class="empty-state">＋ 버튼으로 반제품을 추가하세요</div>'; return; }
+  let h='<table><thead><tr><th style="padding-left:18px;">코드</th><th>반제품</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="text-right">평균단가</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
   for(const s of state.semis){
     const lots=state.semiLots.filter(l=>l.semiId===s.id);
     const rem=lots.reduce((a,l)=>a+l.remaining,0);
     const val=lots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
     const avg=rem>0?val/rem:0;
-    h+=`<tr><td>${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print"><button class="btn btn-secondary btn-sm" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn btn-edit btn-sm" onclick="editSemi('${s.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteSemi('${s.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
 function renderProducts(){
   const el=document.getElementById('productsList');
-  if(state.products.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  let h='<table><thead><tr><th>코드</th><th>완제품</th><th>단위</th><th class="text-right">생산</th><th class="text-right">출고</th><th class="text-right">재고</th><th class="no-print"></th></tr></thead><tbody>';
+  const meta=document.getElementById('prodMeta');
+  if(meta) meta.textContent=`${state.products.length}개 품목`;
+  if(state.products.length===0){ el.innerHTML='<div class="empty-state">＋ 버튼으로 완제품을 추가하세요</div>'; return; }
+  let h='<table><thead><tr><th style="padding-left:18px;">코드</th><th>완제품</th><th>단위</th><th class="text-right">생산</th><th class="text-right">출고</th><th class="text-right">재고</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
   for(const p of state.products){
     const made=state.prod2.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.output,0);
     const ship=state.ships.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-    h+=`<tr><td>${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td>${escapeHtml(p.unit)}</td><td class="text-right">${fmt(made)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(made-ship)}</b></td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editProduct('${p.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${fmt(made)}</td><td class="text-right">${fmt(ship)}</td><td class="text-right"><b>${fmt(made-ship)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -748,7 +819,7 @@ function updatePurchasePreview(){
 }
 function resetPurchaseForm(){
   document.getElementById('pDate').value=todayISO();
-  ['pMaterial','pQuantity','pAmount','pExpiration','pLot','pSupplier','pNotes'].forEach(id=>document.getElementById(id).value='');
+  ['pMaterial','pQuantity','pAmount','pExpiration','pLot','pSupplier','pNotes','pPack'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('pTaxType').value='excluded'; updatePurchasePreview();
 }
 function savePurchase(){
@@ -759,6 +830,7 @@ function savePurchase(){
   const taxType=document.getElementById('pTaxType').value;
   const expiration=document.getElementById('pExpiration').value;
   const lot=document.getElementById('pLot').value.trim();
+  const pack=(document.getElementById('pPack')?.value||'').trim();
   const supplier=document.getElementById('pSupplier').value.trim();
   const notes=document.getElementById('pNotes').value.trim();
   if(!date) return toast('입고일','error');
@@ -766,7 +838,7 @@ function savePurchase(){
   if(!(quantity>0)) return toast('수량','error');
   if(!(amount>=0)) return toast('금액','error');
   const r=calcTax(amount,taxType);
-  state.purchases.push({id:uid(),date,materialId,quantity,remaining:quantity,enteredAmount:amount,taxType,supplyPrice:r.supply,vat:r.vat,totalAmount:r.total,unitCost:quantity>0?r.supply/quantity:0,lot,expiration:expiration||null,supplier,notes,createdAt:nowISO()});
+  state.purchases.push({id:uid(),date,materialId,quantity,remaining:quantity,enteredAmount:amount,taxType,supplyPrice:r.supply,vat:r.vat,totalAmount:r.total,unitCost:quantity>0?r.supply/quantity:0,lot,pack,expiration:expiration||null,supplier,notes,createdAt:nowISO()});
   saveState(); resetPurchaseForm(); toast('매입 저장','success'); renderAll();
 }
 function expirationClass(date){
@@ -791,10 +863,10 @@ function renderPurchases(){
   if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
   const tQ=list.reduce((s,p)=>s+p.quantity,0),tS=list.reduce((s,p)=>s+p.supplyPrice,0),tV=list.reduce((s,p)=>s+p.vat,0),tT=list.reduce((s,p)=>s+p.totalAmount,0);
   let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 수량 ${fmt(tQ)} · 공급가 ${won(tS)} · 부가세 ${won(tV)} · 합계 <b>${won(tT)}</b></div>`;
-  h+='<table><thead><tr><th>입고일</th><th>원재료</th><th class="text-right">수량</th><th>LOT</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">합계</th><th class="text-right">잔량</th><th>유통기한</th><th>공급처</th><th class="no-print"></th></tr></thead><tbody>';
+  h+='<table><thead><tr><th>입고일</th><th>원재료</th><th class="text-right">수량(Kg)</th><th>포장</th><th>LOT</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">합계</th><th class="text-right">잔량</th><th>유통기한</th><th>공급처</th><th class="no-print"></th></tr></thead><tbody>';
   for(const p of list){
     const e=expirationClass(p.expiration);
-    h+=`<tr><td>${p.date}</td><td><b>${matName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td>${escapeHtml(p.lot||'-')}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${e.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.supplier||'-')}</td><td class="text-right no-print"><button class="btn btn-edit btn-sm" onclick="editPurchase('${p.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${p.date}</td><td><b>${matName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td style="color:var(--text-light);">${escapeHtml(p.pack||'-')}</td><td>${escapeHtml(p.lot||'-')}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${e.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.supplier||'-')}</td><td class="text-right no-print"><button class="btn-icon edit" title="수정" onclick="editPurchase('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deletePurchase('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1189,15 +1261,16 @@ function renderDashboard(){
   const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
   const matRem=state.materials.reduce((a,m)=>a+matStock(m.id),0);
   const semiRem=state.semis.reduce((a,x)=>a+semiStock(x.id),0);
+  const suffix=s||e?' (기간)':'';
   document.getElementById('dashboardSummary').innerHTML=`
-    <div class="summary-card"><div class="label">매입액${s||e?'(기간)':''}</div><div class="value" style="font-size:18px;">${won(purAmt)}</div></div>
-    <div class="summary-card"><div class="label">1차 생산(반제품)</div><div class="value">${fmt(p1.reduce((a,p)=>a+p.output,0))}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">2차 생산(완제품)</div><div class="value">${fmt(p2.reduce((a,p)=>a+p.output,0))}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">출고</div><div class="value">${fmt(sh.reduce((a,x)=>a+x.qty,0))}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">판매액${s||e?'(기간)':''}</div><div class="value" style="font-size:18px;">${won(sales)}</div></div>
-    <div class="summary-card"><div class="label">손익(판매-생산원가)</div><div class="value" style="font-size:18px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>
-    <div class="summary-card"><div class="label">원재료 재고</div><div class="value">${fmt(matRem)}<span class="unit">Kg</span></div></div>
-    <div class="summary-card"><div class="label">반제품 재고</div><div class="value" style="color:var(--semi);">${fmt(semiRem)}<span class="unit">Kg</span></div></div>`;
+    <div class="stat accent-b"><div class="k">매입액${suffix}</div><div class="v" style="font-size:17px;">${won(purAmt)}</div></div>
+    <div class="stat accent-s"><div class="k">1차 생산 · 반제품</div><div class="v">${fmt(p1.reduce((a,p)=>a+p.output,0))}<span class="u">Kg</span></div></div>
+    <div class="stat accent-g"><div class="k">2차 생산 · 완제품</div><div class="v">${fmt(p2.reduce((a,p)=>a+p.output,0))}<span class="u">Kg</span></div></div>
+    <div class="stat accent-o"><div class="k">출고</div><div class="v">${fmt(sh.reduce((a,x)=>a+x.qty,0))}<span class="u">Kg</span></div></div>
+    <div class="stat accent-g"><div class="k">판매액${suffix}</div><div class="v" style="font-size:17px;">${won(sales)}</div></div>
+    <div class="stat ${sales-p2Cost>=0?'accent-g':'accent-o'}"><div class="k">손익 · 판매-생산원가</div><div class="v" style="font-size:17px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>
+    <div class="stat accent-b"><div class="k">원재료 재고</div><div class="v">${fmt(matRem)}<span class="u">Kg</span></div></div>
+    <div class="stat accent-s"><div class="k">반제품 재고</div><div class="v" style="color:var(--semi);">${fmt(semiRem)}<span class="u">Kg</span></div></div>`;
   // 재고 요약
   let sh2='<table><thead><tr><th>구분</th><th>품목</th><th class="text-right">재고</th><th class="text-right">재고가액</th></tr></thead><tbody>';
   for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
@@ -1255,7 +1328,7 @@ function writeXlsx(aoa, filename){
 }
 function exportFiltered(kind){
   let aoa=[];
-  if(kind==='purchases'){ const l=getPurchaseFiltered(); aoa=[['입고일','원재료','수량','LOT','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','공급처','비고']]; l.forEach(p=>aoa.push([p.date,matName(p.materialId),p.quantity,p.lot||'',taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',p.supplier||'',p.notes||''])); }
+  if(kind==='purchases'){ const l=getPurchaseFiltered(); aoa=[['입고일','원재료','수량(Kg)','포장','LOT','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','공급처','비고']]; l.forEach(p=>aoa.push([p.date,matName(p.materialId),p.quantity,p.pack||'',p.lot||'',taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',p.supplier||'',p.notes||''])); }
   else if(kind==='prod1'){ const l=getP1Filtered(); aoa=[['생산일','반제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','투입상세','비고']]; l.forEach(p=>aoa.push([p.date,semiName(p.semiId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.usages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
   else if(kind==='prod2'){ const l=getP2Filtered(); aoa=[['생산일','완제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','반제품투입','원재료투입','비고']]; l.forEach(p=>aoa.push([p.date,prodName(p.productId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.semiUsages.map(u=>`${semiName(u.semiId)}:${u.totalUsed}`).join('; '),p.matUsages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
   else if(kind==='ships'){ const l=getShipFiltered(); aoa=[['출고일','완제품','수량','판매액','비고']]; l.forEach(x=>aoa.push([x.date,prodName(x.productId),x.qty,x.amount||0,x.notes||''])); }
@@ -1264,7 +1337,7 @@ function exportFiltered(kind){
 function downloadTemplate(){
   const kind=document.getElementById('excelKind').value;
   let aoa=[];
-  if(kind==='purchases') aoa=[['입고일','원재료명','수량','금액','세금구분','LOT','유통기한','공급처','비고'],['2025-01-05','생닭',100,300000,'부가세별도','L2501','2025-01-20','A거래처','']];
+  if(kind==='purchases') aoa=[['입고일','원재료명','수량(Kg)','금액','세금구분','포장','LOT','유통기한','공급처','비고'],['2025-01-05','생닭',100,300000,'부가세별도','20Kg 5포','L2501','2025-01-20','A거래처','']];
   else if(kind==='prod1') aoa=[['생산일','반제품명','산출량','LOT','파기량','파기사유','비고','원재료1','투입량1','원재료2','투입량2'],['2025-01-05','염지닭',92,'S2501',0,'','','생닭',60,'염지제',40]];
   else if(kind==='prod2') aoa=[['생산일','완제품명','산출량','LOT','파기량','파기사유','비고','반제품','반제품투입','원재료1','투입량1'],['2025-01-05','후라이드',85,'F2501',2,'포장불량','','염지닭',80,'튀김가루',10]];
   else if(kind==='ships') aoa=[['출고일','완제품명','수량','판매액','비고'],['2025-01-06','후라이드',50,500000,'B거래처']];
@@ -1300,7 +1373,7 @@ function commitExcelImport(){
   const {kind,rows}=_excelParsed; const body=rows.slice(1); let cnt=0;
   try{
     if(kind==='purchases'){
-      for(const r of body){ if(!r[0]&&!r[1]) continue; const q=Number(r[2])||0,amt=Number(r[3])||0; if(!(q>0)) continue; const tax=taxFromKr(r[4]); const tx=calcTax(amt,tax); state.purchases.push({id:uid(),date:normDate(r[0]),materialId:findMat(r[1]),quantity:q,remaining:q,enteredAmount:amt,taxType:tax,supplyPrice:tx.supply,vat:tx.vat,totalAmount:tx.total,unitCost:q>0?tx.supply/q:0,lot:String(r[5]||''),expiration:r[6]?normDate(r[6]):null,supplier:String(r[7]||''),notes:String(r[8]||''),createdAt:nowISO()}); cnt++; }
+      for(const r of body){ if(!r[0]&&!r[1]) continue; const q=Number(r[2])||0,amt=Number(r[3])||0; if(!(q>0)) continue; const tax=taxFromKr(r[4]); const tx=calcTax(amt,tax); state.purchases.push({id:uid(),date:normDate(r[0]),materialId:findMat(r[1]),quantity:q,remaining:q,enteredAmount:amt,taxType:tax,supplyPrice:tx.supply,vat:tx.vat,totalAmount:tx.total,unitCost:q>0?tx.supply/q:0,pack:String(r[5]||''),lot:String(r[6]||''),expiration:r[7]?normDate(r[7]):null,supplier:String(r[8]||''),notes:String(r[9]||''),createdAt:nowISO()}); cnt++; }
     } else if(kind==='prod1'){
       for(const r of body){ if(!r[1]) continue; const out=Number(r[2])||0; if(!(out>0)) continue; const semiId=findSemi(r[1]); const usages=[]; let inputKg=0;
         for(let c=7;c<r.length;c+=2){ const mn=r[c],mq=Number(r[c+1])||0; if(mn&&mq>0){ const mid=findMat(mn); const al=fifoAllocateMat(mid,mq); usages.push({materialId:mid,totalUsed:mq,allocations:al.alloc}); inputKg+=mq; for(const a of al.alloc){ const lp=state.purchases.find(p=>p.id===a.lotId); if(lp) lp.remaining=Math.max(0,lp.remaining-a.qty); } } }
@@ -1398,11 +1471,11 @@ function editPurchase(id){
   const used=p.quantity-p.remaining;
   const matOpts=state.materials.map(m=>`<option value="${m.id}" ${m.id===p.materialId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
   const warn=used>1e-9?`<div class="warn-box">이 매입은 ${fmt(used)} 사용됨. 수량은 ${fmt(used)} 이상, 품목 변경 불가.</div>`:'';
-  openEditModal('매입 수정',`${warn}<div class="grid grid-4"><div><label>입고일</label><input type="date" id="epD" value="${p.date}"/></div><div><label>원재료</label><select id="epM" ${used>1e-9?'disabled':''}>${matOpts}</select></div><div><label>수량</label><input type="number" id="epQ" step="0.001" min="${used}" value="${p.quantity}"/></div><div><label>LOT</label><input type="text" id="epL" value="${escapeHtml(p.lot||'')}"/></div></div><div class="grid grid-3" style="margin-top:10px;"><div><label>금액</label><input type="number" id="epA" value="${p.enteredAmount}"/></div><div><label>세금</label><select id="epT"><option value="exempt" ${p.taxType==='exempt'?'selected':''}>면세</option><option value="excluded" ${p.taxType==='excluded'?'selected':''}>부가세 별도</option><option value="included" ${p.taxType==='included'?'selected':''}>부가세 포함</option></select></div><div><label>유통기한</label><input type="date" id="epE" value="${p.expiration||''}"/></div></div>`,()=>{
+  openEditModal('매입 수정',`${warn}<div class="grid grid-4"><div><label>입고일</label><input type="date" id="epD" value="${p.date}"/></div><div><label>원재료</label><select id="epM" ${used>1e-9?'disabled':''}>${matOpts}</select></div><div><label>수량(Kg)</label><input type="number" id="epQ" step="0.001" min="${used}" value="${p.quantity}"/></div><div><label>포장 비고</label><input type="text" id="epK" value="${escapeHtml(p.pack||'')}" placeholder="20Kg 5포"/></div></div><div class="grid grid-4" style="margin-top:10px;"><div><label>LOT</label><input type="text" id="epL" value="${escapeHtml(p.lot||'')}"/></div><div><label>금액</label><input type="number" id="epA" value="${p.enteredAmount}"/></div><div><label>세금</label><select id="epT"><option value="exempt" ${p.taxType==='exempt'?'selected':''}>면세</option><option value="excluded" ${p.taxType==='excluded'?'selected':''}>부가세 별도</option><option value="included" ${p.taxType==='included'?'selected':''}>부가세 포함</option></select></div><div><label>유통기한</label><input type="date" id="epE" value="${p.expiration||''}"/></div></div>`,()=>{
     const q=Number(document.getElementById('epQ').value); if(q<used-1e-9){ toast('수량 부족','error'); return false; }
     const amt=Number(document.getElementById('epA').value); const tax=document.getElementById('epT').value; const r=calcTax(amt,tax);
     p.date=document.getElementById('epD').value; if(used<=1e-9) p.materialId=document.getElementById('epM').value;
-    p.quantity=q; p.remaining=q-used; p.enteredAmount=amt; p.taxType=tax; p.supplyPrice=r.supply; p.vat=r.vat; p.totalAmount=r.total; p.unitCost=q>0?r.supply/q:0; p.lot=document.getElementById('epL').value.trim(); p.expiration=document.getElementById('epE').value||null;
+    p.quantity=q; p.remaining=q-used; p.enteredAmount=amt; p.taxType=tax; p.supplyPrice=r.supply; p.vat=r.vat; p.totalAmount=r.total; p.unitCost=q>0?r.supply/q:0; p.lot=document.getElementById('epL').value.trim(); p.pack=document.getElementById('epK').value.trim(); p.expiration=document.getElementById('epE').value||null;
     saveState(); toast('수정됨','success'); renderAll();
   });
 }
