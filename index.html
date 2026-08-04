@@ -18,15 +18,18 @@
 
 <style>
   :root {
-    --primary: #2563eb; --primary-hover: #1d4ed8;
-    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-    --semi: #8b5cf6; --semi-bg: #f5f3ff;
-    --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
-    --text: #1e293b; --text-light: #64748b; --hover: #f1f5f9;
+    --primary: #7857c8; --primary-hover: #6a48b8;
+    --success: #2b9e77; --danger: #e05a6d; --warning: #e0972b;
+    --semi: #7857c8; --semi-bg: #f3eeff;
+    --bg: #fbfbfd; --card: #ffffff; --border: #eef0f5;
+    --text: #2d3142; --text-light: #9aa3b8; --hover: #f6f7fb;
+    --mat-bg: #eef4ff; --mat-tx: #3b5b9e;
+    --semi-tx: #7857c8;
+    --final-bg: #e9f7f0; --final-tx: #2b9e77;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px; }
-  header { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; padding: 12px 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  header { background: linear-gradient(135deg, #7857c8, #9481e0); color: white; padding: 14px 24px; box-shadow: 0 2px 12px rgba(120,87,200,0.15); }
   .header-flex { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   header h1 { font-size: 20px; font-weight: 700; }
   header .subtitle { font-size: 12px; opacity: 0.9; margin-top: 2px; }
@@ -42,7 +45,7 @@
   nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
   main { padding: 24px; max-width: 1400px; margin: 0 auto; }
   .tab { display: none; } .tab.active { display: block; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(45,49,66,0.04); }
   .card h2 { font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
   .card h2 .right { display: flex; gap: 6px; align-items: center; }
   .card.semi { border-top: 3px solid var(--semi); }
@@ -53,10 +56,10 @@
   .grid-4 { grid-template-columns: repeat(4, 1fr); }
   @media (max-width: 800px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
   label { display: block; font-size: 12px; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
-  input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; background: white; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  input, select, textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-family: inherit; background: white; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(120,87,200,0.1); }
   textarea { resize: vertical; min-height: 60px; }
-  .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.15s; }
+  .btn { padding: 9px 16px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.15s; }
   .btn-primary { background: var(--primary); color: white; }
   .btn-primary:hover { background: var(--primary-hover); }
   .btn-danger { background: var(--danger); color: white; }
@@ -71,7 +74,7 @@
   th { background: #f8fafc; font-weight: 600; color: var(--text-light); font-size: 12px; white-space: nowrap; }
   tr:hover td { background: var(--hover); }
   .text-right { text-align: right; } .text-center { text-align: center; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 7px; font-size: 11px; font-weight: 600; }
   .badge-tax-exempt { background: #dbeafe; color: #1e40af; }
   .badge-tax-excluded { background: #fef3c7; color: #92400e; }
   .badge-tax-included { background: #dcfce7; color: #166534; }
@@ -120,18 +123,16 @@
   .seg button { background: white; border: none; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-light); }
   .seg button.active { background: var(--primary); color: white; }
   /* ===== v2 리디자인 ===== */
-  .sec { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .sec { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(45,49,66,0.04); }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
   .sec-head .ttl { display: flex; align-items: center; gap: 11px; }
-  .sec-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
-  .sec-ic.mat { background: #e0f2fe; color: #075985; }
-  .sec-ic.semi { background: #ede9fe; color: #5b21b6; }
-  .sec-ic.final { background: #dcfce7; color: #166534; }
+  .sec-ic { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+  .sec-ic.mat { background: var(--mat-bg); color: var(--mat-tx); }
+  .sec-ic.semi { background: var(--semi-bg); color: var(--semi-tx); }
+  .sec-ic.final { background: var(--final-bg); color: var(--final-tx); }
   .sec-head .nm { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.25; }
   .sec-head .meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-  .sec.mat { border-top: 3px solid var(--primary); }
-  .sec.semi { border-top: 3px solid var(--semi); }
-  .sec.final { border-top: 3px solid var(--success); }
+  .sec.mat, .sec.semi, .sec.final { border-top: none; }
   .add-bar { display: grid; gap: 10px; padding: 12px 18px; background: var(--bg); border-bottom: 1px solid var(--border); align-items: end; }
   .add-bar .mini { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 600; }
   .add-bar input { height: 36px; }
@@ -144,7 +145,7 @@
   .btn-icon.edit:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
   .btn-chip { height: 30px; padding: 0 11px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; margin-left: 4px; color: var(--text-light); vertical-align: middle; transition: all .15s; }
   .btn-chip:hover { background: var(--hover); color: var(--text); }
-  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 15px; border: none; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 600; color: white; }
+  .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: white; }
   .add-btn.mat { background: var(--primary); } .add-btn.mat:hover { background: var(--primary-hover); }
   .add-btn.semi { background: var(--semi); } .add-btn.semi:hover { background: #7c3aed; }
   .add-btn.final { background: var(--success); } .add-btn.final:hover { background: #059669; }
@@ -156,14 +157,18 @@
   .dash-toolbar .spacer { flex: 1; }
   .dash-toolbar .seg button { padding: 6px 12px; }
   .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-bottom: 16px; }
-  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; position: relative; }
-  .stat .k { font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
-  .stat .v { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; position: relative; }
+  .stat .k { font-size: 11px; color: var(--text-light); font-weight: 600; letter-spacing: .2px; margin-bottom: 6px; }
+  .stat .v { font-size: 21px; font-weight: 800; color: var(--text); line-height: 1.1; }
   .stat .v .u { font-size: 12px; color: var(--text-light); font-weight: 500; margin-left: 3px; }
-  .stat.accent-b { border-left: 3px solid var(--primary); }
-  .stat.accent-s { border-left: 3px solid var(--semi); }
-  .stat.accent-g { border-left: 3px solid var(--success); }
-  .stat.accent-o { border-left: 3px solid var(--warning); }
+  .stat.accent-b { background: var(--mat-bg); border-color: transparent; }
+  .stat.accent-b .v { color: var(--mat-tx); }
+  .stat.accent-s { background: var(--semi-bg); border-color: transparent; }
+  .stat.accent-s .v { color: var(--semi-tx); }
+  .stat.accent-g { background: var(--final-bg); border-color: transparent; }
+  .stat.accent-g .v { color: var(--final-tx); }
+  .stat.accent-o { background: #fdf3e3; border-color: transparent; }
+  .stat.accent-o .v { color: #c47d1a; }
   @media (max-width: 600px){ .add-bar { grid-template-columns: 1fr !important; } }
   .recipe-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
   .recipe-bar .rb-label { font-size: 13px; font-weight: 600; color: #6d28d9; }
@@ -352,6 +357,13 @@
 
   <!-- ===== PROD1 반제품 ===== -->
   <section id="prod1" class="tab">
+    <div class="sec semi no-print-card">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic semi">📋</div><div><div class="nm">반제품 레시피 관리</div><div class="meta">1개 기준으로 등록해두면 생산 시 자동 계산됩니다</div></div></div>
+        <button class="add-btn semi no-print" onclick="newSemiRecipe()"><span class="add-ico">＋</span>레시피 추가</button>
+      </div>
+      <div id="semiRecipeList"></div>
+    </div>
     <div class="card no-print-card semi">
       <h2>1차 생산 — 원재료 → 반제품</h2>
       <div class="grid grid-4">
@@ -396,6 +408,13 @@
 
   <!-- ===== PROD2 완제품 ===== -->
   <section id="prod2" class="tab">
+    <div class="sec final no-print-card">
+      <div class="sec-head">
+        <div class="ttl"><div class="sec-ic final">📋</div><div><div class="nm">완제품 레시피 관리</div><div class="meta">반제품 1개 + 원재료를 1개 기준으로 등록해두면 생산 시 자동 계산됩니다</div></div></div>
+        <button class="add-btn final no-print" onclick="newProductRecipe()"><span class="add-ico">＋</span>레시피 추가</button>
+      </div>
+      <div id="productRecipeList"></div>
+    </div>
     <div class="card no-print-card final">
       <h2>2차 생산 — 반제품 + 원재료 → 완제품</h2>
       <div class="grid grid-4">
@@ -852,15 +871,56 @@ function renderAdjustments(){
 let _recipeDraft=null;
 function editSemiRecipe(id){
   const s=state.semis.find(x=>x.id===id); if(!s) return;
-  const rec=s.recipe||{baseQty:100,items:[]};
+  const rec=s.recipe||{baseQty:1,items:[]};
   _recipeDraft={kind:'semi',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i}))};
   renderRecipeModalRefresh();
 }
 function editProductRecipe(id){
   const p=state.products.find(x=>x.id===id); if(!p) return;
-  const rec=p.recipe||{baseQty:5,items:[]};
+  const rec=p.recipe||{baseQty:1,items:[]};
   _recipeDraft={kind:'product',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i}))};
   renderRecipeModalRefresh();
+}
+// 신규 레시피: 대상 품목 선택 후 편집
+function newSemiRecipe(){
+  const noRec=state.semis.filter(s=>!(s.recipe&&s.recipe.items.length));
+  if(state.semis.length===0){ toast('먼저 마스터에서 반제품을 등록하세요','error'); return; }
+  const opts=state.semis.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}${s.recipe&&s.recipe.items.length?' (레시피 있음)':''}</option>`).join('');
+  openEditModal('레시피 만들 반제품 선택',`<div><label>반제품 선택</label><select id="newRecSel">${opts}</select></div>`,()=>{
+    const id=document.getElementById('newRecSel').value; closeEditModal(); setTimeout(()=>editSemiRecipe(id),80);
+  });
+}
+function newProductRecipe(){
+  if(state.products.length===0){ toast('먼저 마스터에서 완제품을 등록하세요','error'); return; }
+  const opts=state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}${p.recipe&&p.recipe.items.length?' (레시피 있음)':''}</option>`).join('');
+  openEditModal('레시피 만들 완제품 선택',`<div><label>완제품 선택</label><select id="newRecSel">${opts}</select></div>`,()=>{
+    const id=document.getElementById('newRecSel').value; closeEditModal(); setTimeout(()=>editProductRecipe(id),80);
+  });
+}
+function deleteSemiRecipe(id){ const s=state.semis.find(x=>x.id===id); if(!s||!s.recipe) return; if(!confirm('이 레시피를 삭제할까요?')) return; delete s.recipe; saveState(); toast('레시피 삭제됨','success'); renderAll(); }
+function deleteProductRecipe(id){ const p=state.products.find(x=>x.id===id); if(!p||!p.recipe) return; if(!confirm('이 레시피를 삭제할까요?')) return; delete p.recipe; saveState(); toast('레시피 삭제됨','success'); renderAll(); }
+function recipeItemsText(rec){
+  return rec.items.map(it=>{ const nm=it.type==='semi'?semiName(it.id):matName(it.id); return `${nm} ${fmt(it.qty)}`; }).join(', ');
+}
+function renderSemiRecipeList(){
+  const el=document.getElementById('semiRecipeList'); if(!el) return;
+  const withRec=state.semis.filter(s=>s.recipe&&s.recipe.items.length);
+  if(withRec.length===0){ el.innerHTML='<div class="empty-state">등록된 레시피가 없습니다. ＋ 레시피 추가로 등록하세요.</div>'; return; }
+  let h='<table><thead><tr><th style="padding-left:18px;">반제품</th><th class="text-right">기준</th><th>투입 원재료 (기준량당)</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
+  for(const s of withRec){
+    h+=`<tr><td style="padding-left:18px;"><b>${escapeHtml(s.name)}</b></td><td class="text-right">${fmt(s.recipe.baseQty)}${escapeHtml(s.unit)}</td><td style="color:var(--text-light);font-size:12px;">${escapeHtml(recipeItemsText(s.recipe))}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="editSemiRecipe('${s.id}')">수정</button><button class="btn-icon del" title="삭제" onclick="deleteSemiRecipe('${s.id}')">🗑</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
+}
+function renderProductRecipeList(){
+  const el=document.getElementById('productRecipeList'); if(!el) return;
+  const withRec=state.products.filter(p=>p.recipe&&p.recipe.items.length);
+  if(withRec.length===0){ el.innerHTML='<div class="empty-state">등록된 레시피가 없습니다. ＋ 레시피 추가로 등록하세요.</div>'; return; }
+  let h='<table><thead><tr><th style="padding-left:18px;">완제품</th><th class="text-right">기준</th><th>투입 (기준량당)</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
+  for(const p of withRec){
+    h+=`<tr><td style="padding-left:18px;"><b>${escapeHtml(p.name)}</b></td><td class="text-right">${fmt(p.recipe.baseQty)}${escapeHtml(p.unit)}</td><td style="color:var(--text-light);font-size:12px;">${escapeHtml(recipeItemsText(p.recipe))}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="editProductRecipe('${p.id}')">수정</button><button class="btn-icon del" title="삭제" onclick="deleteProductRecipe('${p.id}')">🗑</button></td></tr>`;
+  }
+  el.innerHTML=h+'</tbody></table>';
 }
 function renderRecipeModal(title, unit, allowSemi){
   const d=_recipeDraft;
@@ -931,7 +991,7 @@ function renderSemis(){
     const rem=lots.reduce((a,l)=>a+l.remaining,0);
     const val=lots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
     const avg=rem>0?val/rem:0;
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${semiQtyKg(s.id,rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#c4b5fd;color:#6d28d9;" onclick="editSemiRecipe('${s.id}')">${s.recipe&&s.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${semiQtyKg(s.id,rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -944,7 +1004,7 @@ function renderProducts(){
   for(const p of state.products){
     const made=state.prod2.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.output,0);
     const ship=state.ships.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${prodQtyKg(p.id,made)}</td><td class="text-right">${prodQtyKg(p.id,ship)}</td><td class="text-right"><b>${prodQtyKg(p.id,made-ship)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" style="border-color:#86efac;color:#15803d;" onclick="editProductRecipe('${p.id}')">${p.recipe&&p.recipe.items.length?'레시피✓':'레시피'}</button><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${prodQtyKg(p.id,made)}</td><td class="text-right">${prodQtyKg(p.id,ship)}</td><td class="text-right"><b>${prodQtyKg(p.id,made-ship)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1756,7 +1816,7 @@ function printTab(tabId,title){
 // ========== RENDER ==========
 function renderAll(){
   renderMaterials(); renderSemis(); renderProducts(); renderSelects();
-  renderAdjustments();
+  renderAdjustments(); renderSemiRecipeList(); renderProductRecipeList();
   renderPurchases(); renderP1(); renderP2(); renderShips();
   renderLedger(); renderDashboard(); renderReport();
   updateCloudStatus(); checkBackupAlert();
