@@ -174,6 +174,35 @@
   .recipe-bar .rb-label { font-size: 13px; font-weight: 600; color: #6d28d9; }
   .recipe-bar select, .recipe-bar input { height: 32px; width: auto; }
   .recipe-bar .rb-hint { font-size: 12px; color: var(--text-light); }
+  /* 생산일지 인쇄 */
+  .prod-sheet { display: none; }
+  body.printing-sheet { background: white; }
+  body.printing-sheet > *:not(.prod-sheet) { display: none !important; }
+  body.printing-sheet { padding-left: 0 !important; }
+  body.printing-sheet .prod-sheet { display: block; padding: 0; }
+  .ps-doc { font-family: -apple-system, "Malgun Gothic", sans-serif; color: #111; max-width: 190mm; margin: 0 auto; }
+  .ps-title { text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 2px; border-bottom: 3px double #111; padding-bottom: 10px; margin-bottom: 6px; }
+  .ps-sub { text-align: center; font-size: 12px; color: #555; margin-bottom: 18px; }
+  .ps-meta { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+  .ps-meta th, .ps-meta td { border: 1px solid #333; padding: 8px 10px; text-align: left; }
+  .ps-meta th { background: #f0f0f0; width: 22%; font-weight: 700; }
+  .ps-sec-title { font-size: 14px; font-weight: 700; margin: 16px 0 8px; padding-left: 8px; border-left: 4px solid #111; }
+  .ps-tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
+  .ps-tbl th, .ps-tbl td { border: 1px solid #333; padding: 7px 9px; }
+  .ps-tbl th { background: #f0f0f0; font-weight: 700; text-align: center; }
+  .ps-tbl td.r { text-align: right; }
+  .ps-tbl td.c { text-align: center; }
+  .ps-tbl tfoot td { background: #f7f7f7; font-weight: 700; }
+  .ps-sign { display: flex; justify-content: flex-end; gap: 0; margin-top: 30px; }
+  .ps-sign table { border-collapse: collapse; font-size: 12px; }
+  .ps-sign th, .ps-sign td { border: 1px solid #333; text-align: center; }
+  .ps-sign th { background: #f0f0f0; padding: 6px 20px; }
+  .ps-sign td { height: 50px; width: 90px; }
+  .ps-foot { margin-top: 20px; font-size: 11px; color: #888; text-align: center; }
+  @media print {
+    @page { size: A4 portrait; margin: 14mm; }
+    body.printing-sheet .prod-sheet { display: block !important; }
+  }
   @media print {
     @page { size: A4 landscape; margin: 10mm; }
     body { background: white; font-size: 11px; }
@@ -365,14 +394,14 @@
       <div id="semiRecipeList"></div>
     </div>
     <div class="card no-print-card semi">
-      <h2>1차 생산 — 원재료 → 반제품</h2>
+      <h2>1차생산(반제품) — 원재료 투입 → 반제품 생산</h2>
       <div class="grid grid-4">
-        <div><label>생산일 *</label><input type="date" id="p1Date" /></div>
-        <div><label>반제품 *</label><select id="p1Semi" onchange="onP1SemiChange()"></select></div>
-        <div><label>반제품 산출량 *</label><input type="number" id="p1Output" step="0.001" min="0" oninput="updateP1Preview()" /></div>
-        <div><label>LOT번호</label><input type="text" id="p1Lot" /></div>
+        <div><label>생산일 *</label><input type="date" id="p1Date" onchange="autoP1Lot()" /></div>
+        <div><label>반제품 *</label><select id="p1Semi" onchange="onP1SemiChange();autoP1Lot();"></select></div>
+        <div><label>반제품 산출량 * <span style="color:var(--text-light);font-weight:400;">(완성 개수)</span></label><input type="number" id="p1Output" step="0.001" min="0" placeholder="예: 20 (20개)" oninput="updateP1Preview()" /></div>
+        <div><label>LOT번호 <span style="color:var(--text-light);font-weight:400;">(자동·수정가능)</span></label><input type="text" id="p1Lot" placeholder="자동 생성됨" /></div>
       </div>
-      <div style="margin-top:16px;"><label>투입 원재료 (FIFO 자동차감)</label>
+      <div style="margin-top:16px;"><label>투입 원재료 <span style="color:var(--text-light);font-weight:400;">(원재료별 총 투입 kg · 먼저 입고분부터 자동차감)</span></label>
         <div class="recipe-bar no-print" id="p1RecipeBar" style="display:none;">
           <span class="rb-label">📋 레시피 자동입력:</span>
           <select id="p1RecMode" onchange="p1RecModeChange()"><option value="batch">배치 수</option><option value="target">목표 산출량</option></select>
@@ -384,7 +413,7 @@
         <button class="btn btn-secondary btn-sm" onclick="addP1BomRow()">+ 원재료 추가</button>
       </div>
       <div class="grid grid-2" style="margin-top:12px;">
-        <div><label>파기량 (직접입력, 선택)</label><input type="number" id="p1Scrap" step="0.001" min="0" placeholder="0" oninput="updateP1Preview()" /></div>
+        <div><label>파기량 (개, 선택)</label><input type="number" id="p1Scrap" step="0.001" min="0" placeholder="0" oninput="updateP1Preview()" /></div>
         <div><label>파기 사유</label><input type="text" id="p1ScrapReason" placeholder="예: 품질불량" /></div>
       </div>
       <div style="margin-top:12px;"><label>비고</label><textarea id="p1Notes"></textarea></div>
@@ -416,12 +445,12 @@
       <div id="productRecipeList"></div>
     </div>
     <div class="card no-print-card final">
-      <h2>2차 생산 — 반제품 + 원재료 → 완제품</h2>
+      <h2>2차생산(완제품) — 반제품 + 원재료 투입 → 완제품 생산</h2>
       <div class="grid grid-4">
-        <div><label>생산일 *</label><input type="date" id="p2Date" /></div>
-        <div><label>완제품 *</label><select id="p2Product" onchange="onP2ProductChange()"></select></div>
-        <div><label>완제품 산출량 *</label><input type="number" id="p2Output" step="0.001" min="0" oninput="updateP2Preview()" /></div>
-        <div><label>LOT번호</label><input type="text" id="p2Lot" /></div>
+        <div><label>생산일 *</label><input type="date" id="p2Date" onchange="autoP2Lot()" /></div>
+        <div><label>완제품 *</label><select id="p2Product" onchange="onP2ProductChange();autoP2Lot();"></select></div>
+        <div><label>완제품 산출량 * <span style="color:var(--text-light);font-weight:400;">(완성 개수)</span></label><input type="number" id="p2Output" step="0.001" min="0" placeholder="예: 10 (10개)" oninput="updateP2Preview()" /></div>
+        <div><label>LOT번호 <span style="color:var(--text-light);font-weight:400;">(자동·수정가능)</span></label><input type="text" id="p2Lot" placeholder="자동 생성됨" /></div>
       </div>
       <div class="recipe-bar no-print" id="p2RecipeBar" style="display:none;margin-top:16px;">
         <span class="rb-label">📋 레시피 자동입력:</span>
@@ -430,14 +459,14 @@
         <button class="btn btn-success btn-sm" onclick="applyP2Recipe()">적용</button>
         <span class="rb-hint" id="p2RecHint"></span>
       </div>
-      <div style="margin-top:16px;"><label>투입 반제품 (재고에서 차감)</label><div id="p2SemiList"></div>
+      <div style="margin-top:16px;"><label>투입 반제품 <span style="color:var(--text-light);font-weight:400;">(반제품 투입 개수 · 재고에서 차감)</span></label><div id="p2SemiList"></div>
         <button class="btn btn-secondary btn-sm" onclick="addP2SemiRow()">+ 반제품 추가</button>
       </div>
-      <div style="margin-top:12px;"><label>추가 투입 원재료 (FIFO 자동차감)</label><div id="p2BomList"></div>
+      <div style="margin-top:12px;"><label>추가 투입 원재료 <span style="color:var(--text-light);font-weight:400;">(원재료별 총 투입 kg · 먼저 입고분부터 자동차감)</span></label><div id="p2BomList"></div>
         <button class="btn btn-secondary btn-sm" onclick="addP2BomRow()">+ 원재료 추가</button>
       </div>
       <div class="grid grid-2" style="margin-top:12px;">
-        <div><label>파기량 (직접입력, 선택)</label><input type="number" id="p2Scrap" step="0.001" min="0" placeholder="0" oninput="updateP2Preview()" /></div>
+        <div><label>파기량 (개, 선택)</label><input type="number" id="p2Scrap" step="0.001" min="0" placeholder="0" oninput="updateP2Preview()" /></div>
         <div><label>파기 사유</label><input type="text" id="p2ScrapReason" placeholder="예: 포장불량" /></div>
       </div>
       <div style="margin-top:12px;"><label>비고</label><textarea id="p2Notes"></textarea></div>
@@ -620,6 +649,7 @@ service cloud.firestore {
   </div>
 </div>
 
+<div id="prodSheet" class="prod-sheet"></div>
 <div class="toast" id="toast"></div>
 <!-- SheetJS for Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -932,7 +962,7 @@ function renderRecipeModal(title, unit, allowSemi){
     const opts=(allowSemi?semiOptsFor(key):'')+matOptsFor(key);
     rowsHtml+=`<div class="bom-row" style="grid-template-columns:2fr 1fr auto;"><select onchange="recipeSetItem(${idx},this.value)"><option value="">선택...</option>${opts}</select><input type="number" step="0.001" min="0" value="${it.qty}" placeholder="용량" oninput="recipeSetQty(${idx},this.value)" /><button class="btn btn-danger btn-sm" onclick="recipeDelItem(${idx})">삭제</button></div>`;
   });
-  const body=`<div class="info-box">기준 산출량 <b>${d.baseQty}${unit}</b>를 만들 때 들어가는 재료와 용량을 등록하세요. 생산 시 배치수·목표량에 따라 자동 계산됩니다.</div>
+  const body=`<div class="info-box"><b>기준 산출량</b>은 한 번 생산하는 단위입니다 (예: 1개). 그 기준량을 만들 때 들어가는 재료의 <b>총량</b>을 등록하세요. 생산 시 배치수·목표량을 넣으면 이 비율로 자동 계산됩니다.</div>
     <div style="margin-bottom:12px;"><label>기준 산출량 (${unit})</label><input type="number" step="0.001" min="0.001" id="recBaseQty" value="${d.baseQty}" oninput="recipeSetBase(this.value)" style="max-width:200px;" /></div>
     <label>투입 재료</label><div id="recItemList">${rowsHtml||'<div style="color:var(--text-light);font-size:13px;padding:8px 0;">재료를 추가하세요.</div>'}</div>
     <button class="btn btn-secondary btn-sm" onclick="recipeAddItem(${allowSemi?'true':'false'})">+ 재료 추가</button>`;
@@ -1137,12 +1167,19 @@ function updateP1Preview(){
   const loss=inputKg-output-scrap;
   const yieldPct=inputKg>0?(output/inputKg*100):0;
   const unit=output>0?totalCost/output:0;
-  h+=`<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}</b> · 산출 <b>${fmt(output)}</b> · 파기 <b>${fmt(scrap)}</b> · 로스(자동) <b>${fmt(loss>0?loss:0)}</b> · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · 반제품 단가 <b>${won(unit)}</b>${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼 (확인 필요)</span>':''}</div>`;
+  const semiId=document.getElementById('p1Semi').value;
+  const kgPer=semiKgOf(semiId);
+  const outKgTxt=kgPer>0?` <span style="color:var(--text-light);">(${fmt(output*kgPer,1)}kg)</span>`:'';
+  const scrapKgTxt=kgPer>0&&scrap>0?` <span style="color:var(--text-light);">(${fmt(scrap*kgPer,1)}kg)</span>`:'';
+  const lossShown=loss>0?loss:0;
+  const lossKgTxt=kgPer>0&&lossShown>0?` <span style="color:var(--text-light);">(${fmt(lossShown*kgPer,1)}kg)</span>`:'';
+  h+=`<div style="margin-top:8px;line-height:1.9;">투입 원재료 <b>${fmt(inputKg)}kg</b> · 반제품 산출 <b>${fmt(output)}개</b>${outKgTxt} · 파기 <b>${fmt(scrap)}개</b>${scrapKgTxt} · 로스 <b>${fmt(lossShown)}개</b>${lossKgTxt} · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · 반제품 개당 단가 <b>${won(unit)}</b>${kgPer>0?` · kg당 <b>${won(kgPer>0?unit/kgPer:0)}</b>`:''}${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼 (확인 필요)</span>':''}</div>`;
   el.innerHTML=h;
 }
 function resetP1Form(){
   document.getElementById('p1Date').value=todayISO();
   ['p1Semi','p1Output','p1Lot','p1Scrap','p1ScrapReason','p1Notes'].forEach(id=>document.getElementById(id).value='');
+  const lotEl=document.getElementById('p1Lot'); if(lotEl) lotEl.dataset.manual='';
   document.getElementById('p1BomList').innerHTML=''; addP1BomRow();
   const bar=document.getElementById('p1RecipeBar'); if(bar) bar.style.display='none';
 }
@@ -1152,6 +1189,16 @@ function onP1SemiChange(){
   const bar=document.getElementById('p1RecipeBar'); const hint=document.getElementById('p1RecHint');
   if(s&&s.recipe&&s.recipe.items.length){ bar.style.display='flex'; p1RecModeChange(); }
   else { bar.style.display='none'; }
+}
+function autoP1Lot(){
+  const lotEl=document.getElementById('p1Lot'); if(!lotEl) return;
+  if(lotEl.dataset.manual==='1' && lotEl.value.trim()!=='') return;
+  const date=document.getElementById('p1Date').value; const semiId=document.getElementById('p1Semi').value;
+  if(!date||!semiId){ return; }
+  const s=state.semis.find(x=>x.id===semiId); const code=(s&&s.code)?s.code:'SP';
+  const ymd=date.replace(/-/g,'').slice(2); // YYMMDD
+  const sameDay=state.prod1.filter(p=>p.date===date&&p.semiId===semiId).length;
+  lotEl.value=`${code}-${ymd}-${String(sameDay+1).padStart(2,'0')}`;
 }
 function p1RecModeChange(){
   const id=document.getElementById('p1Semi').value; const s=state.semis.find(x=>x.id===id); if(!s||!s.recipe) return;
@@ -1213,11 +1260,13 @@ function renderP1(){
   const list=getP1Filtered(); const el=document.getElementById('p1List');
   if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
   const tO=list.reduce((s,p)=>s+p.output,0),tC=list.reduce((s,p)=>s+p.totalCost,0),tL=list.reduce((s,p)=>s+p.loss,0),tSc=list.reduce((s,p)=>s+p.scrap,0);
-  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)} · 로스 ${fmt(tL)} · 파기 ${fmt(tSc)} · 원가 <b>${won(tC)}</b></div>`;
-  h+='<table><thead><tr><th>생산일</th><th>반제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)}개 · 로스 ${fmt(tL)}개 · 파기 ${fmt(tSc)}개 · 원가 <b>${won(tC)}</b></div>`;
+  h+='<table><thead><tr><th>생산일</th><th>반제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입 원재료</th><th class="text-right">총원가</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="no-print"></th></tr></thead><tbody>';
   for(const p of list){
-    const u=p.usages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${semiQtyKg(p.semiId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn-icon edit" title="수정" onclick="editP1('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP1('${p.id}')">🗑</button></td></tr>`;
+    const u=p.usages.map(x=>`${matName(x.materialId)} ${fmt(x.totalUsed)}kg`).join('<br>');
+    const kgPer=semiKgOf(p.semiId);
+    const kgUnit=kgPer>0?p.unitCost/kgPer:0;
+    h+=`<tr><td>${p.date}</td><td><b>${semiName(p.semiId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${semiQtyKg(p.semiId,p.output)}</b></td><td class="text-right">${semiQtyKg(p.semiId,p.loss)}</td><td class="text-right">${semiQtyKg(p.semiId,p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${u}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="text-right">${kgPer>0?won(kgUnit):'-'}</td><td class="no-print" style="white-space:nowrap;"><button class="btn-icon" title="생산일지 인쇄" onclick="printProd1('${p.id}')">🖨</button><button class="btn-icon edit" title="수정" onclick="editP1('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP1('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1363,12 +1412,20 @@ function updateP2Preview(){
   const loss=inputKg-output-scrap;
   const yieldPct=inputKg>0?(output/inputKg*100):0;
   const unit=output>0?totalCost/output:0;
-  h+=`<div style="margin-top:8px;">투입 <b>${fmt(inputKg)}</b> · 산출 <b>${fmt(output)}</b> · 파기 <b>${fmt(scrap)}</b> · 로스(자동) <b>${fmt(loss>0?loss:0)}</b> · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · 완제품 단가 <b>${won(unit)}</b>${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼</span>':''}</div>`;
+  const productId=document.getElementById('p2Product').value;
+  const kgPer=prodKgOf(productId);
+  const outKgTxt=kgPer>0?` <span style="color:var(--text-light);">(${fmt(output*kgPer,1)}kg)</span>`:'';
+  const scrapKgTxt=kgPer>0&&scrap>0?` <span style="color:var(--text-light);">(${fmt(scrap*kgPer,1)}kg)</span>`:'';
+  const lossShown=loss>0?loss:0;
+  const lossKgTxt=kgPer>0&&lossShown>0?` <span style="color:var(--text-light);">(${fmt(lossShown*kgPer,1)}kg)</span>`:'';
+  const kgUnit=kgPer>0?unit/kgPer:0;
+  h+=`<div style="margin-top:8px;line-height:1.9;">투입 <b>${fmt(inputKg)}</b> · 완제품 산출 <b>${fmt(output)}개</b>${outKgTxt} · 파기 <b>${fmt(scrap)}개</b>${scrapKgTxt} · 로스 <b>${fmt(lossShown)}개</b>${lossKgTxt} · 수율 <b>${yieldPct.toFixed(1)}%</b><br>총원가 <b>${won(totalCost)}</b> · <b>개당(${kgPer>0?fmt(kgPer,1)+'kg':'1개'}) 단가 ${won(unit)}</b>${kgPer>0?` · kg당 ${won(kgUnit)}`:''}${anyShort?'<br><span style="color:var(--danger);">⚠ 재고 부족</span>':''}${loss<-1e-6?'<br><span style="color:var(--danger);">⚠ 산출+파기가 투입보다 큼</span>':''}</div>`;
   el.innerHTML=h;
 }
 function resetP2Form(){
   document.getElementById('p2Date').value=todayISO();
   ['p2Product','p2Output','p2Lot','p2Scrap','p2ScrapReason','p2Notes'].forEach(id=>document.getElementById(id).value='');
+  const lotEl=document.getElementById('p2Lot'); if(lotEl) lotEl.dataset.manual='';
   document.getElementById('p2SemiList').innerHTML=''; document.getElementById('p2BomList').innerHTML='';
   addP2SemiRow(); addP2BomRow();
   const bar=document.getElementById('p2RecipeBar'); if(bar) bar.style.display='none';
@@ -1378,6 +1435,16 @@ function onP2ProductChange(){
   const bar=document.getElementById('p2RecipeBar');
   if(p&&p.recipe&&p.recipe.items.length){ bar.style.display='flex'; p2RecModeChange(); }
   else { bar.style.display='none'; }
+}
+function autoP2Lot(){
+  const lotEl=document.getElementById('p2Lot'); if(!lotEl) return;
+  if(lotEl.dataset.manual==='1' && lotEl.value.trim()!=='') return;
+  const date=document.getElementById('p2Date').value; const productId=document.getElementById('p2Product').value;
+  if(!date||!productId){ return; }
+  const p=state.products.find(x=>x.id===productId); const code=(p&&p.code)?p.code:'FG';
+  const ymd=date.replace(/-/g,'').slice(2);
+  const sameDay=state.prod2.filter(x=>x.date===date&&x.productId===productId).length;
+  lotEl.value=`${code}-${ymd}-${String(sameDay+1).padStart(2,'0')}`;
 }
 function p2RecModeChange(){
   const id=document.getElementById('p2Product').value; const p=state.products.find(x=>x.id===id); if(!p||!p.recipe) return;
@@ -1447,12 +1514,14 @@ function renderP2(){
   const list=getP2Filtered(); const el=document.getElementById('p2List');
   if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
   const tO=list.reduce((s,p)=>s+p.output,0),tC=list.reduce((s,p)=>s+p.totalCost,0),tL=list.reduce((s,p)=>s+p.loss,0),tSc=list.reduce((s,p)=>s+p.scrap,0);
-  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)} · 로스 ${fmt(tL)} · 파기 ${fmt(tSc)} · 원가 <b>${won(tC)}</b></div>`;
-  h+='<table><thead><tr><th>생산일</th><th>완제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입</th><th class="text-right">원가</th><th class="text-right">단가</th><th class="no-print"></th></tr></thead><tbody>';
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 산출 ${fmt(tO)}개 · 로스 ${fmt(tL)}개 · 파기 ${fmt(tSc)}개 · 원가 <b>${won(tC)}</b></div>`;
+  h+='<table><thead><tr><th>생산일</th><th>완제품</th><th>LOT</th><th class="text-right">산출</th><th class="text-right">로스</th><th class="text-right">파기</th><th class="text-right">수율</th><th>투입 (반제품·원재료)</th><th class="text-right">총원가</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="no-print"></th></tr></thead><tbody>';
   for(const p of list){
-    const su=p.semiUsages.map(x=>`${semiName(x.semiId)}:${fmt(x.totalUsed)}`).join('<br>');
-    const mu=p.matUsages.map(x=>`${matName(x.materialId)}:${fmt(x.totalUsed)}`).join('<br>');
-    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${prodQtyKg(p.productId,p.output)}</b></td><td class="text-right">${fmt(p.loss)}</td><td class="text-right">${fmt(p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="no-print"><button class="btn-icon edit" title="수정" onclick="editP2('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP2('${p.id}')">🗑</button></td></tr>`;
+    const su=p.semiUsages.map(x=>`${semiName(x.semiId)} ${fmt(x.totalUsed)}개`).join('<br>');
+    const mu=p.matUsages.map(x=>`${matName(x.materialId)} ${fmt(x.totalUsed)}kg`).join('<br>');
+    const kgPer=prodKgOf(p.productId);
+    const kgUnit=kgPer>0?p.unitCost/kgPer:0;
+    h+=`<tr><td>${p.date}</td><td><b>${prodName(p.productId)}</b></td><td>${escapeHtml(p.lot||'-')}</td><td class="text-right"><b>${prodQtyKg(p.productId,p.output)}</b></td><td class="text-right">${prodQtyKg(p.productId,p.loss)}</td><td class="text-right">${prodQtyKg(p.productId,p.scrap)}</td><td class="text-right">${(p.yield*100).toFixed(1)}%</td><td style="font-size:11px;">${su}${su&&mu?'<br>':''}${mu}</td><td class="text-right">${won(p.totalCost)}</td><td class="text-right">${won(p.unitCost)}</td><td class="text-right">${kgPer>0?won(kgUnit):'-'}</td><td class="no-print" style="white-space:nowrap;"><button class="btn-icon" title="생산일지 인쇄" onclick="printProd2('${p.id}')">🖨</button><button class="btn-icon edit" title="수정" onclick="editP2('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteP2('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1545,6 +1614,82 @@ function editP2AddMat(){ _editP2Mat.push({materialId:'',qty:0}); editP2RenderMat
 function editP2DelMat(idx){ _editP2Mat.splice(idx,1); editP2RenderMat(); }
 function editP2GetSemi(){ const m={}; for(const r of _editP2Semi){ if(r.semiId&&r.qty>0) m[r.semiId]=(m[r.semiId]||0)+r.qty; } return Object.keys(m).map(k=>({semiId:k,qty:m[k]})); }
 function editP2GetMat(){ const m={}; for(const r of _editP2Mat){ if(r.materialId&&r.qty>0) m[r.materialId]=(m[r.materialId]||0)+r.qty; } return Object.keys(m).map(k=>({materialId:k,qty:m[k]})); }
+
+// ========== 생산일지 인쇄 (A4 세로) ==========
+const COMPANY_NAME='둘둘치킨';
+function kgTxt(qty,kgPer){ return kgPer>0?`${fmt(qty)}개 (${fmt(qty*kgPer,1)}kg)`:`${fmt(qty)}`; }
+function printProd1(id){
+  const p=state.prod1.find(x=>x.id===id); if(!p) return;
+  const s=state.semis.find(x=>x.id===p.semiId); const kgPer=(s&&s.kgPer)||0;
+  let rows=''; let ti=0;
+  for(const u of p.usages){ ti+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); rows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${won(cost)}</td></tr>`; }
+  const kgUnit=kgPer>0?p.unitCost/kgPer:0;
+  const html=`<div class="ps-doc">
+    <div class="ps-title">1차 생산일지 (반제품)</div>
+    <div class="ps-sub">${COMPANY_NAME} · Production Record (Semi-finished)</div>
+    <table class="ps-meta">
+      <tr><th>생산일자</th><td>${p.date}</td><th>LOT 번호</th><td>${escapeHtml(p.lot||'-')}</td></tr>
+      <tr><th>반제품명</th><td>${escapeHtml(semiName(p.semiId))}</td><th>규격</th><td>${kgPer>0?fmt(kgPer,1)+'kg / 개':(escapeHtml(s?s.unit:'개'))}</td></tr>
+      <tr><th>산출 수량</th><td>${kgTxt(p.output,kgPer)}</td><th>수율</th><td>${(p.yield*100).toFixed(1)} %</td></tr>
+      <tr><th>로스(자동)</th><td>${kgTxt(p.loss,kgPer)}</td><th>파기 수량</th><td>${kgTxt(p.scrap,kgPer)}</td></tr>
+      <tr><th>파기 사유</th><td colspan="3">${escapeHtml(p.scrapReason||'-')}</td></tr>
+    </table>
+    <div class="ps-sec-title">투입 원재료 내역</div>
+    <table class="ps-tbl">
+      <thead><tr><th>원재료명</th><th>투입량</th><th>원가</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td class="c">합계</td><td class="r">${fmt(ti)} kg</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
+    </table>
+    <div class="ps-sec-title">원가 요약</div>
+    <table class="ps-tbl">
+      <thead><tr><th>총 생산원가</th><th>반제품 개당 단가</th><th>kg당 단가</th></tr></thead>
+      <tbody><tr><td class="r">${won(p.totalCost)}</td><td class="r">${won(p.unitCost)}</td><td class="r">${kgPer>0?won(kgUnit):'-'}</td></tr></tbody>
+    </table>
+    ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
+    <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
+    <div class="ps-foot">출력일: ${todayISO()} · ${COMPANY_NAME} 생산관리시스템</div>
+  </div>`;
+  doPrintSheet(html);
+}
+function printProd2(id){
+  const p=state.prod2.find(x=>x.id===id); if(!p) return;
+  const prod=state.products.find(x=>x.id===p.productId); const kgPer=(prod&&prod.kgPer)||0;
+  let semiRows=''; for(const u of p.semiUsages){ const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); const sk=semiKgOf(u.semiId); semiRows+=`<tr><td>${escapeHtml(semiName(u.semiId))}</td><td class="c">반제품</td><td class="r">${kgTxt(u.totalUsed,sk)}</td><td class="r">${won(cost)}</td></tr>`; }
+  let matRows=''; let tmk=0; for(const u of p.matUsages){ tmk+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); matRows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="c">원재료</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${won(cost)}</td></tr>`; }
+  const kgUnit=kgPer>0?p.unitCost/kgPer:0;
+  const html=`<div class="ps-doc">
+    <div class="ps-title">2차 생산일지 (완제품)</div>
+    <div class="ps-sub">${COMPANY_NAME} · Production Record (Finished)</div>
+    <table class="ps-meta">
+      <tr><th>생산일자</th><td>${p.date}</td><th>LOT 번호</th><td>${escapeHtml(p.lot||'-')}</td></tr>
+      <tr><th>완제품명</th><td>${escapeHtml(prodName(p.productId))}</td><th>규격</th><td>${kgPer>0?fmt(kgPer,1)+'kg / 개':(escapeHtml(prod?prod.unit:'개'))}</td></tr>
+      <tr><th>산출 수량</th><td>${kgTxt(p.output,kgPer)}</td><th>수율</th><td>${(p.yield*100).toFixed(1)} %</td></tr>
+      <tr><th>로스(자동)</th><td>${kgTxt(p.loss,kgPer)}</td><th>파기 수량</th><td>${kgTxt(p.scrap,kgPer)}</td></tr>
+      <tr><th>파기 사유</th><td colspan="3">${escapeHtml(p.scrapReason||'-')}</td></tr>
+    </table>
+    <div class="ps-sec-title">투입 내역</div>
+    <table class="ps-tbl">
+      <thead><tr><th>품목명</th><th>구분</th><th>투입량</th><th>원가</th></tr></thead>
+      <tbody>${semiRows}${matRows}</tbody>
+      <tfoot><tr><td class="c" colspan="3">총 원가</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
+    </table>
+    <div class="ps-sec-title">원가 요약</div>
+    <table class="ps-tbl">
+      <thead><tr><th>총 생산원가</th><th>개당(${kgPer>0?fmt(kgPer,1)+'kg':'1개'}) 단가</th><th>kg당 단가</th></tr></thead>
+      <tbody><tr><td class="r">${won(p.totalCost)}</td><td class="r">${won(p.unitCost)}</td><td class="r">${kgPer>0?won(kgUnit):'-'}</td></tr></tbody>
+    </table>
+    ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
+    <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
+    <div class="ps-foot">출력일: ${todayISO()} · ${COMPANY_NAME} 생산관리시스템</div>
+  </div>`;
+  doPrintSheet(html);
+}
+function doPrintSheet(html){
+  const el=document.getElementById('prodSheet'); el.innerHTML=html;
+  document.body.classList.add('printing-sheet');
+  window.print();
+  setTimeout(()=>{ document.body.classList.remove('printing-sheet'); el.innerHTML=''; },300);
+}
 function saveShip(){
   const date=document.getElementById('sDate').value;
   const productId=document.getElementById('sProduct').value;
@@ -1728,25 +1873,33 @@ function renderReport(){
   const p2=state.prod2.filter(p=>inRange(p.date,s,e));
   const sh=state.ships.filter(x=>inRange(x.date,s,e));
   const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
+  const soldQty=sh.reduce((a,x)=>a+x.qty,0);              // 판매 개수
   const p2cost=p2.reduce((a,p)=>a+p.totalCost,0);
+  const p2qty=p2.reduce((a,p)=>a+p.output,0);             // 완제품 생산 개수
   const p1yield=p1.reduce((a,p)=>a+p.inputKg,0)>0? p1.reduce((a,p)=>a+p.output,0)/p1.reduce((a,p)=>a+p.inputKg,0)*100:0;
   const p2yield=p2.reduce((a,p)=>a+p.inputKg,0)>0? p2.reduce((a,p)=>a+p.output,0)/p2.reduce((a,p)=>a+p.inputKg,0)*100:0;
+  const perUnitCost = p2qty>0? p2cost/p2qty : 0;          // 완제품 개당 생산원가
+  const perUnitSale = soldQty>0? sales/soldQty : 0;       // 개당 평균 판매가
+  const perUnitProfit = perUnitSale - perUnitCost;        // 개당 손익
   document.getElementById('reportSummary').innerHTML=`
-    <div class="summary-card"><div class="label">판매액</div><div class="value" style="font-size:18px;">${won(sales)}</div></div>
-    <div class="summary-card"><div class="label">완제품 생산원가</div><div class="value" style="font-size:18px;">${won(p2cost)}</div></div>
-    <div class="summary-card"><div class="label">손익</div><div class="value" style="font-size:18px;color:${sales-p2cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2cost)}</div></div>
-    <div class="summary-card"><div class="label">1차 평균수율</div><div class="value">${p1yield.toFixed(1)}<span class="unit">%</span></div></div>
-    <div class="summary-card"><div class="label">2차 평균수율</div><div class="value">${p2yield.toFixed(1)}<span class="unit">%</span></div></div>`;
-  // 월별
+    <div class="stat accent-g"><div class="k">완제품 생산 (개)</div><div class="v">${fmt(p2qty)}<span class="u">개</span></div></div>
+    <div class="stat accent-g"><div class="k">판매 (개)</div><div class="v">${fmt(soldQty)}<span class="u">개</span></div></div>
+    <div class="stat accent-b"><div class="k">판매액</div><div class="v" style="font-size:17px;">${won(sales)}</div></div>
+    <div class="stat accent-o"><div class="k">완제품 생산원가</div><div class="v" style="font-size:17px;">${won(p2cost)}</div></div>
+    <div class="stat ${sales-p2cost>=0?'accent-g':'accent-o'}"><div class="k">총 손익 (판매−생산원가)</div><div class="v" style="font-size:17px;color:${sales-p2cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2cost)}</div></div>
+    <div class="stat accent-o"><div class="k">개당 생산원가</div><div class="v" style="font-size:17px;">${won(perUnitCost)}</div></div>
+    <div class="stat accent-b"><div class="k">개당 평균 판매가</div><div class="v" style="font-size:17px;">${won(perUnitSale)}</div></div>
+    <div class="stat ${perUnitProfit>=0?'accent-g':'accent-o'}"><div class="k">개당 손익</div><div class="v" style="font-size:17px;color:${perUnitProfit>=0?'var(--success)':'var(--danger)'};">${won(perUnitProfit)}</div></div>`;
+  // 월별 (완제품 개당 기준)
   const months={};
-  for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
-  for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0}); months[m].sales+=(x.amount||0); }
+  for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
+  for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].sales+=(x.amount||0); months[m].sold+=x.qty; }
   const mk=Object.keys(months).sort();
-  document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
+  document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산(개)</th><th class="text-right">판매(개)</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">개당손익</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];const puCost=d.prod>0?d.cost/d.prod:0;const puSale=d.sold>0?d.sales/d.sold:0;return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${fmt(d.sold)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${puSale-puCost>=0?'var(--success)':'var(--danger)'};">${won(puSale-puCost)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
   // 반제품 원가/수율
-  document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량</th><th class="text-right">평균수율</th><th class="text-right">평균단가</th><th class="text-right">파기</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
-  // 완제품 원가/수율
-  document.getElementById('reportProduct').innerHTML = state.products.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>완제품</th><th class="text-right">생산량</th><th class="text-right">평균수율</th><th class="text-right">평균단가</th><th class="text-right">파기</th></tr></thead><tbody>'+state.products.map(pr=>{const ps=p2.filter(x=>x.productId===pr.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(pr.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
+  document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
+  // 완제품 원가/수율 (개당·kg당 병기)
+  document.getElementById('reportProduct').innerHTML = state.products.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>완제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.products.map(pr=>{const ps=p2.filter(x=>x.productId===pr.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);const puCost=out>0?cost/out:0;const kgPer=(pr.kgPer||0);return `<tr><td><b>${escapeHtml(pr.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(puCost)}</td><td class="text-right">${kgPer>0?won(puCost/kgPer):'-'}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
 }
 
 // ========== EXCEL ==========
@@ -1977,6 +2130,8 @@ function renderAll(){
 loadState();
 ['pDate','p1Date','p2Date','sDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayISO(); });
 addP1BomRow(); addP2SemiRow(); addP2BomRow();
+// LOT 수기 입력 감지 (사용자가 직접 고치면 자동갱신 중단)
+['p1Lot','p2Lot'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ el.dataset.manual='1'; }); });
 updatePurchasePreview(); renderAll();
 if(state.cloud.connected&&state.cloud.config){ fbInit(state.cloud.config).then(()=>fbPull(false)).catch(()=>{ state.cloud.connected=false; updateCloudStatus(); }); }
 </script>
