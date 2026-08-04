@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -313,7 +314,7 @@
         <div><label>금액(원) *</label><input type="number" id="pAmount" step="1" min="0" placeholder="0" /></div>
         <div><label>세금구분 *</label><select id="pTaxType"><option value="exempt">면세</option><option value="excluded" selected>부가세 별도</option><option value="included">부가세 포함</option></select></div>
         <div><label>유통기한</label><input type="date" id="pExpiration" /></div>
-        <div><label>공급처</label><input type="text" id="pSupplier" placeholder="거래처명" /></div>
+        <div><label>공급처</label><input type="text" id="pSupplier" list="supplierList" placeholder="선택 또는 입력" autocomplete="off" /><datalist id="supplierList"></datalist></div>
       </div>
       <div style="margin-top:12px;"><label>비고</label><textarea id="pNotes" placeholder="메모"></textarea></div>
       <div id="pPreview" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:6px;font-size:13px;"></div>
@@ -805,7 +806,13 @@ function renderSelects(){
   set('fP2Product','<option value="">전체</option>',prodOpts);
   set('sProduct','<option value="">선택...</option>',prodOpts);
   set('fShipProduct','<option value="">전체</option>',prodOpts);
+  renderSupplierList();
   onLedgerKindChange(true);
+}
+function renderSupplierList(){
+  const dl=document.getElementById('supplierList'); if(!dl) return;
+  const names=[...new Set(state.purchases.map(p=>(p.supplier||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+  dl.innerHTML=names.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
 }
 </script>
 <script>
