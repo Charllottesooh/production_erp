@@ -456,10 +456,13 @@
     <div class="card no-print-card final">
       <h2>2차생산(완제품) — 반제품 + 원재료 투입 → 완제품 생산</h2>
       <div class="grid grid-4">
-        <div><label>생산일 *</label><input type="date" id="p2Date" onchange="autoP2Lot()" /></div>
+        <div><label>생산일 *</label><input type="date" id="p2Date" onchange="autoP2Lot();autoP2Expiry();" /></div>
         <div><label>완제품 *</label><select id="p2Product" onchange="onP2ProductChange();autoP2Lot();"></select></div>
         <div><label>완제품 산출량 * <span style="color:var(--text-light);font-weight:400;">(완성 개수)</span></label><input type="number" id="p2Output" step="0.001" min="0" placeholder="예: 10 (10개)" oninput="updateP2Preview()" /></div>
         <div><label>LOT번호 <span style="color:var(--text-light);font-weight:400;">(자동·수정가능)</span></label><input type="text" id="p2Lot" placeholder="자동 생성됨" /></div>
+      </div>
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>유통기한 <span style="color:var(--text-light);font-weight:400;">(생산일+180일 자동·수정가능)</span></label><input type="date" id="p2Expiry" /></div>
       </div>
       <div class="recipe-bar no-print" id="p2RecipeBar" style="display:none;margin-top:16px;">
         <span class="rb-label">📋 레시피 자동입력:</span>
@@ -809,32 +812,59 @@ function deleteProduct(id){
 // 기초재고 설정 (원재료: 매입로트로 생성 / 반제품: semiLot 생성 / 완제품: prod2 가상행)
 function setOpeningMaterial(id){
   const m=state.materials.find(x=>x.id===id); if(!m) return;
-  const body=`<div class="info-box">기초재고는 <b>${todayISO()}</b> 이전 날짜의 매입 로트로 생성됩니다.</div>
+  const existing=state.purchases.find(p=>p.materialId===id && p.isOpening);
+  const preQ = existing? existing.quantity : '';
+  const preC = existing? existing.unitCost : '';
+  const preD = existing? existing.date : todayISO();
+  const usedWarn = (existing && existing.remaining < existing.quantity-1e-9)
+    ? `<div class="warn-box">이 기초재고는 일부가 이미 생산에 사용되었습니다. 단가만 수정하는 것을 권장합니다.</div>` : '';
+  const body=`<div class="info-box">${existing?'등록된 기초재고를 <b>수정</b>합니다.':`기초재고는 <b>${todayISO()}</b> 이전 날짜의 매입 로트로 생성됩니다.`}</div>${usedWarn}
     <div class="grid grid-3">
-      <div><label>기초 수량(${m.unit})</label><input type="number" id="ovQty" step="0.001" min="0" placeholder="0" /></div>
-      <div><label>단가(원/${m.unit})</label><input type="number" id="ovCost" step="0.01" min="0" placeholder="0" /></div>
-      <div><label>기준일</label><input type="date" id="ovDate" value="${todayISO()}" /></div>
+      <div><label>기초 수량(${m.unit})</label><input type="number" id="ovQty" step="0.001" min="0" value="${preQ}" placeholder="0" /></div>
+      <div><label>단가(원/${m.unit})</label><input type="number" id="ovCost" step="0.01" min="0" value="${preC}" placeholder="0" /></div>
+      <div><label>기준일</label><input type="date" id="ovDate" value="${preD}" /></div>
     </div>`;
   openEditModal(`기초재고 - ${m.name}`, body, ()=>{
     const q=Number(document.getElementById('ovQty').value), c=Number(document.getElementById('ovCost').value), d=document.getElementById('ovDate').value;
     if(!(q>0)) { toast('수량','error'); return false; }
-    state.purchases.push({id:uid(),date:d,materialId:id,quantity:q,remaining:q,enteredAmount:Math.round(q*c),taxType:'exempt',supplyPrice:Math.round(q*c),vat:0,totalAmount:Math.round(q*c),unitCost:c,lot:'기초재고',expiration:null,supplier:'',notes:'기초재고',isOpening:true,createdAt:nowISO()});
-    saveState(); toast('기초재고 설정됨','success'); renderAll();
+    if(existing){
+      const used = existing.quantity - existing.remaining;
+      if(q < used-1e-9){ toast(`이미 ${fmt(used)} 사용됨. 수량은 그 이상`,'error'); return false; }
+      existing.quantity=q; existing.remaining=q-used; existing.unitCost=c; existing.date=d;
+      existing.enteredAmount=Math.round(q*c); existing.supplyPrice=Math.round(q*c); existing.totalAmount=Math.round(q*c);
+      saveState(); toast('기초재고 수정됨','success'); renderAll();
+    } else {
+      state.purchases.push({id:uid(),date:d,materialId:id,quantity:q,remaining:q,enteredAmount:Math.round(q*c),taxType:'exempt',supplyPrice:Math.round(q*c),vat:0,totalAmount:Math.round(q*c),unitCost:c,lot:'기초재고',expiration:null,supplier:'',notes:'기초재고',isOpening:true,createdAt:nowISO()});
+      saveState(); toast('기초재고 설정됨','success'); renderAll();
+    }
   });
 }
 function setOpeningSemi(id){
   const s=state.semis.find(x=>x.id===id); if(!s) return;
-  const body=`<div class="info-box">반제품 기초재고를 로트로 생성합니다.</div>
+  const existing=state.semiLots.find(l=>l.semiId===id && l.isOpening);
+  const preQ = existing? existing.quantity : '';
+  const preC = existing? existing.unitCost : '';
+  const preD = existing? existing.date : todayISO();
+  const usedWarn = (existing && existing.remaining < existing.quantity-1e-9)
+    ? `<div class="warn-box">이 기초재고는 일부가 이미 생산에 사용되었습니다. 단가만 수정하는 것을 권장합니다.</div>` : '';
+  const body=`<div class="info-box">${existing?'등록된 기초재고를 <b>수정</b>합니다.':'반제품 기초재고를 로트로 생성합니다.'}</div>${usedWarn}
     <div class="grid grid-3">
-      <div><label>기초 수량(${s.unit})</label><input type="number" id="ovQty" step="0.001" min="0" /></div>
-      <div><label>단가(원/${s.unit})</label><input type="number" id="ovCost" step="0.01" min="0" /></div>
-      <div><label>기준일</label><input type="date" id="ovDate" value="${todayISO()}" /></div>
+      <div><label>기초 수량(${s.unit})</label><input type="number" id="ovQty" step="0.001" min="0" value="${preQ}" /></div>
+      <div><label>단가(원/${s.unit})</label><input type="number" id="ovCost" step="0.01" min="0" value="${preC}" /></div>
+      <div><label>기준일</label><input type="date" id="ovDate" value="${preD}" /></div>
     </div>`;
   openEditModal(`기초재고 - ${s.name}`, body, ()=>{
     const q=Number(document.getElementById('ovQty').value), c=Number(document.getElementById('ovCost').value), d=document.getElementById('ovDate').value;
     if(!(q>0)){ toast('수량','error'); return false; }
-    state.semiLots.push({id:uid(),date:d,semiId:id,quantity:q,remaining:q,unitCost:c,sourceProd1:null,isOpening:true,createdAt:nowISO()});
-    saveState(); toast('기초재고 설정됨','success'); renderAll();
+    if(existing){
+      const used = existing.quantity - existing.remaining;
+      if(q < used-1e-9){ toast(`이미 ${fmt(used)} 사용됨. 수량은 그 이상`,'error'); return false; }
+      existing.quantity=q; existing.remaining=q-used; existing.unitCost=c; existing.date=d;
+      saveState(); toast('기초재고 수정됨','success'); renderAll();
+    } else {
+      state.semiLots.push({id:uid(),date:d,semiId:id,quantity:q,remaining:q,unitCost:c,sourceProd1:null,isOpening:true,createdAt:nowISO()});
+      saveState(); toast('기초재고 설정됨','success'); renderAll();
+    }
   });
 }
 // 재고조정: 기준일의 실사 재고에 맞춰 차이를 조정 (FIFO 오래된 로트부터 소진)
@@ -911,13 +941,13 @@ let _recipeDraft=null;
 function editSemiRecipe(id){
   const s=state.semis.find(x=>x.id===id); if(!s) return;
   const rec=s.recipe||{baseQty:1,items:[]};
-  _recipeDraft={kind:'semi',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i}))};
+  _recipeDraft={kind:'semi',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i})),method:rec.method||'',packing:rec.packing||'',shelfLife:rec.shelfLife||''};
   renderRecipeModalRefresh();
 }
 function editProductRecipe(id){
   const p=state.products.find(x=>x.id===id); if(!p) return;
   const rec=p.recipe||{baseQty:1,items:[]};
-  _recipeDraft={kind:'product',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i}))};
+  _recipeDraft={kind:'product',id,baseQty:rec.baseQty,items:rec.items.map(i=>({...i})),method:rec.method||'',packing:rec.packing||'',shelfLife:rec.shelfLife||''};
   renderRecipeModalRefresh();
 }
 // 신규 레시피: 대상 품목 선택 후 편집
@@ -974,22 +1004,33 @@ function renderRecipeModal(title, unit, allowSemi){
   const body=`<div class="info-box"><b>기준 산출량</b>은 한 번 생산하는 단위입니다 (예: 1개). 그 기준량을 만들 때 들어가는 재료의 <b>총량</b>을 등록하세요. 생산 시 배치수·목표량을 넣으면 이 비율로 자동 계산됩니다.</div>
     <div style="margin-bottom:12px;"><label>기준 산출량 (${unit})</label><input type="number" step="0.001" min="0.001" id="recBaseQty" value="${d.baseQty}" oninput="recipeSetBase(this.value)" style="max-width:200px;" /></div>
     <label>투입 재료</label><div id="recItemList">${rowsHtml||'<div style="color:var(--text-light);font-size:13px;padding:8px 0;">재료를 추가하세요.</div>'}</div>
-    <button class="btn btn-secondary btn-sm" onclick="recipeAddItem(${allowSemi?'true':'false'})">+ 재료 추가</button>`;
+    <button class="btn btn-secondary btn-sm" onclick="recipeAddItem(${allowSemi?'true':'false'})">+ 재료 추가</button>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="margin-bottom:12px;"><label>제조방법</label><textarea id="recMethod" placeholder="예: 1. 염지 후 12시간 냉장 2. 튀김 180도 8분..." oninput="recipeSetField('method',this.value)" style="min-height:90px;">${escapeHtml(d.method||'')}</textarea></div>
+      <div class="grid grid-2">
+        <div><label>포장방법 및 단위</label><input type="text" id="recPack" placeholder="예: 진공포장 2kg/팩" value="${escapeHtml(d.packing||'')}" oninput="recipeSetField('packing',this.value)" /></div>
+        <div><label>유통기한</label><input type="text" id="recShelf" placeholder="예: 제조일로부터 180일" value="${escapeHtml(d.shelfLife||'')}" oninput="recipeSetField('shelfLife',this.value)" /></div>
+      </div>
+    </div>`;
   openEditModal(title, body, ()=>{
     const items=_recipeDraft.items.filter(i=>i.id&&i.qty>0);
     if(_recipeDraft.baseQty<=0){ toast('기준 산출량','error'); return false; }
-    const obj={baseQty:Number(_recipeDraft.baseQty),items};
+    const obj={baseQty:Number(_recipeDraft.baseQty),items,method:_recipeDraft.method||'',packing:_recipeDraft.packing||'',shelfLife:_recipeDraft.shelfLife||''};
     if(_recipeDraft.kind==='semi'){ const s=state.semis.find(x=>x.id===_recipeDraft.id); s.recipe=obj; }
     else { const p=state.products.find(x=>x.id===_recipeDraft.id); p.recipe=obj; }
     saveState(); toast('레시피 저장됨','success'); renderAll();
   });
 }
 function recipeSetBase(v){ _recipeDraft.baseQty=Number(v)||0; }
+function recipeSetField(k,v){ _recipeDraft[k]=v; }
 function recipeSetItem(idx,val){ if(!val){ _recipeDraft.items[idx].id=''; return; } const [type,id]=val.split(':'); _recipeDraft.items[idx].type=type; _recipeDraft.items[idx].id=id; }
 function recipeSetQty(idx,v){ _recipeDraft.items[idx].qty=Number(v)||0; }
 function recipeDelItem(idx){ _recipeDraft.items.splice(idx,1); renderRecipeModalRefresh(); }
 function recipeAddItem(allowSemi){ _recipeDraft.items.push({type:allowSemi?'semi':'mat',id:'',qty:''}); renderRecipeModalRefresh(); }
 function renderRecipeModalRefresh(){
+  const mEl=document.getElementById('recMethod'); if(mEl) _recipeDraft.method=mEl.value;
+  const pEl=document.getElementById('recPack'); if(pEl) _recipeDraft.packing=pEl.value;
+  const sEl=document.getElementById('recShelf'); if(sEl) _recipeDraft.shelfLife=sEl.value;
   const d=_recipeDraft; const isProd=d.kind==='product';
   const unit=isProd?((state.products.find(x=>x.id===d.id)||{}).unit||'Kg'):((state.semis.find(x=>x.id===d.id)||{}).unit||'Kg');
   const title=isProd?`완제품 레시피 - ${prodName(d.id)}`:`반제품 레시피 - ${semiName(d.id)}`;
@@ -1223,8 +1264,9 @@ function saveP1(){
   const date=document.getElementById('p1Date').value;
   const semiId=document.getElementById('p1Semi').value;
   const output=Number(document.getElementById('p1Output').value);
-  const lot=document.getElementById('p1Lot').value.trim();
-  const scrap=Number(document.getElementById('p1Scrap').value)||0;
+  const lot=document.getElementById('p2Lot').value.trim();
+  const expiry=document.getElementById('p2Expiry').value||null;
+  const scrap=Number(document.getElementById('p2Scrap').value)||0;
   const scrapReason=document.getElementById('p1ScrapReason').value.trim();
   const notes=document.getElementById('p1Notes').value.trim();
   const entries=getP1Bom();
@@ -1421,6 +1463,7 @@ function resetP2Form(){
   document.getElementById('p2Date').value=todayISO();
   ['p2Product','p2Output','p2Lot','p2Scrap','p2ScrapReason','p2Notes'].forEach(id=>document.getElementById(id).value='');
   const lotEl=document.getElementById('p2Lot'); if(lotEl) lotEl.dataset.manual='';
+  const expEl=document.getElementById('p2Expiry'); if(expEl){ expEl.dataset.manual=''; } autoP2Expiry();
   document.getElementById('p2SemiList').innerHTML=''; document.getElementById('p2BomList').innerHTML='';
   addP2SemiRow(); addP2BomRow();
   const bar=document.getElementById('p2RecipeBar'); if(bar) bar.style.display='none';
@@ -1431,6 +1474,13 @@ function onP2ProductChange(){
   if(p&&p.recipe&&p.recipe.items.length){ bar.style.display='flex'; p2RecModeChange(); }
   else { bar.style.display='none'; }
 }
+function autoP2Expiry(){
+  const expEl=document.getElementById('p2Expiry'); if(!expEl) return;
+  if(expEl.dataset.manual==='1' && expEl.value.trim()!=='') return;
+  const date=document.getElementById('p2Date').value; if(!date) return;
+  const d=new Date(date); d.setDate(d.getDate()+180);
+  expEl.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}  
 function autoP2Lot(){
   const lotEl=document.getElementById('p2Lot'); if(!lotEl) return;
   if(lotEl.dataset.manual==='1' && lotEl.value.trim()!=='') return;
@@ -1492,7 +1542,7 @@ function saveP2(){
   for(const it of matPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
   const unitCost=output>0?totalCost/output:0;
   const loss=0;  // 완제품: 투입·산출 단위 혼합, 파기(kg)만 별도 기록
-  state.prod2.push({id:uid(),date,productId,output,lot,semiUsages:semiPlan,matUsages:matPlan,inputKg,scrap,scrapReason,loss,yield:0,totalCost,unitCost,notes,createdAt:nowISO()});
+  state.prod2.push({id:uid(),date,productId,output,lot,expiry,semiUsages:semiPlan,matUsages:matPlan,inputKg,scrap,scrapReason,loss,yield:0,totalCost,unitCost,notes,createdAt:nowISO()});
   saveState(); resetP2Form(); toast('완제품 생산 저장','success'); renderAll();
 }
 function getP2Filtered(){
@@ -1667,6 +1717,13 @@ function printProd1(id){
       <thead><tr><th>총 생산원가</th><th>산출 수량</th><th>반제품 개당 단가</th></tr></thead>
       <tbody><tr><td class="r">${won(p.totalCost)}</td><td class="r">${fmt(p.output)} 개</td><td class="r">${won(p.unitCost)}</td></tr></tbody>
     </table>
+    ${(s&&s.recipe&&(s.recipe.method||s.recipe.packing||s.recipe.shelfLife))?`
+    <div class="ps-sec-title">제조방법</div>
+    <div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;white-space:pre-wrap;">${escapeHtml(s.recipe.method||'-')}</div>
+    <table class="ps-tbl" style="margin-top:10px;">
+      <thead><tr><th>포장방법 및 단위</th><th>유통기한</th></tr></thead>
+      <tbody><tr><td class="c">${escapeHtml(s.recipe.packing||'-')}</td><td class="c">${escapeHtml(s.recipe.shelfLife||'-')}</td></tr></tbody>
+    </table>`:''}
     ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
     <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
   </div>`;
@@ -1684,9 +1741,9 @@ function printProd2(id){
     <table class="ps-meta">
       <tr><th>생산일자</th><td class="date-cell">${p.date}</td><th>LOT 번호</th><td>${escapeHtml(p.lot||'-')}</td></tr>
       <tr><th>완제품명</th><td>${escapeHtml(prodName(p.productId))}</td><th>규격</th><td>${fmt(kgPer||5,1)}kg / 개</td></tr>
-      <tr><th>산출 수량</th><td>${fmt(p.output)}개 (${fmt(p.output*(kgPer||5),1)}kg)</td><th>파기</th><td>${fmt(p.scrap)} kg</td></tr>
-      <tr><th>파기 사유</th><td colspan="3">${escapeHtml(p.scrapReason||'-')}</td></tr>
-    </table>
+      <tr><th>산출 수량</th><td>${fmt(p.output)}개 (${fmt(p.output*(kgPer||5),1)}kg)</td><th>유통기한</th><td class="date-cell">${p.expiry||'-'}</td></tr>
+      <tr><th>파기 수량</th><td>${fmt(p.scrap)} kg</td><th>파기 사유</th><td>${escapeHtml(p.scrapReason||'-')}</td></tr>
+      </table>
     <div class="ps-sec-title">투입 내역</div>
     <table class="ps-tbl">
       <thead><tr><th>품목명</th><th>구분</th><th>투입량</th><th>원가</th></tr></thead>
@@ -2154,6 +2211,7 @@ loadState();
 addP1BomRow(); addP2SemiRow(); addP2BomRow();
 // LOT 수기 입력 감지 (사용자가 직접 고치면 자동갱신 중단)
 ['p1Lot','p2Lot'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ el.dataset.manual='1'; }); });
+(function(){ const e=document.getElementById('p2Expiry'); if(e) e.addEventListener('input',()=>{ e.dataset.manual='1'; }); })();
 updatePurchasePreview(); renderAll();
 if(state.cloud.connected&&state.cloud.config){ fbInit(state.cloud.config).then(()=>fbPull(false)).catch(()=>{ state.cloud.connected=false; updateCloudStatus(); }); }
 </script>
