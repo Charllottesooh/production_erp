@@ -1215,14 +1215,16 @@ function updateP1Preview(){
   const scrap=Number(document.getElementById('p1Scrap').value)||0;
   const el=document.getElementById('p1Preview');
   if(entries.length===0){ el.innerHTML='<i>투입 원재료를 추가하세요.</i>'; return; }
-  let h='<b>투입 시뮬레이션 (FIFO)</b><table style="margin-top:8px;"><thead><tr><th>원재료</th><th class="text-right">투입</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
+  const _p1Total=entries.reduce((s,e)=>s+e.qty,0);
+  let h='<b>투입 시뮬레이션 (FIFO)</b><table style="margin-top:8px;"><thead><tr><th>원재료</th><th class="text-right">투입</th><th class="text-right">비율</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
   let totalCost=0,anyShort=false,inputKg=0;
   for(const e of entries){
     const r=fifoAllocateMat(e.materialId,e.qty);
     const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const pct=_p1Total>0?(e.qty/_p1Total*100):0;
     const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
     if(r.shortage>0) anyShort=true;
-    h+=`<tr><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
+    h+=`<tr><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${pct.toFixed(1)}%</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
   h+='</tbody></table>';
   const loss=0;
@@ -1445,21 +1447,24 @@ function updateP2Preview(){
   const scrap=Number(document.getElementById('p2Scrap').value)||0;
   const el=document.getElementById('p2Preview');
   if(semiEntries.length===0&&matEntries.length===0){ el.innerHTML='<i>투입 반제품/원재료를 추가하세요.</i>'; return; }
-  let h='<b>투입 시뮬레이션</b><table style="margin-top:8px;"><thead><tr><th>구분</th><th>품목</th><th class="text-right">투입</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
+  const _p2Total=semiEntries.reduce((s,e)=>s+e.qty,0)+matEntries.reduce((s,e)=>s+e.qty,0);
+  let h='<b>투입 시뮬레이션</b><table style="margin-top:8px;"><thead><tr><th>구분</th><th>품목</th><th class="text-right">투입</th><th class="text-right">비율</th><th class="text-right">원가</th><th>상태</th></tr></thead><tbody>';
   let totalCost=0,anyShort=false,inputKg=0;
   for(const e of semiEntries){
     const r=fifoAllocateSemi(e.semiId,e.qty);
     const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const pct=_p2Total>0?(e.qty/_p2Total*100):0;
     const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
     if(r.shortage>0) anyShort=true;
-    h+=`<tr><td><span class="badge badge-semi">반제품</span></td><td>${semiName(e.semiId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
+    h+=`<tr><td><span class="badge badge-semi">반제품</span></td><td>${semiName(e.semiId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${pct.toFixed(1)}%</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
   for(const e of matEntries){
     const r=fifoAllocateMat(e.materialId,e.qty);
     const cost=r.alloc.reduce((s,a)=>s+a.qty*a.unitCost,0); totalCost+=cost; inputKg+=e.qty;
+    const pct=_p2Total>0?(e.qty/_p2Total*100):0;
     const st=r.shortage>0?`<span style="color:var(--danger);font-weight:600;">부족 ${fmt(r.shortage)}</span>`:'<span style="color:var(--success);font-weight:600;">OK</span>';
     if(r.shortage>0) anyShort=true;
-    h+=`<tr><td><span class="badge badge-mat">원재료</span></td><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
+    h+=`<tr><td><span class="badge badge-mat">원재료</span></td><td>${matName(e.materialId)}</td><td class="text-right">${fmt(e.qty)}</td><td class="text-right">${pct.toFixed(1)}%</td><td class="text-right">${won(cost)}</td><td>${st}</td></tr>`;
   }
   h+='</tbody></table>';
   const unit=output>0?totalCost/output:0;       // 완제품 개당 단가
@@ -1722,7 +1727,8 @@ function printProd1(id){
   const p=state.prod1.find(x=>x.id===id); if(!p) return;
   const s=state.semis.find(x=>x.id===p.semiId); const kgPer=(s&&s.kgPer)||0;
   let rows=''; let ti=0;
-  for(const u of p.usages){ ti+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); rows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${won(cost)}</td></tr>`; }
+  const _p1Tot=p.usages.reduce((a,u)=>a+u.totalUsed,0);
+  for(const u of p.usages){ ti+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); const pct=_p1Tot>0?(u.totalUsed/_p1Tot*100):0; rows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${pct.toFixed(1)}%</td><td class="r">${won(cost)}</td></tr>`; }
   const kgUnit=kgPer>0?p.unitCost/kgPer:0;
   const html=`<div class="ps-doc">
     <div class="ps-title">1차 생산일지 (반제품)</div>
@@ -1735,9 +1741,9 @@ function printProd1(id){
     </table>
     <div class="ps-sec-title">투입 원재료 내역</div>
     <table class="ps-tbl">
-      <thead><tr><th>원재료명</th><th>투입량</th><th>원가</th></tr></thead>
+      <thead><tr><th>원재료명</th><th>투입량</th><th>비율</th><th>원가</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td class="c">합계</td><td class="r">${fmt(ti)} kg</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
+      <tfoot><tr><td class="c">합계</td><td class="r">${fmt(ti)} kg</td><td class="r">100.0%</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
     </table>
     <div class="ps-sec-title">원가 요약</div>
     <table class="ps-tbl">
@@ -1759,9 +1765,9 @@ function printProd1(id){
 function printProd2(id){
   const p=state.prod2.find(x=>x.id===id); if(!p) return;
   const prod=state.products.find(x=>x.id===p.productId); const kgPer=(prod&&prod.kgPer)||0;
-  let semiRows=''; for(const u of p.semiUsages){ const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); semiRows+=`<tr><td>${escapeHtml(semiName(u.semiId))}</td><td class="c">반제품</td><td class="r">${fmt(u.totalUsed)} 개</td><td class="r">${won(cost)}</td></tr>`; }
-  let matRows=''; let tmk=0; for(const u of p.matUsages){ tmk+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); matRows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="c">원재료</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${won(cost)}</td></tr>`; }
-  const kgUnit=kgPer>0?p.unitCost/kgPer:0;
+ const _p2Tot=p.semiUsages.reduce((a,u)=>a+u.totalUsed,0)+p.matUsages.reduce((a,u)=>a+u.totalUsed,0);
+  let semiRows=''; for(const u of p.semiUsages){ const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); const pct=_p2Tot>0?(u.totalUsed/_p2Tot*100):0; semiRows+=`<tr><td>${escapeHtml(semiName(u.semiId))}</td><td class="c">반제품</td><td class="r">${fmt(u.totalUsed)} 개</td><td class="r">${pct.toFixed(1)}%</td><td class="r">${won(cost)}</td></tr>`; }
+  let matRows=''; let tmk=0; for(const u of p.matUsages){ tmk+=u.totalUsed; const cost=u.allocations.reduce((a,x)=>a+x.qty*x.unitCost,0); const pct=_p2Tot>0?(u.totalUsed/_p2Tot*100):0; matRows+=`<tr><td>${escapeHtml(matName(u.materialId))}</td><td class="c">원재료</td><td class="r">${fmt(u.totalUsed)} kg</td><td class="r">${pct.toFixed(1)}%</td><td class="r">${won(cost)}</td></tr>`; }
   const html=`<div class="ps-doc">
     <div class="ps-title">2차 생산일지 (완제품)</div>
     <div class="ps-sub">${COMPANY_NAME} · Production Record (Finished)</div>
@@ -1773,9 +1779,9 @@ function printProd2(id){
       </table>
     <div class="ps-sec-title">투입 내역</div>
     <table class="ps-tbl">
-      <thead><tr><th>품목명</th><th>구분</th><th>투입량</th><th>원가</th></tr></thead>
+     <thead><tr><th>품목명</th><th>구분</th><th>투입량</th><th>비율</th><th>원가</th></tr></thead>
       <tbody>${semiRows}${matRows}</tbody>
-      <tfoot><tr><td class="c" colspan="3">총 원가</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
+      <tfoot><tr><td class="c" colspan="3">총 원가</td><td class="r">100.0%</td><td class="r">${won(p.totalCost)}</td></tr></tfoot>
     </table>
     <div class="ps-sec-title">원가 요약</div>
     <table class="ps-tbl">
