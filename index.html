@@ -1915,7 +1915,7 @@ function getShipFiltered(){
   if(f) list=list.filter(x=>x.productId===f);
   if(s) list=list.filter(x=>x.date>=s);
   if(e) list=list.filter(x=>x.date<=e);
-  return list.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
+  return list.sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||'').localeCompare(a.createdAt||''));
 }
 function renderShips(){
   const list=getShipFiltered(); const el=document.getElementById('shipsList');
@@ -2074,6 +2074,7 @@ function repSetRange(type){
   renderReport();
 }
 function renderReport(){
+  state.ships.forEach(s=>{ if(typeof s.amount==='string') s.amount=Number(String(s.amount).replace(/,/g,''))||0; if(typeof s.supply==='string') s.supply=Number(String(s.supply).replace(/,/g,''))||0; if(typeof s.vat==='string') s.vat=Number(String(s.vat).replace(/,/g,''))||0; });
   const s=document.getElementById('repStart')?.value||'', e=document.getElementById('repEnd')?.value||'';
   const p1=state.prod1.filter(p=>inRange(p.date,s,e));
   const p2=state.prod2.filter(p=>inRange(p.date,s,e));
