@@ -1277,9 +1277,8 @@ function saveP1(){
   const date=document.getElementById('p1Date').value;
   const semiId=document.getElementById('p1Semi').value;
   const output=Number(document.getElementById('p1Output').value);
-  const lot=document.getElementById('p2Lot').value.trim();
-  const expiry=document.getElementById('p2Expiry').value||null;
-  const scrap=Number(document.getElementById('p2Scrap').value)||0;
+  const lot=document.getElementById('p1Lot').value.trim();
+  const scrap=Number(document.getElementById('p1Scrap').value)||0;
   const scrapReason=document.getElementById('p1ScrapReason').value.trim();
   const notes=document.getElementById('p1Notes').value.trim();
   const entries=getP1Bom();
@@ -1532,8 +1531,9 @@ function applyP2Recipe(){
 function saveP2(){
   const date=document.getElementById('p2Date').value;
   const productId=document.getElementById('p2Product').value;
-  const output=Number(document.getElementById('p2Output').value);
+ const output=Number(document.getElementById('p2Output').value);
   const lot=document.getElementById('p2Lot').value.trim();
+  const expiry=document.getElementById('p2Expiry').value||null;
   const scrap=Number(document.getElementById('p2Scrap').value)||0;
   const scrapReason=document.getElementById('p2ScrapReason').value.trim();
   const notes=document.getElementById('p2Notes').value.trim();
