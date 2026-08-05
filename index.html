@@ -1981,8 +1981,6 @@ function exportClientSales(){
   for(const c of ck){ const d=cmap[c]; aoa.push([c,d.cnt,d.qty,d.supply,d.vat,d.total]); }
   writeXlsx(aoa, `거래처별매출_${todayISO()}`);
 }
-function exportLedger(){
-
   
 function exportLedger(){
   const kind=document.getElementById('ledKind').value;
