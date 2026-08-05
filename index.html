@@ -160,6 +160,9 @@
   .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; position: relative; }
   .stat .k { font-size: 11px; color: var(--text-light); font-weight: 600; letter-spacing: .2px; margin-bottom: 6px; }
   .stat .v { font-size: 21px; font-weight: 800; color: var(--text); line-height: 1.1; }
+  .stat .rline { font-size: 14px; color: var(--text); padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.04); line-height: 1.4; }
+  .stat .rline:last-child { border-bottom: none; }
+  .stat .rline b { font-weight: 700; font-size: 15px; margin-left: 4px; }}
   .stat .v .u { font-size: 12px; color: var(--text-light); font-weight: 500; margin-left: 3px; }
   .stat.accent-b { background: var(--mat-bg); border-color: transparent; }
   .stat.accent-b .v { color: var(--mat-tx); }
@@ -2088,15 +2091,24 @@ function renderReport(){
   const perUnitCost = p2qty>0? p2cost/p2qty : 0;          // 완제품 개당 생산원가
   const perUnitSale = soldQty>0? sales/soldQty : 0;       // 개당 평균 판매가
   const perUnitProfit = perUnitSale - perUnitCost;        // 개당 손익
-  document.getElementById('reportSummary').innerHTML=`
-    <div class="stat accent-g"><div class="k">완제품 생산 (개)</div><div class="v">${fmt(p2qty)}<span class="u">개</span></div></div>
-    <div class="stat accent-g"><div class="k">판매 (개)</div><div class="v">${fmt(soldQty)}<span class="u">개</span></div></div>
-    <div class="stat accent-b"><div class="k">판매액</div><div class="v" style="font-size:17px;">${won(sales)}</div></div>
-    <div class="stat accent-o"><div class="k">완제품 생산원가</div><div class="v" style="font-size:17px;">${won(p2cost)}</div></div>
-    <div class="stat ${sales-p2cost>=0?'accent-g':'accent-o'}"><div class="k">총 손익 (판매−생산원가)</div><div class="v" style="font-size:17px;color:${sales-p2cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2cost)}</div></div>
-    <div class="stat accent-o"><div class="k">개당 생산원가</div><div class="v" style="font-size:17px;">${won(perUnitCost)}</div></div>
-    <div class="stat accent-b"><div class="k">개당 평균 판매가</div><div class="v" style="font-size:17px;">${won(perUnitSale)}</div></div>
-    <div class="stat ${perUnitProfit>=0?'accent-g':'accent-o'}"><div class="k">개당 손익</div><div class="v" style="font-size:17px;color:${perUnitProfit>=0?'var(--success)':'var(--danger)'};">${won(perUnitProfit)}</div></div>`;
+document.getElementById('reportSummary').innerHTML=`
+    <div class="stat accent-g">
+      <div class="k">생산</div>
+      <div class="rline">생산수량 <b>${fmt(p2qty)}</b> 개</div>
+      <div class="rline">생산원가 <b>${won(p2cost)}</b></div>
+      <div class="rline">개당(5kg) 원가 <b>${won(perUnitCost)}</b></div>
+    </div>
+    <div class="stat accent-b">
+      <div class="k">판매</div>
+      <div class="rline">판매수량 <b>${fmt(soldQty)}</b> 개(5kg)</div>
+      <div class="rline">평균 판매단가 <b>${won(perUnitSale)}</b></div>
+      <div class="rline">판매금액 <b>${won(sales)}</b></div>
+    </div>
+    <div class="stat ${sales-p2cost>=0?'accent-g':'accent-o'}">
+      <div class="k">손익</div>
+      <div class="rline">개당 손익 <b style="color:${perUnitProfit>=0?'var(--success)':'var(--danger)'};">${won(perUnitProfit)}</b></div>
+      <div class="rline">총 손익 <b style="color:${sales-p2cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2cost)}</b></div>
+    </div>`;
   // 월별 (완제품 개당 기준)
   const months={};
   for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
