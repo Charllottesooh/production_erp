@@ -500,7 +500,7 @@
       </div>
     </div>
     <div class="card final">
-      <h2>2차 생산 이력 <button class="btn btn-secondary btn-sm no-print" onclick="fillLotsP2()">🏷 LOT 일괄생성</button> <button class="btn btn-print no-print" onclick="printTab('prod2','2차 생산 이력')">🖨️ 인쇄</button></h2>
+      <h2>2차 생산 이력 <button class="btn btn-secondary btn-sm no-print" onclick="fillLotsP2()">🏷 LOT 일괄생성</button> <button class="btn btn-secondary btn-sm no-print" onclick="fillExpiryP2()">📅 유통기한 일괄생성</button> <button class="btn btn-print no-print" onclick="printTab('prod2','2차 생산 이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;">
         <div style="flex:1;"><label>완제품</label><select id="fP2Product" onchange="renderP2()"><option value="">전체</option></select></div>
         <div style="flex:1;"><label>시작</label><input type="date" id="fP2Start" onchange="renderP2()" /></div>
@@ -1607,6 +1607,9 @@ function editP2(id){
       <div><label>산출량</label><input type="number" id="e2Out" step="0.001" min="0" value="${p.output}"/></div>
       <div><label>LOT</label><input type="text" id="e2Lot" value="${escapeHtml(p.lot||'')}"/></div>
     </div>
+    <div class="grid grid-4" style="margin-top:12px;">
+      <div><label>유통기한</label><input type="date" id="e2Expiry" value="${p.expiry||''}"/></div>
+    </div>
     <div style="margin-top:12px;"><label>투입 반제품</label><div id="e2SemiList"></div>
       <button class="btn btn-secondary btn-sm" onclick="editP2AddSemi()">+ 반제품 추가</button>
     </div>
@@ -1624,6 +1627,7 @@ function editP2(id){
     const productId=document.getElementById('e2Prod').value;
     const output=Number(document.getElementById('e2Out').value);
     const newLot=document.getElementById('e2Lot').value.trim();
+    const newExpiry=document.getElementById('e2Expiry').value||null;
     const scrap=Number(document.getElementById('e2Scrap').value)||0;
     const scrapReason=document.getElementById('e2ScrapR').value.trim();
     const notes=document.getElementById('e2Notes').value.trim();
@@ -1641,7 +1645,7 @@ function editP2(id){
     let totalCost=0, inputKg=0;
     for(const it of semiPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
     for(const it of matPlan){ inputKg+=it.totalUsed; for(const a of it.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); l.remaining=Math.max(0,l.remaining-a.qty); totalCost+=a.qty*a.unitCost; } }
-    p.date=date; p.productId=productId; p.output=output; p.lot=newLot; p.semiUsages=semiPlan; p.matUsages=matPlan; p.inputKg=inputKg; p.scrap=scrap; p.scrapReason=scrapReason; p.loss=Math.max(0,inputKg-output-scrap); p.yield=inputKg>0?output/inputKg:0; p.totalCost=totalCost; p.unitCost=output>0?totalCost/output:0;
+    p.date=date; p.productId=productId; p.output=output; p.lot=newLot; p.expiry=newExpiry; p.semiUsages=semiPlan; p.matUsages=matPlan; p.inputKg=inputKg; p.scrap=scrap; p.scrapReason=scrapReason; p.loss=Math.max(0,inputKg-output-scrap); p.yield=inputKg>0?output/inputKg:0; p.totalCost=totalCost; p.unitCost=output>0?totalCost/output:0;
     saveState(); toast('수정됨','success'); renderAll();
   });
   setTimeout(()=>{ editP2RenderSemi(); editP2RenderMat(); },60);
@@ -1687,6 +1691,18 @@ function fillLotsP1(){
   }
   saveState(); toast(`${targets.length}건 LOT 생성 완료`,'success'); renderAll();
 }
+
+function fillExpiryP2(){
+  const targets=state.prod2.filter(p=>!p.expiry);
+  if(targets.length===0){ toast('유통기한이 비어있는 2차 생산이 없습니다','success'); return; }
+  if(!confirm(`유통기한 미입력 2차 생산 ${targets.length}건에 '생산일+180일'로 자동 생성할까요?\n(개별 건은 나중에 수정 가능)`)) return;
+  for(const p of targets){
+    const d=new Date(p.date); d.setDate(d.getDate()+180);
+    p.expiry=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  saveState(); toast(`${targets.length}건 유통기한 생성 완료`,'success'); renderAll();
+}
+  
 function fillLotsP2(){
   const targets=state.prod2.filter(p=>!p.lot||!p.lot.trim());
   if(targets.length===0){ toast('LOT이 비어있는 2차 생산이 없습니다','success'); return; }
