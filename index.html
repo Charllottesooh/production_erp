@@ -211,6 +211,17 @@
   @media print {
     body.printing-sheet .prod-sheet { display: block !important; }
     body.printing-sheet .ps-meta th, body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl tfoot td { background: #f0f0f0 !important; }
+    /* 1페이지에 맞추기 위한 컴팩트 조정 */
+    body.printing-sheet .ps-title { font-size: 17px; padding-bottom: 6px; margin-bottom: 4px; }
+    body.printing-sheet .ps-sub { margin-bottom: 10px; }
+    body.printing-sheet .ps-meta th, body.printing-sheet .ps-meta td { padding: 4px 8px; }
+    body.printing-sheet .ps-meta td.date-cell { font-size: 14px; }
+    body.printing-sheet .ps-sec-title { margin: 9px 0 5px; font-size: 13px; }
+    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 3px 7px; }
+    body.printing-sheet .ps-tbl { margin-bottom: 7px; }
+    body.printing-sheet .ps-sign { margin-top: 14px; }
+    body.printing-sheet .ps-sign td { height: 40px; }
+    body.printing-sheet .ps-doc > div[style*="min-height:40px"] { min-height: 28px !important; padding: 7px !important; }
   }
   /* 목록 인쇄: 가로 */
   @media print {
@@ -1755,6 +1766,13 @@ function printProd2(id){
       <thead><tr><th>총 생산원가</th><th>개당(${fmt(kgPer||5,1)}kg) 단가</th><th>kg당 단가</th></tr></thead>
       <tbody><tr><td class="r">${won(p.totalCost)}</td><td class="r">${won(p.unitCost)}</td><td class="r">${won((kgPer||5)>0?p.unitCost/(kgPer||5):0)}</td></tr></tbody>
     </table>
+    ${(prod&&prod.recipe&&(prod.recipe.method||prod.recipe.packing||prod.recipe.shelfLife))?`
+    <div class="ps-sec-title">제조방법</div>
+    <div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;white-space:pre-wrap;">${escapeHtml(prod.recipe.method||'-')}</div>
+    <table class="ps-tbl" style="margin-top:10px;">
+      <thead><tr><th>포장방법 및 단위</th><th>유통기한</th></tr></thead>
+      <tbody><tr><td class="c">${escapeHtml(prod.recipe.packing||'-')}</td><td class="c">${escapeHtml(prod.recipe.shelfLife||'-')}</td></tr></tbody>
+    </table>`:''}
     ${p.notes?`<div class="ps-sec-title">비고</div><div style="font-size:12px;border:1px solid #333;padding:10px;min-height:40px;">${escapeHtml(p.notes)}</div>`:''}
     <div class="ps-sign"><table><tr><th>작성</th><th>검토</th><th>승인</th></tr><tr><td></td><td></td><td></td></tr></table></div>
   </div>`;
