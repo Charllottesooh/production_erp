@@ -2048,13 +2048,8 @@ function renderDashboard(){
   const suffix=s||e?' (기간)':'';
   document.getElementById('dashboardSummary').innerHTML=`
     <div class="stat accent-b"><div class="k">매입액${suffix}</div><div class="v" style="font-size:17px;">${won(purAmt)}</div></div>
-    <div class="stat accent-s"><div class="k">1차 생산 · 반제품</div><div class="v">${fmt(p1.reduce((a,p)=>a+p.output,0))}<span class="u">Kg</span></div></div>
-    <div class="stat accent-g"><div class="k">2차 생산 · 완제품</div><div class="v">${fmt(p2.reduce((a,p)=>a+p.output,0))}<span class="u">Kg</span></div></div>
-    <div class="stat accent-o"><div class="k">출고</div><div class="v">${fmt(sh.reduce((a,x)=>a+x.qty,0))}<span class="u">Kg</span></div></div>
     <div class="stat accent-g"><div class="k">판매액${suffix}</div><div class="v" style="font-size:17px;">${won(sales)}</div></div>
-    <div class="stat ${sales-p2Cost>=0?'accent-g':'accent-o'}"><div class="k">손익 · 판매-생산원가</div><div class="v" style="font-size:17px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>
-    <div class="stat accent-b"><div class="k">원재료 재고</div><div class="v">${fmt(matRem)}<span class="u">Kg</span></div></div>
-    <div class="stat accent-s"><div class="k">반제품 재고</div><div class="v" style="color:var(--semi);">${fmt(semiRem)}<span class="u">Kg</span></div></div>`;
+    <div class="stat ${sales-p2Cost>=0?'accent-g':'accent-o'}"><div class="k">손익 · 판매-생산원가</div><div class="v" style="font-size:17px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>`;
   // 재고 요약
   let sh2='<table><thead><tr><th>구분</th><th>품목</th><th class="text-right">재고</th><th class="text-right">재고가액</th></tr></thead><tbody>';
   for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
@@ -2065,9 +2060,9 @@ function renderDashboard(){
   const today=todayISO();
   const al=state.purchases.filter(p=>p.remaining>0&&p.expiration).map(p=>({...p,days:daysBetween(today,p.expiration)})).filter(p=>p.days<=30).sort((a,b)=>a.days-b.days);
   document.getElementById('expirationAlerts').innerHTML = al.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>원재료</th><th>입고일</th><th class="text-right">잔량</th><th>유통기한</th><th>상태</th></tr></thead><tbody>'+al.map(a=>{const ec=expirationClass(a.expiration);const lbl=a.days<0?`${-a.days}일 경과`:`D-${a.days}`;return `<tr><td><b>${matName(a.materialId)}</b></td><td>${a.date}</td><td class="text-right">${fmt(a.remaining)}</td><td>${a.expiration}</td><td><span class="badge ${ec.cls}">${lbl}</span></td></tr>`;}).join('')+'</tbody></table>';
-  const rp=[...state.purchases].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  const rp=[...state.purchases].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)).slice(0,5);
   document.getElementById('recentPurchases').innerHTML = rp.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>일자</th><th>원재료</th><th class="text-right">수량</th><th class="text-right">합계</th></tr></thead><tbody>'+rp.map(p=>`<tr><td>${p.date}</td><td>${matName(p.materialId)}</td><td class="text-right">${fmt(p.quantity)}</td><td class="text-right">${won(p.totalAmount)}</td></tr>`).join('')+'</tbody></table>';
-  const rpr=[...state.prod1.map(p=>({...p,_t:'반제품',_n:semiName(p.semiId)})),...state.prod2.map(p=>({...p,_t:'완제품',_n:prodName(p.productId)}))].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5);
+  const rpr=[...state.prod1.map(p=>({...p,_t:'반제품',_n:semiName(p.semiId)})),...state.prod2.map(p=>({...p,_t:'완제품',_n:prodName(p.productId)}))].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt)).slice(0,5);
   document.getElementById('recentProductions').innerHTML = rpr.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>일자</th><th>구분</th><th>품목</th><th class="text-right">산출</th><th class="text-right">원가</th></tr></thead><tbody>'+rpr.map(p=>`<tr><td>${p.date}</td><td>${p._t}</td><td>${p._n}</td><td class="text-right">${fmt(p.output)}</td><td class="text-right">${won(p.totalCost)}</td></tr>`).join('')+'</tbody></table>';
 }
 
