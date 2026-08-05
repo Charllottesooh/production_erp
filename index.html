@@ -1697,15 +1697,7 @@ function editP2(id){
   });
   setTimeout(()=>{ editP2RenderSemi(); editP2RenderMat(); },60);
 }
-function editP2RenderSemi(){
-  const box=document.getElementById('e2SemiList'); if(!box) return; box.innerHTML='';
-  _editP2Semi.forEach((r,idx)=>{
-    const opts=state.semis.map(s=><option value="${s.id}" ${s.id===r.semiId?'selected':''}>${escapeHtml(s.name)} (재고 ${fmt(semiStock(s.id))})</option>).join('');
-    const row=document.createElement('div'); row.className='bom-row'; row.style.gridTemplateColumns='2fr 1fr auto';
-    row.innerHTML=`<select onchange="_editP2Semi[${idx}].semiId=this.value"><option value="">선택...</option>${opts}</select><input type="number" step="0.001" min="0" value="${r.qty}" oninput="_editP2Semi[${idx}].qty=Number(this.value)||0" /><button class="btn btn-danger btn-sm" onclick="editP2DelSemi(${idx})">삭제</button>`;
-    box.appendChild(row);
-  });
-}
+
 function editP2RenderSemi(){
   const box=document.getElementById('e2SemiList'); if(!box) return; box.innerHTML='';
   _editP2Semi.forEach((r,idx)=>{
