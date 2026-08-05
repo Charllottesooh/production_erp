@@ -719,8 +719,15 @@ function loadState() {
     }
   } catch(e){ console.error(e); }
 }
+let _lsFull=false;
 function saveState(triggerCloud=true) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    _lsFull=false;
+  } catch(e) {
+    if(!_lsFull){ _lsFull=true; toast('⚠ 브라우저 저장공간 초과 — 클라우드 연결 또는 백업 필요','error'); }
+    console.warn('localStorage 저장 실패:', e.message);
+  }
   if (triggerCloud && state.cloud.connected) scheduleCloudSync();
 }
 function scheduleCloudSync(){ if(cloudSyncTimer) clearTimeout(cloudSyncTimer); cloudSyncTimer=setTimeout(()=>fbPush(false),1500); }
