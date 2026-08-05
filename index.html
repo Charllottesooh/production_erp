@@ -740,6 +740,13 @@ let fbApp=null, fbDb=null, fbAuth=null, cloudSyncTimer=null, fbReady=false;
 
 function loadState(){
   try{ const raw=_idbCache; if(raw) state=JSON.parse(raw); }catch(e){}
+  state.materials=state.materials||[]; state.semis=state.semis||[]; state.products=state.products||[];
+  state.purchases=state.purchases||[]; state.prod1=state.prod1||[]; state.prod2=state.prod2||[];
+  state.ships=state.ships||[]; state.semiLots=state.semiLots||[]; state.adjustments=state.adjustments||[];
+  state.opening=state.opening||{materials:{},semis:{},products:{}};
+  state.settings=state.settings||{backupDays:7,lastBackupAt:null};
+  state.cloud=state.cloud||{config:null,workspace:'production',connected:false,lastSyncAt:null};
+}
 let _idbFull=false;
 function saveState(triggerCloud=true) {
   const json=JSON.stringify(state);
