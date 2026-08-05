@@ -2195,12 +2195,13 @@ function commitExcelImport(){
         state.prod2.push({id:uid(),date:normDate(r[0]),productId,output:out,lot:String(r[3]||''),semiUsages,matUsages,inputKg,scrap,scrapReason:String(r[5]||''),loss:Math.max(0,inputKg-out-scrap),yield:inputKg>0?out/inputKg:0,totalCost,unitCost:out>0?totalCost/out:0,notes:String(r[6]||''),createdAt:nowISO()}); cnt++;
       }
     } else if(kind==='ships'){
-      for(const r of body){ if(!r[2]) continue; const q=Number(r[3])||0; if(!(q>0)) continue;
+      const numC=(v)=>Number(String(v==null?'':v).replace(/,/g,'').trim())||0;
+      for(const r of body){ if(!r[2]) continue; const q=numC(r[3]); if(q===0) continue;
         const client=String(r[1]||'').trim();
-        let supply=Number(r[5])||0, vat=Number(r[6])||0, total=Number(r[7])||0, unit=Number(r[4])||0;
+        let supply=numC(r[5]), vat=numC(r[6]), total=numC(r[7]), unit=numC(r[4]);
         if(!total) total=supply+vat;
         if(!supply && total) supply=total-vat;
-        if(!unit && q>0) unit=Math.round(supply/q);
+        if(!unit && q!==0) unit=Math.round(supply/q);
         state.ships.push({id:uid(),date:normDate(r[0]),client,productId:findProd(r[2]),qty:q,unitPrice:unit,supply,vat,amount:total,notes:String(r[8]||''),createdAt:nowISO()}); cnt++;
       }
     }
