@@ -543,12 +543,19 @@
       <h2>완제품 출고/판매</h2>
       <div class="grid grid-4">
         <div><label>출고일 *</label><input type="date" id="sDate" /></div>
-        <div><label>완제품 *</label><select id="sProduct"></select></div>
-        <div><label>출고수량 *</label><input type="number" id="sQty" step="0.001" min="0" /></div>
-        <div><label>판매금액(원)</label><input type="number" id="sAmount" step="1" min="0" placeholder="0" /></div>
+        <div><label>거래처 *</label><input type="text" id="sClient" list="clientList" placeholder="거래처명" autocomplete="off" /><datalist id="clientList"></datalist></div>
+        <div><label>완제품 *</label><select id="sProduct" onchange="updateShipPreview()"></select></div>
+        <div><label>출고수량 *</label><input type="number" id="sQty" step="0.001" min="0" oninput="updateShipPreview()" /></div>
       </div>
-      <div style="margin-top:12px;"><label>비고(거래처/사유)</label><input type="text" id="sNotes" placeholder="거래처, 사유" /></div>
-      <div style="margin-top:12px;text-align:right;"><button class="btn btn-primary" onclick="saveShip()">출고 저장</button></div>
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>공급단가</label><input type="number" id="sUnitPrice" step="1" min="0" placeholder="0" oninput="shipCalcFromUnit()" /></div>
+        <div><label>공급가액</label><input type="number" id="sSupply" step="1" min="0" placeholder="0" oninput="shipCalcFromSupply()" /></div>
+        <div><label>부가세</label><input type="number" id="sVat" step="1" min="0" placeholder="0" oninput="shipCalcTotal()" /></div>
+        <div><label>합계금액</label><input type="number" id="sTotal" step="1" min="0" placeholder="0" /></div>
+      </div>
+      <div style="margin-top:12px;"><label>비고</label><input type="text" id="sNotes" placeholder="사유 등" /></div>
+      <div id="sPreview" style="margin-top:12px;padding:10px;background:var(--bg);border-radius:6px;font-size:13px;color:var(--text-light);"></div>
+      <div style="margin-top:12px;text-align:right;"><button class="btn btn-secondary" onclick="resetShipForm()">초기화</button> <button class="btn btn-primary" onclick="saveShip()">출고 저장</button></div>
     </div>
     <div class="card">
       <h2>출고 이력 <button class="btn btn-print no-print" onclick="printTab('ship','출고 이력')">🖨️ 인쇄</button></h2>
@@ -577,6 +584,7 @@
     <div class="card"><h2>월별 생산·손익 <button class="btn btn-print no-print" onclick="printTab('report','리포트')">🖨️ 인쇄</button></h2><div id="reportMonthly"></div></div>
     <div class="card semi"><h2>반제품 원가/수율</h2><div id="reportSemi"></div></div>
     <div class="card final"><h2>완제품 원가/수율</h2><div id="reportProduct"></div></div>
+    <div class="card"><h2>거래처별 매출 <button class="btn btn-secondary btn-sm no-print" onclick="exportClientSales()">📥 엑셀</button></h2><div id="reportClient"></div></div>
   </section>
 
   <!-- ===== EXCEL ===== -->
@@ -1117,9 +1125,14 @@ function renderSelects(){
   onLedgerKindChange(true);
 }
 function renderSupplierList(){
-  const dl=document.getElementById('supplierList'); if(!dl) return;
-  const names=[...new Set(state.purchases.map(p=>(p.supplier||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
-  dl.innerHTML=names.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
+  const dl=document.getElementById('supplierList'); if(dl){
+    const names=[...new Set(state.purchases.map(p=>(p.supplier||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+    dl.innerHTML=names.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
+  }
+  const cl=document.getElementById('clientList'); if(cl){
+    const clients=[...new Set(state.ships.map(s=>(s.client||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+    cl.innerHTML=clients.map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
+  }
 }
 </script>
 <script>
@@ -1807,21 +1820,61 @@ function doPrintSheet(html){
   window.print();
   setTimeout(()=>{ document.body.classList.remove('printing-sheet'); el.innerHTML=''; },300);
 }
+function shipCalcFromUnit(){
+  const q=Number(document.getElementById('sQty').value)||0;
+  const u=Number(document.getElementById('sUnitPrice').value)||0;
+  const supply=Math.round(q*u);
+  document.getElementById('sSupply').value=supply||'';
+  document.getElementById('sVat').value=Math.round(supply*0.1)||'';
+  shipCalcTotal(); updateShipPreview();
+}
+function shipCalcFromSupply(){
+  const supply=Number(document.getElementById('sSupply').value)||0;
+  const q=Number(document.getElementById('sQty').value)||0;
+  if(q>0) document.getElementById('sUnitPrice').value=Math.round(supply/q)||'';
+  document.getElementById('sVat').value=Math.round(supply*0.1)||'';
+  shipCalcTotal(); updateShipPreview();
+}
+function shipCalcTotal(){
+  const supply=Number(document.getElementById('sSupply').value)||0;
+  const vat=Number(document.getElementById('sVat').value)||0;
+  document.getElementById('sTotal').value=(supply+vat)||'';
+  updateShipPreview();
+}
+function updateShipPreview(){
+  const el=document.getElementById('sPreview'); if(!el) return;
+  const pid=document.getElementById('sProduct').value;
+  const q=Number(document.getElementById('sQty').value)||0;
+  const supply=Number(document.getElementById('sSupply').value)||0;
+  const vat=Number(document.getElementById('sVat').value)||0;
+  const total=Number(document.getElementById('sTotal').value)||0;
+  const stock=pid?productStock(pid):0;
+  el.innerHTML=`재고 <b>${fmt(stock)}</b>${q>0?` · 출고후 <b>${fmt(stock-q)}</b>`:''} · 공급가 ${won(supply)} · 부가세 ${won(vat)} · 합계 <b>${won(total)}</b>${q>stock+1e-9?' · <span style="color:var(--danger);">⚠재고부족</span>':''}`;
+}
+function resetShipForm(){
+  document.getElementById('sDate').value=todayISO();
+  ['sClient','sQty','sUnitPrice','sSupply','sVat','sTotal','sNotes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  updateShipPreview();
+}
 function saveShip(){
   const date=document.getElementById('sDate').value;
+  const client=document.getElementById('sClient').value.trim();
   const productId=document.getElementById('sProduct').value;
   const qty=Number(document.getElementById('sQty').value);
-  const amount=Number(document.getElementById('sAmount').value)||0;
+  const unitPrice=Number(document.getElementById('sUnitPrice').value)||0;
+  const supply=Number(document.getElementById('sSupply').value)||0;
+  const vat=Number(document.getElementById('sVat').value)||0;
+  const total=Number(document.getElementById('sTotal').value)||0;
   const notes=document.getElementById('sNotes').value.trim();
   if(!date) return toast('출고일','error');
+  if(!client) return toast('거래처','error');
   if(!productId) return toast('완제품 선택','error');
   if(!(qty>0)) return toast('수량','error');
   const stock=productStock(productId);
   if(qty>stock+1e-9) return toast(`재고 부족 (가용 ${fmt(stock)})`,'error');
-  state.ships.push({id:uid(),date,productId,qty,amount,notes,createdAt:nowISO()});
+  state.ships.push({id:uid(),date,client,productId,qty,unitPrice,supply,vat,amount:total,notes,createdAt:nowISO()});
   saveState();
-  document.getElementById('sDate').value=todayISO();
-  ['sQty','sAmount','sNotes'].forEach(id=>document.getElementById(id).value='');
+  resetShipForm();
   toast('출고 저장','success'); renderAll();
 }
 function getShipFiltered(){
@@ -1837,11 +1890,11 @@ function getShipFiltered(){
 function renderShips(){
   const list=getShipFiltered(); const el=document.getElementById('shipsList');
   if(list.length===0){ el.innerHTML='<div class="empty-state">없음</div>'; return; }
-  const tQ=list.reduce((s,x)=>s+x.qty,0),tA=list.reduce((s,x)=>s+(x.amount||0),0);
-  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 출고 ${fmt(tQ)} · 판매액 <b>${won(tA)}</b></div>`;
-  h+='<table><thead><tr><th>출고일</th><th>완제품</th><th class="text-right">수량</th><th class="text-right">판매액</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>';
+  const tQ=list.reduce((s,x)=>s+x.qty,0),tS=list.reduce((s,x)=>s+(x.supply||0),0),tV=list.reduce((s,x)=>s+(x.vat||0),0),tA=list.reduce((s,x)=>s+(x.amount||0),0);
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 출고 ${fmt(tQ)} · 공급가 ${won(tS)} · 부가세 ${won(tV)} · 합계 <b>${won(tA)}</b></div>`;
+  h+='<table><thead><tr><th>출고일</th><th>거래처</th><th>완제품</th><th class="text-right">수량</th><th class="text-right">공급단가</th><th class="text-right">공급가액</th><th class="text-right">부가세</th><th class="text-right">합계</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>';
   for(const x of list){
-    h+=`<tr><td>${x.date}</td><td><b>${prodName(x.productId)}</b></td><td class="text-right">${fmt(x.qty)}</td><td class="text-right">${won(x.amount||0)}</td><td>${escapeHtml(x.notes||'-')}</td><td class="no-print"><button class="btn btn-edit btn-sm" onclick="editShip('${x.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteShip('${x.id}')">삭제</button></td></tr>`;
+    h+=`<tr><td>${x.date}</td><td><b>${escapeHtml(x.client||'-')}</b></td><td>${prodName(x.productId)}</td><td class="text-right">${fmt(x.qty)}</td><td class="text-right">${won(x.unitPrice||0)}</td><td class="text-right">${won(x.supply||0)}</td><td class="text-right">${won(x.vat||0)}</td><td class="text-right"><b>${won(x.amount||0)}</b></td><td>${escapeHtml(x.notes||'-')}</td><td class="no-print"><button class="btn btn-edit btn-sm" onclick="editShip('${x.id}')">수정</button><button class="btn btn-danger btn-sm" onclick="deleteShip('${x.id}')">삭제</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1918,6 +1971,19 @@ function renderLedger(){
   }
   el.innerHTML=h+'</tbody></table>';
 }
+function exportClientSales(){
+  const s=document.getElementById('repStart')?.value||'', e=document.getElementById('repEnd')?.value||'';
+  const sh=state.ships.filter(x=>inRange(x.date,s,e));
+  const cmap={};
+  for(const x of sh){ const c=(x.client||'(미지정)').trim()||'(미지정)'; (cmap[c]=cmap[c]||{qty:0,supply:0,vat:0,total:0,cnt:0}); cmap[c].qty+=x.qty; cmap[c].supply+=(x.supply||0); cmap[c].vat+=(x.vat||0); cmap[c].total+=(x.amount||0); cmap[c].cnt++; }
+  const ck=Object.keys(cmap).sort((a,b)=>cmap[b].total-cmap[a].total);
+  const aoa=[['거래처','건수','수량','공급가액','부가세','합계금액']];
+  for(const c of ck){ const d=cmap[c]; aoa.push([c,d.cnt,d.qty,d.supply,d.vat,d.total]); }
+  writeXlsx(aoa, `거래처별매출_${todayISO()}`);
+}
+function exportLedger(){
+
+  
 function exportLedger(){
   const kind=document.getElementById('ledKind').value;
   const itemId=document.getElementById('ledItem').value;
@@ -2015,8 +2081,20 @@ function renderReport(){
   document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산(개)</th><th class="text-right">판매(개)</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">개당손익</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];const puCost=d.prod>0?d.cost/d.prod:0;const puSale=d.sold>0?d.sales/d.sold:0;return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${fmt(d.sold)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${puSale-puCost>=0?'var(--success)':'var(--danger)'};">${won(puSale-puCost)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
   // 반제품 원가/수율
   document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
-  // 완제품 원가/수율 (개당·kg당 병기)
+ // 완제품 원가/수율 (개당·kg당 병기)
   document.getElementById('reportProduct').innerHTML = state.products.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>완제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.products.map(pr=>{const ps=p2.filter(x=>x.productId===pr.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);const puCost=out>0?cost/out:0;const kgPer=(pr.kgPer||0);return `<tr><td><b>${escapeHtml(pr.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(puCost)}</td><td class="text-right">${kgPer>0?won(puCost/kgPer):'-'}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
+  // 거래처별 매출
+  const cmap={};
+  for(const x of sh){ const c=(x.client||'(미지정)').trim()||'(미지정)'; (cmap[c]=cmap[c]||{qty:0,supply:0,vat:0,total:0,cnt:0}); cmap[c].qty+=x.qty; cmap[c].supply+=(x.supply||0); cmap[c].vat+=(x.vat||0); cmap[c].total+=(x.amount||0); cmap[c].cnt++; }
+  const ck=Object.keys(cmap).sort((a,b)=>cmap[b].total-cmap[a].total);
+  if(ck.length===0){ document.getElementById('reportClient').innerHTML='<div class="empty-state">출고 없음</div>'; }
+  else {
+    const tT=ck.reduce((a,c)=>a+cmap[c].total,0), tS=ck.reduce((a,c)=>a+cmap[c].supply,0), tV=ck.reduce((a,c)=>a+cmap[c].vat,0), tQ=ck.reduce((a,c)=>a+cmap[c].qty,0);
+    let ch='<table><thead><tr><th>거래처</th><th class="text-right">건수</th><th class="text-right">수량</th><th class="text-right">공급가액</th><th class="text-right">부가세</th><th class="text-right">합계금액</th><th class="text-right">비중</th></tr></thead><tbody>';
+    for(const c of ck){ const d=cmap[c]; const pct=tT>0?(d.total/tT*100):0; ch+=`<tr><td><b>${escapeHtml(c)}</b></td><td class="text-right">${d.cnt}</td><td class="text-right">${fmt(d.qty)}</td><td class="text-right">${won(d.supply)}</td><td class="text-right">${won(d.vat)}</td><td class="text-right"><b>${won(d.total)}</b></td><td class="text-right">${pct.toFixed(1)}%</td></tr>`; }
+    ch+=`<tr style="background:var(--bg);font-weight:700;"><td>합계</td><td class="text-right">${ck.reduce((a,c)=>a+cmap[c].cnt,0)}</td><td class="text-right">${fmt(tQ)}</td><td class="text-right">${won(tS)}</td><td class="text-right">${won(tV)}</td><td class="text-right">${won(tT)}</td><td class="text-right">100.0%</td></tr>`;
+    document.getElementById('reportClient').innerHTML=ch+'</tbody></table>';
+  }
 }
 
 // ========== EXCEL ==========
@@ -2029,7 +2107,7 @@ function exportFiltered(kind){
   if(kind==='purchases'){ const l=getPurchaseFiltered(); aoa=[['입고일','원재료','수량(Kg)','포장','LOT','세금','입력금액','공급가','부가세','합계','잔량','단가','유통기한','공급처','비고']]; l.forEach(p=>aoa.push([p.date,matName(p.materialId),p.quantity,p.pack||'',p.lot||'',taxLabel(p.taxType),p.enteredAmount,p.supplyPrice,p.vat,p.totalAmount,p.remaining,Math.round(p.unitCost),p.expiration||'',p.supplier||'',p.notes||''])); }
   else if(kind==='prod1'){ const l=getP1Filtered(); aoa=[['생산일','반제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','투입상세','비고']]; l.forEach(p=>aoa.push([p.date,semiName(p.semiId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.usages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
   else if(kind==='prod2'){ const l=getP2Filtered(); aoa=[['생산일','완제품','LOT','산출','투입합','로스','파기','수율%','총원가','단가','반제품투입','원재료투입','비고']]; l.forEach(p=>aoa.push([p.date,prodName(p.productId),p.lot||'',p.output,p.inputKg,p.loss,p.scrap,(p.yield*100).toFixed(1),Math.round(p.totalCost),Math.round(p.unitCost),p.semiUsages.map(u=>`${semiName(u.semiId)}:${u.totalUsed}`).join('; '),p.matUsages.map(u=>`${matName(u.materialId)}:${u.totalUsed}`).join('; '),p.notes||''])); }
-  else if(kind==='ships'){ const l=getShipFiltered(); aoa=[['출고일','완제품','수량','판매액','비고']]; l.forEach(x=>aoa.push([x.date,prodName(x.productId),x.qty,x.amount||0,x.notes||''])); }
+  else if(kind==='ships'){ const l=getShipFiltered(); aoa=[['출고일','거래처','완제품','수량','공급단가','공급가액','부가세','합계금액','비고']]; l.forEach(x=>aoa.push([x.date,x.client||'',prodName(x.productId),x.qty,x.unitPrice||0,x.supply||0,x.vat||0,x.amount||0,x.notes||''])); }
   writeXlsx(aoa, `${kind}_${todayISO()}`);
 }
 function downloadTemplate(){
@@ -2038,7 +2116,7 @@ function downloadTemplate(){
   if(kind==='purchases') aoa=[['입고일','원재료명','수량(Kg)','금액','세금구분','포장','LOT','유통기한','공급처','비고'],['2025-01-05','생닭',100,300000,'부가세별도','20Kg 5포','L2501','2025-01-20','A거래처','']];
   else if(kind==='prod1') aoa=[['생산일','반제품명','산출량','LOT','파기량','파기사유','비고','원재료1','투입량1','원재료2','투입량2'],['2025-01-05','염지닭',92,'S2501',0,'','','생닭',60,'염지제',40]];
   else if(kind==='prod2') aoa=[['생산일','완제품명','산출량','LOT','파기량','파기사유','비고','반제품','반제품투입','원재료1','투입량1'],['2025-01-05','후라이드',85,'F2501',2,'포장불량','','염지닭',80,'튀김가루',10]];
-  else if(kind==='ships') aoa=[['출고일','완제품명','수량','판매액','비고'],['2025-01-06','후라이드',50,500000,'B거래처']];
+  else if(kind==='ships') aoa=[['출고일','거래처','완제품명','수량','공급단가','공급가액','부가세','합계금액','비고'],['2025-01-06','B상회','후라이드',50,10000,500000,50000,550000,'']];
   writeXlsx(aoa, `양식_${kind}`);
 }
 let _excelParsed=null;
@@ -2089,7 +2167,14 @@ function commitExcelImport(){
         state.prod2.push({id:uid(),date:normDate(r[0]),productId,output:out,lot:String(r[3]||''),semiUsages,matUsages,inputKg,scrap,scrapReason:String(r[5]||''),loss:Math.max(0,inputKg-out-scrap),yield:inputKg>0?out/inputKg:0,totalCost,unitCost:out>0?totalCost/out:0,notes:String(r[6]||''),createdAt:nowISO()}); cnt++;
       }
     } else if(kind==='ships'){
-      for(const r of body){ if(!r[1]) continue; const q=Number(r[2])||0; if(!(q>0)) continue; state.ships.push({id:uid(),date:normDate(r[0]),productId:findProd(r[1]),qty:q,amount:Number(r[3])||0,notes:String(r[4]||''),createdAt:nowISO()}); cnt++; }
+      for(const r of body){ if(!r[2]) continue; const q=Number(r[3])||0; if(!(q>0)) continue;
+        const client=String(r[1]||'').trim();
+        let supply=Number(r[5])||0, vat=Number(r[6])||0, total=Number(r[7])||0, unit=Number(r[4])||0;
+        if(!total) total=supply+vat;
+        if(!supply && total) supply=total-vat;
+        if(!unit && q>0) unit=Math.round(supply/q);
+        state.ships.push({id:uid(),date:normDate(r[0]),client,productId:findProd(r[2]),qty:q,unitPrice:unit,supply,vat,amount:total,notes:String(r[8]||''),createdAt:nowISO()}); cnt++;
+      }
     }
     saveState(); toast(`${cnt}건 가져오기 완료`,'success');
     document.getElementById('excelPreview').innerHTML=`<div class="success-banner">✅ ${cnt}건 가져오기 완료</div>`;
@@ -2180,16 +2265,16 @@ function editPurchase(id){
 function editShip(id){
   const s=state.ships.find(x=>x.id===id); if(!s) return;
   const opts=state.products.map(p=>`<option value="${p.id}" ${p.id===s.productId?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
-  openEditModal('출고 수정',`<div class="grid grid-4"><div><label>출고일</label><input type="date" id="eshD" value="${s.date}"/></div><div><label>완제품</label><select id="eshP">${opts}</select></div><div><label>수량</label><input type="number" id="eshQ" step="0.001" value="${s.qty}"/></div><div><label>판매액</label><input type="number" id="eshA" value="${s.amount||0}"/></div></div><div style="margin-top:10px;"><label>비고</label><input type="text" id="eshN" value="${escapeHtml(s.notes||'')}"/></div>`,()=>{
+  openEditModal('출고 수정',`<div class="grid grid-4"><div><label>출고일</label><input type="date" id="eshD" value="${s.date}"/></div><div><label>거래처</label><input type="text" id="eshC" value="${escapeHtml(s.client||'')}"/></div><div><label>완제품</label><select id="eshP">${opts}</select></div><div><label>수량</label><input type="number" id="eshQ" step="0.001" value="${s.qty}"/></div></div><div class="grid grid-4" style="margin-top:10px;"><div><label>공급단가</label><input type="number" id="eshU" value="${s.unitPrice||0}"/></div><div><label>공급가액</label><input type="number" id="eshS" value="${s.supply||0}"/></div><div><label>부가세</label><input type="number" id="eshV" value="${s.vat||0}"/></div><div><label>합계금액</label><input type="number" id="eshA" value="${s.amount||0}"/></div></div><div style="margin-top:10px;"><label>비고</label><input type="text" id="eshN" value="${escapeHtml(s.notes||'')}"/></div>`,()=>{
     const pid=document.getElementById('eshP').value; const q=Number(document.getElementById('eshQ').value);
     const made=state.prod2.filter(x=>x.productId===pid).reduce((a,x)=>a+x.output,0);
     const other=state.ships.filter(x=>x.productId===pid&&x.id!==id).reduce((a,x)=>a+x.qty,0);
     if(q>made-other+1e-9){ toast(`재고 부족 (가용 ${fmt(made-other)})`,'error'); return false; }
-    s.date=document.getElementById('eshD').value; s.productId=pid; s.qty=q; s.amount=Number(document.getElementById('eshA').value)||0; s.notes=document.getElementById('eshN').value.trim();
+    s.date=document.getElementById('eshD').value; s.client=document.getElementById('eshC').value.trim(); s.productId=pid; s.qty=q;
+    s.unitPrice=Number(document.getElementById('eshU').value)||0; s.supply=Number(document.getElementById('eshS').value)||0; s.vat=Number(document.getElementById('eshV').value)||0; s.amount=Number(document.getElementById('eshA').value)||0; s.notes=document.getElementById('eshN').value.trim();
     saveState(); toast('수정됨','success'); renderAll();
   });
 }
-
 // ========== BACKUP / EXPORT ==========
 function exportData(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
