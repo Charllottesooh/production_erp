@@ -691,7 +691,39 @@ service cloud.firestore {
 
 <script>
 // ========== STATE ==========
-const STORAGE_KEY = 'prod_erp_v2';
+const STORAGE_KEY='prod_erp_v2';
+// ===== IndexedDB 저장소 (localStorage 용량 문제 해결) =====
+const IDB_NAME='prod_erp_db', IDB_STORE='kv';
+let _idb=null, _idbCache=null;
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(IDB_NAME,1);
+    req.onupgradeneeded=()=>{ const db=req.result; if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+function idbGet(key){
+  return new Promise((resolve,reject)=>{
+    const tx=_idb.transaction(IDB_STORE,'readonly'); const r=tx.objectStore(IDB_STORE).get(key);
+    r.onsuccess=()=>resolve(r.result); r.onerror=()=>reject(r.error);
+  });
+}
+function idbSet(key,val){
+  return new Promise((resolve,reject)=>{
+    const tx=_idb.transaction(IDB_STORE,'readwrite'); const r=tx.objectStore(IDB_STORE).put(val,key);
+    r.onsuccess=()=>resolve(); r.onerror=()=>reject(r.error);
+  });
+}
+async function initStorage(){
+  _idb=await idbOpen();
+  let data=await idbGet(STORAGE_KEY);
+  if(data==null){
+    const ls=localStorage.getItem(STORAGE_KEY);
+    if(ls){ await idbSet(STORAGE_KEY, ls); data=ls; try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} }
+  }
+  _idbCache=data||null;
+}
 let state = {
   materials: [], semis: [], products: [],
   purchases: [],        // 원재료 매입 (FIFO 로트)
@@ -706,27 +738,17 @@ let state = {
 };
 let fbApp=null, fbDb=null, fbAuth=null, cloudSyncTimer=null, fbReady=false;
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const d = JSON.parse(raw);
-      state = { ...state, ...d };
-      state.settings = { backupDays:7, lastBackupAt:null, ...(state.settings||{}) };
-      state.cloud = { config:null, workspace:'production', connected:false, lastSyncAt:null, ...(state.cloud||{}) };
-      ['materials','semis','products','purchases','prod1','prod2','ships','semiLots','adjustments'].forEach(k=>{ if(!Array.isArray(state[k])) state[k]=[]; });
-      state.opening = { materials:{}, semis:{}, products:{}, ...(state.opening||{}) };
-    }
-  } catch(e){ console.error(e); }
-}
-let _lsFull=false;
+function loadState(){
+  try{ const raw=_idbCache; if(raw) state=JSON.parse(raw); }catch(e){}
+let _idbFull=false;
 function saveState(triggerCloud=true) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    _lsFull=false;
-  } catch(e) {
-    if(!_lsFull){ _lsFull=true; toast('⚠ 브라우저 저장공간 초과 — 클라우드 연결 또는 백업 필요','error'); }
-    console.warn('localStorage 저장 실패:', e.message);
+  const json=JSON.stringify(state);
+  _idbCache=json;
+  if(_idb){
+    idbSet(STORAGE_KEY, json).then(()=>{ _idbFull=false; }).catch(e=>{
+      if(!_idbFull){ _idbFull=true; toast('⚠ 저장 실패 — 백업 권장','error'); }
+      console.warn('IndexedDB 저장 실패:', e.message);
+    });
   }
   if (triggerCloud && state.cloud.connected) scheduleCloudSync();
 }
@@ -2336,6 +2358,8 @@ function renderAll(){
 }
 
 // ========== INIT ==========
+async function bootApp(){
+await initStorage();
 loadState();
 ['pDate','p1Date','p2Date','sDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=todayISO(); });
 addP1BomRow(); addP2SemiRow(); addP2BomRow();
@@ -2344,6 +2368,8 @@ addP1BomRow(); addP2SemiRow(); addP2BomRow();
 (function(){ const e=document.getElementById('p2Expiry'); if(e) e.addEventListener('input',()=>{ e.dataset.manual='1'; }); })();
 updatePurchasePreview(); renderAll();
 if(state.cloud.connected&&state.cloud.config){ fbInit(state.cloud.config).then(()=>fbPull(false)).catch(()=>{ state.cloud.connected=false; updateCloudStatus(); }); }
+}
+bootApp();
 </script>
 <script>window.WS_CURRENT_APP="production";</script>
 <style id="ws-launcher-style">
