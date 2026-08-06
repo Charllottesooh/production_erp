@@ -2176,7 +2176,7 @@ function renderDashboard(){
   const sh=state.ships.filter(x=>inRange(x.date,s,e));
   const purAmt=pur.reduce((a,p)=>a+p.totalAmount,0);
   const p2Cost=p2.reduce((a,p)=>a+p.totalCost,0);
-  const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
+  const sales=sh.reduce((a,x)=>a+(x.supply||0),0);
   const matRem=state.materials.reduce((a,m)=>a+matStock(m.id),0);
   const semiRem=state.semis.reduce((a,x)=>a+semiStock(x.id),0);
   const suffix=s||e?' (기간)':'';
@@ -2213,7 +2213,7 @@ function renderReport(){
   const p1=state.prod1.filter(p=>inRange(p.date,s,e));
   const p2=state.prod2.filter(p=>inRange(p.date,s,e));
   const sh=state.ships.filter(x=>inRange(x.date,s,e));
-  const sales=sh.reduce((a,x)=>a+(x.amount||0),0);
+  const sales=sh.reduce((a,x)=>a+(x.supply||0),0);
   const soldQty=sh.reduce((a,x)=>a+x.qty,0);              // 판매 개수
   const p2cost=p2.reduce((a,p)=>a+p.totalCost,0);
   const p2qty=p2.reduce((a,p)=>a+p.output,0);             // 완제품 생산 개수
@@ -2249,7 +2249,7 @@ document.getElementById('reportSummary').innerHTML=`
   // 월별 (완제품 개당 기준)
   const months={};
   for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
-  for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].sales+=(x.amount||0); months[m].sold+=x.qty; }
+  for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].sales+=(x.supply||0); months[m].sold+=x.qty; }
   const mk=Object.keys(months).sort().reverse();
   document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산(개)</th><th class="text-right">판매(개)</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">개당손익</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];const puCost=d.prod>0?d.cost/d.prod:0;const puSale=d.sold>0?d.sales/d.sold:0;return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${fmt(d.sold)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${puSale-puCost>=0?'var(--success)':'var(--danger)'};">${won(puSale-puCost)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
   // 반제품 원가/수율
