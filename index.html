@@ -103,9 +103,11 @@
   .danger-banner { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
   .info-box { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
   .warn-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
-  .print-header { display: none; text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
-  .print-header h1 { font-size: 18px; margin: 0; }
-  .print-header .meta { font-size: 11px; color: #555; margin-top: 4px; }
+  .print-header { display: none; text-align: left; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
+  .print-header h1 { font-size: 36px; margin: 0; text-align: left; }
+  .print-header .period { font-size: 36px; font-weight: 800; margin-top: 6px; text-align: left; }
+  .print-header .author { font-size: 14px; color: #333; margin-top: 4px; text-align: left; }
+  .print-header .meta { font-size: 11px; color: #555; margin-top: 4px; text-align: left; }
   pre.code { background: #1e293b; color: #f1f5f9; padding: 14px; border-radius: 6px; font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre; }
   .step-list { counter-reset: step; list-style: none; padding: 0; }
   .step-list li { counter-increment: step; padding: 10px 0 10px 40px; position: relative; border-bottom: 1px dashed var(--border); }
@@ -146,6 +148,7 @@
   .btn-icon.edit:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
   .btn-chip { height: 30px; padding: 0 11px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; margin-left: 4px; color: var(--text-light); vertical-align: middle; transition: all .15s; }
   .btn-chip:hover { background: var(--hover); color: var(--text); }
+  .btn-chip-xs { height: 24px; padding: 0 7px; font-size: 11px; margin-left: 3px; }
   .add-btn { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: white; }
   .add-btn.mat { background: var(--primary); } .add-btn.mat:hover { background: var(--primary-hover); }
   .add-btn.semi { background: var(--semi); } .add-btn.semi:hover { background: #7c3aed; }
@@ -207,9 +210,7 @@
   .ps-meta th, .ps-tbl th, .ps-tbl tfoot td { color: #000 !important; font-weight: 800 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   /* 인쇄 방향: 기본 세로, 목록 인쇄 시 가로 */
   @page { size: A4 portrait; margin: 14mm; }
-  @page landscapePage { size: A4 landscape; margin: 10mm; }
   @media print {
-    body.printing-list { page: landscapePage; }
   }
   /* 생산일지 인쇄: 세로 */
   @media print {
@@ -221,8 +222,12 @@
     body.printing-sheet .ps-meta th, body.printing-sheet .ps-meta td { padding: 4px 8px; }
     body.printing-sheet .ps-meta td.date-cell { font-size: 14px; }
     body.printing-sheet .ps-sec-title { margin: 9px 0 5px; font-size: 13px; }
-    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 3px 7px; }
-    body.printing-sheet .ps-tbl { margin-bottom: 7px; }
+    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 1px 7px; line-height: 1.25; }
+    body.printing-sheet .ps-tbl { margin-bottom: 5px; }
+    body.printing-sheet .ps-doc { font-size: 12px; }
+    body.printing-sheet .prod-sheet { transform-origin: top left; }
+    body.printing-sheet .ps-sign { margin-top: 8px; }
+    body.printing-sheet .ps-sign td { height: 32px; }
     body.printing-sheet .ps-sign { margin-top: 14px; }
     body.printing-sheet .ps-sign td { height: 40px; }
     body.printing-sheet .ps-doc > div[style*="min-height:40px"] { min-height: 28px !important; padding: 7px !important; }
@@ -284,8 +289,10 @@
   <div id="backupAlert" class="alert-banner no-print" style="display:none;"></div>
   <div id="cloudAlert" class="danger-banner no-print" style="display:none;"></div>
 
-  <div class="print-header">
+ <div class="print-header">
     <h1 id="printTitle">생산관리 ERP</h1>
+    <div class="period" id="printPeriod"></div>
+    <div class="author" id="printAuthor">작성자: 정수현</div>
     <div class="meta" id="printMeta"></div>
   </div>
 
@@ -573,7 +580,7 @@
       <div style="margin-top:12px;text-align:right;"><button class="btn btn-secondary" onclick="resetShipForm()">초기화</button> <button class="btn btn-primary" onclick="saveShip()">출고 저장</button></div>
     </div>
     <div class="card">
-      <h2>출고 이력 <button class="btn btn-print no-print" onclick="printTab('ship','출고 이력')">🖨️ 인쇄</button></h2>
+      <h2>출고 이력<button class="btn btn-print no-print" onclick="printTab('ship','출고이력')">🖨️ 인쇄</button></h2>
       <div class="row-flex no-print" style="margin-bottom:12px;align-items:flex-end;">
         <div style="flex:1;"><label>완제품</label><select id="fShipProduct"><option value="">전체</option></select></div>
         <div style="flex:1;"><label>시작</label><input type="date" id="fShipStart" /></div>
@@ -596,7 +603,7 @@
         <button class="btn btn-secondary btn-sm" onclick="repSetRange('all')">전체</button>
       </div>
     </div>
-    <div class="card report-detail-card report-monthly-card"><h2><span class="report-section-title"><span class="report-section-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></span><span>월별 생산·손익</span></span><button class="btn btn-print no-print" onclick="printTab('report','리포트')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>인쇄</button></h2><div id="reportMonthly"></div></div>
+    <div class="card report-detail-card report-monthly-card"><h2><span class="report-section-title"><span class="report-section-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></span><span>월별 생산·손익</span></span><button class="btn btn-print no-print" onclick="printTab('report','생산 리포트')">🖨️ 인쇄</button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>인쇄</button></h2><div id="reportMonthly"></div></div>
     <div class="card semi report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon semi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="M4 12h16"/></svg></span><span>반제품 원가/수율</span></span></h2><div id="reportSemi"></div></div>
     <div class="card final report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon final"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4-8 4-8-4z"/><path d="m4 7 8 4 8-4"/><path d="M4 7v10l8 4 8-4V7"/></svg></span><span>완제품 원가/수율</span></span></h2><div id="reportProduct"></div></div>
     <div class="card report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon client"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-8h16v8"/><path d="M6 12V5h12v7"/><path d="M9 8h6"/><path d="M8 16h3"/><path d="M14 16h2"/></svg></span><span>거래처별 매출</span></span><button class="btn btn-secondary btn-sm no-print" onclick="exportClientSales()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>엑셀</button></h2><div id="reportClient"></div></div>
@@ -1149,12 +1156,12 @@ function renderMaterials(){
   const totVal=state.purchases.reduce((s,p)=>s+p.remaining*p.unitCost,0);
   if(meta) meta.textContent=`${state.materials.length}개 품목 · 재고가액 ${won(totVal)}`;
   if(state.materials.length===0){ el.innerHTML='<div class="empty-state">＋ 버튼으로 원재료를 추가하세요</div>'; return; }
-  let h='<table><thead><tr><th style="padding-left:18px;">코드</th><th>원재료</th><th>단위</th><th class="text-right">재고</th><th class="text-right">재고가액</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
+  let h='<table><thead><tr><th style="padding-left:18px;min-width:90px;">코드</th><th>원재료</th><th>단위</th><th class="text-right" style="white-space:nowrap;">재고</th><th class="text-right" style="white-space:nowrap;">재고가액</th><th class="no-print" style="padding-right:18px;"></th></tr></thead><tbody>';
   for(const m of state.materials){
     const lots=state.purchases.filter(p=>p.materialId===m.id);
     const rem=lots.reduce((s,p)=>s+p.remaining,0);
     const val=lots.reduce((s,p)=>s+p.remaining*p.unitCost,0);
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(m.code||'-')}</td><td><b>${escapeHtml(m.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(m.unit)}</td><td class="text-right"><b>${fmt(rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningMaterial('${m.id}')">기초재고</button><button class="btn-chip" onclick="adjustStockMaterial('${m.id}')">재고조정</button><button class="btn-icon edit" title="수정" onclick="editMaterial('${m.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteMaterial('${m.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);min-width:90px;">${escapeHtml(m.code||'-')}</td><td><b>${escapeHtml(m.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(m.unit)}</td><td class="text-right" style="white-space:nowrap;"><b>${fmt(rem)}</b></td><td class="text-right" style="white-space:nowrap;">${won(val)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip btn-chip-xs" onclick="setOpeningMaterial('${m.id}')">기초재고</button><button class="btn-chip btn-chip-xs" onclick="adjustStockMaterial('${m.id}')">재고조정</button><button class="btn-icon edit" title="수정" onclick="editMaterial('${m.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteMaterial('${m.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -2164,7 +2171,7 @@ document.getElementById('reportSummary').innerHTML=`
   const mk=Object.keys(months).sort();
   document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산(개)</th><th class="text-right">판매(개)</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">개당손익</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];const puCost=d.prod>0?d.cost/d.prod:0;const puSale=d.sold>0?d.sales/d.sold:0;return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${fmt(d.sold)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${puSale-puCost>=0?'var(--success)':'var(--danger)'};">${won(puSale-puCost)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
   // 반제품 원가/수율
-  document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(out>0?cost/out:0)}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
+  document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);const puCost=out>0?cost/out:0;const kgPer=(sm.kgPer||0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(puCost)}</td><td class="text-right">${kgPer>0?won(puCost/kgPer):'-'}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
  // 완제품 원가/수율 (개당·kg당 병기)
   document.getElementById('reportProduct').innerHTML = state.products.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>완제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.products.map(pr=>{const ps=p2.filter(x=>x.productId===pr.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);const puCost=out>0?cost/out:0;const kgPer=(pr.kgPer||0);return `<tr><td><b>${escapeHtml(pr.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(puCost)}</td><td class="text-right">${kgPer>0?won(puCost/kgPer):'-'}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
   // 거래처별 매출
@@ -2427,6 +2434,18 @@ function printTab(tabId,title){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active'));
   document.getElementById(tabId).classList.add('print-active');
   document.getElementById('printTitle').textContent=title;
+  // 기간·작성자: 리포트 탭에만 표시
+  const periodEl=document.getElementById('printPeriod');
+  const authorEl=document.getElementById('printAuthor');
+  if(tabId==='report'){
+    const ps=document.getElementById('repStart')?.value||'';
+    const pe=document.getElementById('repEnd')?.value||'';
+    if(periodEl){ periodEl.textContent=(ps||pe)?`기간: ${ps||'~'} ~ ${pe||'~'}`:'기간: 전체'; periodEl.style.display=''; }
+    if(authorEl){ authorEl.style.display=''; }
+  } else {
+    if(periodEl){ periodEl.textContent=''; periodEl.style.display='none'; }
+    if(authorEl){ authorEl.style.display='none'; }
+  }
   document.getElementById('printMeta').textContent=`출력일: ${todayISO()}`;
   document.body.classList.remove('printing-sheet');
   document.body.classList.add('printing-list');
