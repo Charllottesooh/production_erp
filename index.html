@@ -241,8 +241,9 @@
     body.printing-sheet .ps-sign td { height: 30px; }
     body.printing-sheet .ps-meta th, body.printing-sheet .ps-meta td { padding: 2px 8px !important; }
     body.printing-sheet .ps-sec-title { margin: 5px 0 3px !important; font-size: 12px !important; }
-    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 0.5px 7px !important; line-height: 1.15 !important; }
-    body.printing-sheet .ps-tbl { margin-bottom: 4px !important; }
+    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 0px 6px !important; line-height: 1.05 !important; font-size: 11px !important; }
+    body.printing-sheet .ps-tbl { margin-bottom: 3px !important; }
+    body.printing-sheet .ps-tbl tfoot td { padding: 1px 6px !important; }
     body.printing-sheet .ps-doc > div[style*="min-height:40px"] { min-height: 20px !important; padding: 5px !important; }
   }
   /* 목록 인쇄: 가로 */
@@ -1920,9 +1921,9 @@ function doPrintSheet(html){
       scaleEl.style.transform='none';
       const contentH=scaleEl.scrollHeight;
       const mmToPx=96/25.4;
-      const pageH=(297-16)*mmToPx; // A4높이 - 상하여백8mm*2
+      const pageH=(297-16)*mmToPx*0.97; // A4높이-여백, 3% 안전마진
       if(contentH>pageH){
-        const s=Math.max(0.5, pageH/contentH);
+        const s=Math.max(0.45, pageH/contentH);
         scaleEl.style.transform='scale('+s+')';
         scaleEl.style.width=(100/s)+'%';
       }
