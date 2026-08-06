@@ -232,12 +232,18 @@
     body.printing-sheet .ps-sec-title { margin: 9px 0 5px; font-size: 13px; }
     body.printing-sheet .ps-doc { font-size: 12px; }
     body.printing-sheet .prod-sheet { transform-origin: top left; }
-    /* 투입 원재료 표: 행간 축소 (세로폭 절약) */
-    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 1px 8px !important; line-height: 1.15 !important; }
-    body.printing-sheet .ps-tbl { margin-bottom: 6px !important; }
-    /* 섹션 제목 간격 축소 */
-    body.printing-sheet .ps-sec-title { margin: 6px 0 4px !important; }
-    body.printing-sheet .ps-sub { margin-bottom: 6px !important; }
+    /* 투입 원재료 표: 행간 강력 축소 (세로폭 절약) */
+    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 0px 8px !important; line-height: 1.0 !important; font-size: 11px !important; }
+    body.printing-sheet .ps-tbl { margin-bottom: 4px !important; }
+    body.printing-sheet .ps-tbl tfoot td { padding: 1px 8px !important; }
+    /* 섹션 제목·부제 간격 축소 */
+    body.printing-sheet .ps-sec-title { margin: 4px 0 2px !important; font-size: 12px !important; }
+    body.printing-sheet .ps-sub { margin-bottom: 4px !important; }
+    body.printing-sheet .ps-title { font-size: 15px !important; padding-bottom: 4px !important; margin-bottom: 3px !important; }
+    body.printing-sheet .ps-meta th, body.printing-sheet .ps-meta td { padding: 2px 8px !important; }
+    /* 블록이 페이지 중간에서 잘리지 않게 */
+    body.printing-sheet .ps-tbl, body.printing-sheet .ps-sign { page-break-inside: avoid; }
+    body.printing-sheet .ps-sec-title { page-break-after: avoid; }
     /* 서명란: 크게 유지 */
     body.printing-sheet .ps-sign { margin-top: 16px; }
     body.printing-sheet .ps-sign td { height: 48px; width: 100px; }
