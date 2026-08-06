@@ -1029,21 +1029,85 @@ function adjustStockProduct(id){
   });
   setTimeout(()=>{ const qEl=document.getElementById('apQty'); if(qEl) qEl.addEventListener('input',()=>{ const t=Number(qEl.value); const pv=document.getElementById('apPreview'); if(!pv) return; if(isNaN(t)||qEl.value===''){ pv.textContent='실사 재고량을 입력하세요.'; return; } const diff=t-cur; pv.innerHTML=`장부 ${fmt(cur)} → 실사 <b>${fmt(t)}</b> · 조정 <b style="color:${diff<0?'var(--danger)':'var(--success)'};">${diff>0?'+':''}${fmt(diff)} ${unitLabel}</b>`; }); },100);
 }
+// 완제품 기초재고: 조정 레코드(kind:product)로 저장 → productStock에 자동 반영 (단가는 표시용, 제조원가 무관)
+function setOpeningProduct(id){
+  const p=state.products.find(x=>x.id===id); if(!p) return;
+  const unit=p.unit||'개';
+  const existing=(state.adjustments||[]).find(a=>a.kind==='product'&&a.itemId===id&&a.isOpening);
+  const preQ=existing?existing.delta:'';
+  const preD=existing?existing.date:'2024-01-01';
+  const body=`<div class="info-box">완제품 <b>기초재고</b>(시작 시점 보유 수량)를 설정합니다. 제조원가에는 영향을 주지 않습니다.</div>
+    <div class="grid grid-2">
+      <div><label>기초 수량(${unit})</label><input type="number" id="opQty" step="0.001" value="${preQ}" placeholder="시작 보유 수량" /></div>
+      <div><label>기준일</label><input type="date" id="opDate" value="${preD}" /></div>
+    </div>`;
+  openEditModal(`기초재고 - ${p.name}`, body, ()=>{
+    const q=Number(document.getElementById('opQty').value);
+    const d=document.getElementById('opDate').value;
+    if(!(q>=0)){ toast('수량','error'); return false; }
+    state.adjustments=state.adjustments||[];
+    if(existing){ existing.delta=q; existing.date=d; }
+    else { state.adjustments.push({id:uid(),date:d,kind:'product',itemId:id,delta:q,reason:'기초재고',restore:null,addLotId:null,isOpening:true,createdAt:nowISO()}); }
+    saveState(); toast('기초재고 설정됨','success'); renderAll();
+  });
+}
 
+// 반제품 재고조정: 실사량 입력 → FIFO 차감(감소) / 평균단가 신규로트(증가). 2차 생산원가 불변.
+function adjustStockSemi(id){
+  const s=state.semis.find(x=>x.id===id); if(!s) return;
+  const cur=semiStock(id);
+  const body=`<div class="info-box">기준일 시점의 <b>실제 재고량</b>을 입력하면, 현재 장부재고(<b>${fmt(cur)} ${s.unit}</b>)와의 차이를 자동 조정합니다. 부족분은 오래된 로트(FIFO)부터 소진됩니다. 단가는 평균단가로 처리되어 생산원가에 영향 없습니다.</div>
+    <div class="grid grid-2">
+      <div><label>기준일</label><input type="date" id="asDate" value="2026-07-31" /></div>
+      <div><label>실사 재고량(${s.unit}) *</label><input type="number" id="asQty" step="0.001" min="0" placeholder="실제 남은 수량" /></div>
+    </div>
+    <div style="margin-top:10px;"><label>사유</label><input type="text" id="asReason" value="기준일 재고 실사 조정" /></div>
+    <div id="asPreview" style="margin-top:12px;padding:10px;background:var(--bg);border-radius:6px;font-size:13px;color:var(--text-light);">실사 재고량을 입력하세요.</div>`;
+  openEditModal(`재고조정 - ${s.name}`, body, ()=>{
+    const target=Number(document.getElementById('asQty').value);
+    const d=document.getElementById('asDate').value;
+    const reason=document.getElementById('asReason').value.trim()||'재고조정';
+    if(!(target>=0)){ toast('실사 재고량','error'); return false; }
+    const diff=target-cur;
+    if(Math.abs(diff)<1e-9){ toast('차이 없음 (조정 불필요)','error'); return false; }
+    if(diff<0){
+      let need=-diff; const restore=[];
+      const lots=state.semiLots.filter(l=>l.semiId===id&&l.remaining>1e-9).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+      for(const lot of lots){ if(need<=1e-9) break; const use=Math.min(lot.remaining,need); lot.remaining=Math.max(0,lot.remaining-use); restore.push({lotId:lot.id,qty:use}); need-=use; }
+      state.adjustments=state.adjustments||[];
+      state.adjustments.push({id:uid(),date:d,kind:'semi',itemId:id,delta:diff,reason,restore,addLotId:null,createdAt:nowISO()});
+    } else {
+      const lots=state.semiLots.filter(l=>l.semiId===id);
+      const totRem=lots.reduce((sm,l)=>sm+l.remaining,0);
+      const avgCost=totRem>0?lots.reduce((sm,l)=>sm+l.remaining*l.unitCost,0)/totRem:(lots.length?lots[lots.length-1].unitCost:0);
+      const newLotId=uid();
+      state.semiLots.push({id:newLotId,date:d,semiId:id,quantity:diff,remaining:diff,unitCost:avgCost,sourceProd1:null,isAdjust:true,createdAt:nowISO()});
+      state.adjustments=state.adjustments||[];
+      state.adjustments.push({id:uid(),date:d,kind:'semi',itemId:id,delta:diff,reason,restore:null,addLotId:newLotId,createdAt:nowISO()});
+    }
+    saveState(); toast(`재고조정 완료 (${diff>0?'+':''}${fmt(diff)})`,'success'); renderAll();
+  });
+  setTimeout(()=>{ const qEl=document.getElementById('asQty'); if(qEl) qEl.addEventListener('input',()=>{ const t=Number(qEl.value); const pv=document.getElementById('asPreview'); if(!pv) return; if(isNaN(t)||qEl.value===''){ pv.textContent='실사 재고량을 입력하세요.'; return; } const diff=t-cur; pv.innerHTML=`장부 ${fmt(cur)} → 실사 <b>${fmt(t)}</b> · 조정 <b style="color:${diff<0?'var(--danger)':'var(--success)'};">${diff>0?'+':''}${fmt(diff)} ${s.unit}</b>${diff<0?' (오래된 로트부터 소진)':' (신규 로트 추가)'}`; }); },100);
+}
+
+
+  
   
 // 재고조정 이력 되돌리기 (재고 원상복구 후 조정 기록 삭제)
 function revertAdjustment(adjId){
   const aj=(state.adjustments||[]).find(a=>a.id===adjId); if(!aj) return;
   const nm = aj.kind==='material'?matName(aj.itemId):aj.kind==='product'?prodName(aj.itemId):semiName(aj.itemId);
   if(!confirm(`이 재고조정을 되돌릴까요?\n\n${aj.date} · ${nm} · ${aj.delta>0?'+':''}${fmt(aj.delta)}\n\n재고가 조정 전 상태로 복구됩니다.`)) return;
+ const lotStore = aj.kind==='semi' ? state.semiLots : state.purchases;
   if(aj.delta<0 && aj.restore){
     // 소진했던 로트에 수량 복구
-    for(const r of aj.restore){ const lot=state.purchases.find(p=>p.id===r.lotId); if(lot) lot.remaining+=r.qty; }
+    for(const r of aj.restore){ const lot=lotStore.find(p=>p.id===r.lotId); if(lot) lot.remaining+=r.qty; }
   } else if(aj.delta>0 && aj.addLotId){
     // 추가했던 로트 제거 (단, 이미 생산에 쓰였으면 막기)
-    const lot=state.purchases.find(p=>p.id===aj.addLotId);
+    const lot=lotStore.find(p=>p.id===aj.addLotId);
     if(lot && lot.remaining<lot.quantity-1e-9){ toast('추가된 재고가 이미 생산에 사용됨. 되돌릴 수 없음','error'); return; }
-    state.purchases=state.purchases.filter(p=>p.id!==aj.addLotId);
+    if(aj.kind==='semi'){ state.semiLots=state.semiLots.filter(p=>p.id!==aj.addLotId); }
+    else { state.purchases=state.purchases.filter(p=>p.id!==aj.addLotId); }
   }
   state.adjustments=state.adjustments.filter(a=>a.id!==adjId);
   saveState(); toast('재고조정 되돌림','success'); renderAll();
@@ -1195,7 +1259,7 @@ function renderSemis(){
     const rem=lots.reduce((a,l)=>a+l.remaining,0);
     const val=lots.reduce((a,l)=>a+l.remaining*l.unitCost,0);
     const avg=rem>0?val/rem:0;
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${semiQtyKg(s.id,rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(s.code||'-')}</td><td><b>${escapeHtml(s.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(s.unit)}</td><td class="text-right"><b>${semiQtyKg(s.id,rem)}</b></td><td class="text-right">${won(val)}</td><td class="text-right">${won(avg)}</td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningSemi('${s.id}')">기초재고</button><button class="btn-chip" onclick="adjustStockSemi('${s.id}')">재고조정</button><button class="btn-icon edit" title="수정" onclick="editSemi('${s.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteSemi('${s.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
@@ -1209,7 +1273,7 @@ function renderProducts(){
     const made=state.prod2.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.output,0);
     const ship=state.ships.filter(x=>x.productId===p.id).reduce((s,x)=>s+x.qty,0);
     const adj=(state.adjustments||[]).filter(a=>a.kind==='product'&&a.itemId===p.id).reduce((s,a)=>s+a.delta,0);
-    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${prodQtyKg(p.id,made)}</td><td class="text-right">${prodQtyKg(p.id,ship)}</td><td class="text-right"><b>${prodQtyKg(p.id,made-ship+adj)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="adjustStockProduct('${p.id}')">재고조정</button><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
+    h+=`<tr><td style="padding-left:18px;color:var(--text-light);">${escapeHtml(p.code||'-')}</td><td><b>${escapeHtml(p.name)}</b></td><td style="color:var(--text-light);">${escapeHtml(p.unit)}</td><td class="text-right">${prodQtyKg(p.id,made)}</td><td class="text-right">${prodQtyKg(p.id,ship)}</td><td class="text-right"><b>${prodQtyKg(p.id,made-ship+adj)}</b></td><td class="text-right no-print" style="padding-right:18px;white-space:nowrap;"><button class="btn-chip" onclick="setOpeningProduct('${p.id}')">기초재고</button><button class="btn-chip" onclick="adjustStockProduct('${p.id}')">재고조정</button><button class="btn-icon edit" title="수정" onclick="editProduct('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deleteProduct('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
