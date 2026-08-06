@@ -89,9 +89,9 @@
   .badge-ok { background: #dcfce7; color: #166534; }
   .badge-mat { background: #e0f2fe; color: #075985; }
   .stock-summary-tbl .badge { white-space: nowrap; }
-  .stock-summary-tbl th:nth-child(2) { width: 99%; }
-  .stock-summary-tbl th:nth-child(3), .stock-summary-tbl td:nth-child(3),
-  .stock-summary-tbl th:nth-child(4), .stock-summary-tbl td:nth-child(4) { white-space: nowrap; width: 1%; padding-left: 10px; }
+ .stock-summary-tbl td:nth-child(2), .stock-summary-tbl th:nth-child(2) { width: 1%; white-space: nowrap; padding-right: 24px; }
+  .stock-summary-tbl th:nth-child(3), .stock-summary-tbl td:nth-child(3) { white-space: nowrap; text-align: right; }
+  .stock-summary-tbl th:nth-child(4), .stock-summary-tbl td:nth-child(4) { white-space: nowrap; width: 99%; text-align: right; }
   .badge-semi { background: #ede9fe; color: #5b21b6; }
   .badge-final { background: #dcfce7; color: #166534; }
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -2186,7 +2186,7 @@ document.getElementById('reportSummary').innerHTML=`
   const months={};
   for(const p of p2){ const m=p.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].prod+=p.output; months[m].cost+=p.totalCost; }
   for(const x of sh){ const m=x.date.slice(0,7); (months[m]=months[m]||{prod:0,cost:0,sales:0,sold:0}); months[m].sales+=(x.amount||0); months[m].sold+=x.qty; }
-  const mk=Object.keys(months).sort();
+  const mk=Object.keys(months).sort().reverse();
   document.getElementById('reportMonthly').innerHTML = mk.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>월</th><th class="text-right">완제품생산(개)</th><th class="text-right">판매(개)</th><th class="text-right">생산원가</th><th class="text-right">판매액</th><th class="text-right">개당손익</th><th class="text-right">손익</th></tr></thead><tbody>'+mk.map(m=>{const d=months[m];const puCost=d.prod>0?d.cost/d.prod:0;const puSale=d.sold>0?d.sales/d.sold:0;return `<tr><td>${m}</td><td class="text-right">${fmt(d.prod)}</td><td class="text-right">${fmt(d.sold)}</td><td class="text-right">${won(d.cost)}</td><td class="text-right">${won(d.sales)}</td><td class="text-right" style="color:${puSale-puCost>=0?'var(--success)':'var(--danger)'};">${won(puSale-puCost)}</td><td class="text-right" style="color:${d.sales-d.cost>=0?'var(--success)':'var(--danger)'};font-weight:600;">${won(d.sales-d.cost)}</td></tr>`;}).join('')+'</tbody></table>';
   // 반제품 원가/수율
   document.getElementById('reportSemi').innerHTML = state.semis.length===0?'<div class="empty-state">없음</div>':'<table><thead><tr><th>반제품</th><th class="text-right">생산량(개)</th><th class="text-right">평균수율</th><th class="text-right">개당단가</th><th class="text-right">kg당</th><th class="text-right">파기(개)</th></tr></thead><tbody>'+state.semis.map(sm=>{const ps=p1.filter(x=>x.semiId===sm.id);const out=ps.reduce((a,x)=>a+x.output,0);const inp=ps.reduce((a,x)=>a+x.inputKg,0);const cost=ps.reduce((a,x)=>a+x.totalCost,0);const scr=ps.reduce((a,x)=>a+x.scrap,0);const puCost=out>0?cost/out:0;const kgPer=(sm.kgPer||0);return `<tr><td><b>${escapeHtml(sm.name)}</b></td><td class="text-right">${fmt(out)}</td><td class="text-right">${inp>0?(out/inp*100).toFixed(1):'0'}%</td><td class="text-right">${won(puCost)}</td><td class="text-right">${kgPer>0?won(puCost/kgPer):'-'}</td><td class="text-right">${fmt(scr)}</td></tr>`;}).join('')+'</tbody></table>';
