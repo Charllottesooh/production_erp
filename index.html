@@ -31,6 +31,9 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px; }
+  body:not(.app-ready) > *:not(#ws-launcher) { visibility: hidden; }
+  body:not(.app-ready)::after { content: ""; position: fixed; inset: 0; background: var(--bg); z-index: 9999; }
+  body.app-ready::after { display: none; }
   header { background: linear-gradient(135deg, #7857c8, #9481e0); color: white; padding: 14px 24px; box-shadow: 0 2px 12px rgba(120,87,200,0.15); }
   .header-flex { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   header h1 { font-size: 20px; font-weight: 700; }
@@ -85,6 +88,9 @@
   .badge-warning { background: #fef3c7; color: #92400e; }
   .badge-ok { background: #dcfce7; color: #166534; }
   .badge-mat { background: #e0f2fe; color: #075985; }
+  .stock-summary-tbl .badge { white-space: nowrap; }
+  .stock-summary-tbl td:nth-child(2) { padding-right: 4px; }
+  .stock-summary-tbl td:nth-child(3), .stock-summary-tbl th:nth-child(3) { padding-left: 4px; }
   .badge-semi { background: #ede9fe; color: #5b21b6; }
   .badge-final { background: #dcfce7; color: #166534; }
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -228,10 +234,12 @@
     body.printing-sheet .ps-doc { font-size: 12px; }
     body.printing-sheet .prod-sheet { transform-origin: top left; }
     body.printing-sheet .ps-sign { margin-top: 8px; }
-    body.printing-sheet .ps-sign td { height: 32px; }
-    body.printing-sheet .ps-sign { margin-top: 14px; }
-    body.printing-sheet .ps-sign td { height: 40px; }
-    body.printing-sheet .ps-doc > div[style*="min-height:40px"] { min-height: 28px !important; padding: 7px !important; }
+    body.printing-sheet .ps-sign td { height: 30px; }
+    body.printing-sheet .ps-meta th, body.printing-sheet .ps-meta td { padding: 2px 8px !important; }
+    body.printing-sheet .ps-sec-title { margin: 5px 0 3px !important; font-size: 12px !important; }
+    body.printing-sheet .ps-tbl th, body.printing-sheet .ps-tbl td { padding: 0.5px 7px !important; line-height: 1.15 !important; }
+    body.printing-sheet .ps-tbl { margin-bottom: 4px !important; }
+    body.printing-sheet .ps-doc > div[style*="min-height:40px"] { min-height: 20px !important; padding: 5px !important; }
   }
   /* 목록 인쇄: 가로 */
   @media print {
@@ -604,7 +612,7 @@
         <button class="btn btn-secondary btn-sm" onclick="repSetRange('all')">전체</button>
       </div>
     </div>
-    <div class="card report-detail-card report-monthly-card"><h2><span class="report-section-title"><span class="report-section-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></span><span>월별 생산·손익</span></span><button class="btn btn-print no-print" onclick="printTab('report','생산 리포트')">🖨️ 인쇄</button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>인쇄</button></h2><div id="reportMonthly"></div></div>
+    <div class="card report-detail-card report-monthly-card"><h2><span class="report-section-title"><span class="report-section-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg></span><span>월별 생산·손익</span></span><button class="btn btn-print no-print" onclick="printTab('report','생산 리포트')">🖨️ 인쇄</button></h2><div id="reportMonthly"></div></div>
     <div class="card semi report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon semi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="M4 12h16"/></svg></span><span>반제품 원가/수율</span></span></h2><div id="reportSemi"></div></div>
     <div class="card final report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon final"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4-8 4-8-4z"/><path d="m4 7 8 4 8-4"/><path d="M4 7v10l8 4 8-4V7"/></svg></span><span>완제품 원가/수율</span></span></h2><div id="reportProduct"></div></div>
     <div class="card report-detail-card"><h2><span class="report-section-title"><span class="report-section-icon client"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-8h16v8"/><path d="M6 12V5h12v7"/><path d="M9 8h6"/><path d="M8 16h3"/><path d="M14 16h2"/></svg></span><span>거래처별 매출</span></span><button class="btn btn-secondary btn-sm no-print" onclick="exportClientSales()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>엑셀</button></h2><div id="reportClient"></div></div>
@@ -2520,7 +2528,7 @@ addP1BomRow(); addP2SemiRow(); addP2BomRow();
 updatePurchasePreview(); renderAll();
 if(state.cloud.connected&&state.cloud.config){ fbInit(state.cloud.config).then(()=>fbPull(false)).catch(()=>{ state.cloud.connected=false; updateCloudStatus(); }); }
 }
-bootApp();
+bootApp().finally(()=>{ document.body.classList.add('app-ready'); });
 </script>
 <script>window.WS_CURRENT_APP="production";</script>
 <style id="ws-launcher-style">
