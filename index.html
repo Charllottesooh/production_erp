@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -105,7 +106,7 @@
   .warn-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
   .print-header { display: none; text-align: left; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
   .print-header h1 { font-size: 36px; margin: 0; text-align: left; }
-  .print-header .period { font-size: 36px; font-weight: 800; margin-top: 6px; text-align: left; }
+  .print-header .period { font-size: 18px; font-weight: 800; margin-top: 6px; text-align: left; }
   .print-header .author { font-size: 14px; color: #333; margin-top: 4px; text-align: left; }
   .print-header .meta { font-size: 11px; color: #555; margin-top: 4px; text-align: left; }
   pre.code { background: #1e293b; color: #f1f5f9; padding: 14px; border-radius: 6px; font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre; }
@@ -2103,10 +2104,10 @@ function renderDashboard(){
     <div class="stat accent-g"><div class="k">판매액${suffix}</div><div class="v" style="font-size:17px;">${won(sales)}</div></div>
     <div class="stat ${sales-p2Cost>=0?'accent-g':'accent-o'}"><div class="k">손익 · 판매-생산원가</div><div class="v" style="font-size:17px;color:${sales-p2Cost>=0?'var(--success)':'var(--danger)'};">${won(sales-p2Cost)}</div></div>`;
   // 재고 요약
-  let sh2='<table><thead><tr><th>구분</th><th>품목</th><th class="text-right">재고</th><th class="text-right">재고가액</th></tr></thead><tbody>';
-  for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right">${fmt(st)}</td><td class="text-right">${won(val)}</td></tr>`; }
-  for(const x of state.semis){ const st=semiStock(x.id); const val=state.semiLots.filter(l=>l.semiId===x.id).reduce((a,l)=>a+l.remaining*l.unitCost,0); sh2+=`<tr><td><span class="badge badge-semi">반제품</span></td><td><b>${escapeHtml(x.name)}</b></td><td class="text-right">${semiQtyKg(x.id,st)}</td><td class="text-right">${won(val)}</td></tr>`; }
-  for(const p of state.products){ const st=productStock(p.id); sh2+=`<tr><td><span class="badge badge-final">완제품</span></td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right">${prodQtyKg(p.id,st)}</td><td class="text-right">-</td></tr>`; }
+  let sh2='<table class="stock-summary-tbl"><thead><tr><th style="width:70px;">구분</th><th>품목</th><th class="text-right" style="white-space:nowrap;">재고</th><th class="text-right" style="white-space:nowrap;">재고가액</th></tr></thead><tbody>';
+  for(const m of state.materials){ const st=matStock(m.id); const val=state.purchases.filter(p=>p.materialId===m.id).reduce((a,p)=>a+p.remaining*p.unitCost,0); sh2+=`<tr><td><span class="badge badge-mat">원재료</span></td><td><b>${escapeHtml(m.name)}</b></td><td class="text-right" style="white-space:nowrap;">${fmt(st)} <span style="color:var(--text-light);font-size:0.88em;">${escapeHtml(m.unit||'Kg')}</span></td><td class="text-right" style="white-space:nowrap;">${won(val)}</td></tr>`; }
+  for(const x of state.semis){ const st=semiStock(x.id); const val=state.semiLots.filter(l=>l.semiId===x.id).reduce((a,l)=>a+l.remaining*l.unitCost,0); sh2+=`<tr><td><span class="badge badge-semi">반제품</span></td><td><b>${escapeHtml(x.name)}</b></td><td class="text-right" style="white-space:nowrap;">${semiQtyKg(x.id,st)} <span style="color:var(--text-light);font-size:0.88em;">개</span></td><td class="text-right" style="white-space:nowrap;">${won(val)}</td></tr>`; }
+  for(const p of state.products){ const st=productStock(p.id); const kgPer=prodKgOf(p.id); const disp=kgPer>0?`${fmt(st)}<span style="color:var(--text-light);font-size:0.88em;">개</span> <span style="color:var(--text-light);font-size:0.88em;">(${fmt(st*kgPer,1)}kg)</span>`:`${fmt(st)}<span style="color:var(--text-light);font-size:0.88em;">개</span>`; sh2+=`<tr><td><span class="badge badge-final">완제품</span></td><td><b>${escapeHtml(p.name)}</b></td><td class="text-right" style="white-space:nowrap;">${disp}</td><td class="text-right">-</td></tr>`; }
   document.getElementById('stockSummary').innerHTML = (state.materials.length+state.semis.length+state.products.length)? sh2+'</tbody></table>' : '<div class="empty-state">품목 없음</div>';
   // 유통기한
   const today=todayISO();
@@ -2341,21 +2342,63 @@ async function fbConnect(){
   }catch(e){ state.cloud.connected=false; updateCloudStatus(); toast('연결 실패: '+e.message,'error'); }
 }
 function applyCloudData(d){
-  ['materials','semis','products','purchases','prod1','prod2','ships','semiLots','adjustments'].forEach(k=>{ if(Array.isArray(d[k])) state[k]=d[k]; });
+  ['materials','semis','products','purchases','prod1','prod2','semiLots','adjustments'].forEach(k=>{ if(Array.isArray(d[k])) state[k]=d[k]; });
   if(d.opening) state.opening=d.opening;
   if(d.settings) state.settings={...state.settings,...d.settings};
   saveState(false);
 }
-function cloudPayload(){ return { materials:state.materials,semis:state.semis,products:state.products,purchases:state.purchases,prod1:state.prod1,prod2:state.prod2,ships:state.ships,semiLots:state.semiLots,adjustments:state.adjustments,opening:state.opening,settings:state.settings }; }
+function cloudPayload(){ return { materials:state.materials,semis:state.semis,products:state.products,purchases:state.purchases,prod1:state.prod1,prod2:state.prod2,semiLots:state.semiLots,adjustments:state.adjustments,opening:state.opening,settings:state.settings }; }
+function shipsByMonth(){
+  const g={};
+  for(const s of (state.ships||[])){
+    const m=String(s.date||'').slice(0,7)||'unknown';
+    (g[m]=g[m]||[]).push(s);
+  }
+  return g;
+}
+function _hashStr(str){ let h=0; for(let i=0;i<str.length;i++){ h=((h<<5)-h+str.charCodeAt(i))|0; } return h.toString(36); }
 async function fbPush(showToast=true){
   if(!state.cloud.connected||!fbDb){ if(showToast) toast('미연결','error'); return; }
   const el=document.getElementById('cloudStatus'); el.className='cloud-status syncing'; el.querySelector('.text').textContent='동기화 중...';
-  try{ await fbDb.collection('erp').doc('main').set({data:cloudPayload(),updatedAt:nowISO()}); state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); if(showToast) toast('업로드 완료','success'); }
+  try{
+    await fbDb.collection('erp').doc('main').set({data:cloudPayload(),updatedAt:nowISO()});
+    const groups=shipsByMonth();
+    state._shipHashes=state._shipHashes||{};
+    const months=Object.keys(groups);
+    for(const m of months){
+      const json=JSON.stringify(groups[m]);
+      const h=_hashStr(json);
+      if(state._shipHashes[m]===h) continue;
+      await fbDb.collection('erp').doc('ships_'+m).set({data:groups[m],month:m,count:groups[m].length,updatedAt:nowISO()});
+      state._shipHashes[m]=h;
+    }
+    await fbDb.collection('erp').doc('ships_index').set({months,updatedAt:nowISO()});
+    state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus();
+    if(showToast) toast('업로드 완료','success');
+  }
   catch(e){ updateCloudStatus(); if(showToast) toast('업로드 실패: '+e.message,'error'); }
 }
 async function fbPull(showToast=true){
   if(!state.cloud.connected||!fbDb){ if(showToast) toast('미연결','error'); return; }
-  try{ const doc=await fbDb.collection('erp').doc('main').get(); if(!doc.exists){ if(showToast) toast('클라우드 데이터 없음','error'); return; } applyCloudData(doc.data().data); state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); renderAll(); if(showToast) toast('다운로드 완료','success'); }
+  try{
+    const doc=await fbDb.collection('erp').doc('main').get();
+    if(!doc.exists){ if(showToast) toast('클라우드 데이터 없음','error'); return; }
+    applyCloudData(doc.data().data);
+    const allShips=[]; state._shipHashes={};
+    const idx=await fbDb.collection('erp').doc('ships_index').get();
+    if(idx.exists && Array.isArray(idx.data().months)){
+      for(const m of idx.data().months){
+        const sd=await fbDb.collection('erp').doc('ships_'+m).get();
+        if(sd.exists && Array.isArray(sd.data().data)){
+          allShips.push(...sd.data().data);
+          state._shipHashes[m]=_hashStr(JSON.stringify(sd.data().data));
+        }
+      }
+    }
+    state.ships=allShips;
+    state.cloud.lastSyncAt=nowISO(); saveState(false); updateCloudStatus(); renderAll();
+    if(showToast) toast(`다운로드 완료 (출고 ${allShips.length}건)`,'success');
+  }
   catch(e){ if(showToast) toast('다운로드 실패: '+e.message,'error'); }
 }
 function fbDisconnect(){ if(!confirm('연결 해제? (로컬 데이터 유지)')) return; state.cloud={config:null,workspace:'production',connected:false,lastSyncAt:null}; saveState(false); updateCloudStatus(); toast('해제됨','success'); }
