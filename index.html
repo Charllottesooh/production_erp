@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2109,36 +2110,74 @@ function buildLedgerEvents(kind, itemId){
   ev.sort((a,b)=>a.date.localeCompare(b.date)||String(a.ord).localeCompare(String(b.ord)));
   return ev;
 }
-function renderLedger(){
+// ===== 수불부 캐시 (종류/품목이 같으면 재계산 안 함) =====
+let _ledgerCache = { key:null, rows:null };
+function invalidateLedgerCache(){ _ledgerCache = { key:null, rows:null }; }
+let _ledgerPage = 0;
+const LEDGER_PAGE_SIZE = 200;
+
+function renderLedger(resetPage){
+  if(resetPage!==false) _ledgerPage = 0;
   const kind=document.getElementById('ledKind').value;
   const itemId=document.getElementById('ledItem').value;
   const s=document.getElementById('ledStart').value, e=document.getElementById('ledEnd').value;
   const nameFn = kind==='material'?matName : kind==='semi'?semiName : prodName;
-  let ev=buildLedgerEvents(kind,itemId);
-  // 잔량 계산은 전체기간 누적 후, 표시만 기간필터
-  const bal={};
-  const rows=[];
-  for(const x of ev){
-    bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
-    rows.push({...x,balance:bal[x.itemId]});
+
+  // --- 캐시: 종류+품목 조합이 같으면 전체 이벤트·잔량 재계산 생략 ---
+  const cacheKey = kind + '|' + itemId;
+  let rows;
+  if(_ledgerCache.key === cacheKey && _ledgerCache.rows){
+    rows = _ledgerCache.rows;
+  } else {
+    let ev=buildLedgerEvents(kind,itemId);
+    const bal={}; rows=[];
+    for(const x of ev){
+      bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
+      rows.push({...x,balance:bal[x.itemId]});
+    }
+    _ledgerCache = { key:cacheKey, rows };
   }
+
+  // --- 날짜 필터 (가벼움) ---
   let shown=rows;
   if(s) shown=shown.filter(r=>r.date>=s);
   if(e) shown=shown.filter(r=>r.date<=e);
   shown=shown.slice().reverse();
+
   const el=document.getElementById('ledgerBody');
   if(shown.length===0){ el.innerHTML='<div class="empty-state">내역 없음</div>'; return; }
+
   const tin=shown.reduce((a,r)=>a+(r.inQty||0),0), tout=shown.reduce((a,r)=>a+(r.outQty||0),0), tscr=shown.reduce((a,r)=>a+(r.scrap||0),0);
   const hasScrap = kind!=='material';
-  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${shown.length}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
+
+  // --- 페이지네이션: 화면엔 200건씩만 그림 ---
+  const total = shown.length;
+  const pages = Math.ceil(total / LEDGER_PAGE_SIZE);
+  if(_ledgerPage >= pages) _ledgerPage = 0;
+  const start = _ledgerPage * LEDGER_PAGE_SIZE;
+  const pageRows = shown.slice(start, start + LEDGER_PAGE_SIZE);
+
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${total}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
   h+=`<table><thead><tr><th>일자</th><th>품목</th><th>구분</th><th class="text-right">입고</th><th class="text-right">출고</th>${hasScrap?'<th class="text-right">파기</th>':''}<th class="text-right">잔량</th><th>비고</th></tr></thead><tbody>`;
   const kgFn = kind==='semi'?(id,q)=>semiQtyKg(id,q) : kind==='product'?(id,q)=>prodQtyKg(id,q) : (id,q)=>fmt(q);
-  for(const r of shown){
+  for(const r of pageRows){
     const c=(r.inQty>0)?'var(--success)':((r.outQty>0)?'var(--danger)':'var(--warning)');
     h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${kgFn(r.itemId,r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
   }
-  el.innerHTML=h+'</tbody></table>';
+  h+='</tbody></table>';
+
+  // --- 페이지 네비게이션 ---
+  if(pages>1){
+    h+=`<div class="no-print" style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap;">`;
+    h+=`<button class="btn btn-sm" ${_ledgerPage===0?'disabled':''} onclick="ledgerGoPage(${_ledgerPage-1})">◀ 이전</button>`;
+    h+=`<span style="font-size:13px;color:var(--text-light);">${_ledgerPage+1} / ${pages} 페이지 (${start+1}~${Math.min(start+LEDGER_PAGE_SIZE,total)}건)</span>`;
+    h+=`<button class="btn btn-sm" ${_ledgerPage>=pages-1?'disabled':''} onclick="ledgerGoPage(${_ledgerPage+1})">다음 ▶</button>`;
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
 }
+function ledgerGoPage(p){ _ledgerPage=p; renderLedger(false); window.scrollTo({top:0,behavior:'smooth'}); }
+
 function exportClientSales(){
   const s=document.getElementById('repStart')?.value||'', e=document.getElementById('repEnd')?.value||'';
   const sh=state.ships.filter(x=>inRange(x.date,s,e));
@@ -2715,7 +2754,7 @@ function renderAll(){
   renderMaterials(); renderSemis(); renderProducts(); renderSelects();
   renderAdjustments(); renderSemiRecipeList(); renderProductRecipeList();
   renderPurchases(); renderP1(); renderP2(); // renderShips(); // 조회 버튼 눌렀을 때만 로딩 (성능)
-  renderLedger(); renderDashboard(); renderReport();
+  invalidateLedgerCache(); renderLedger(); renderDashboard(); renderReport();
   updateCloudStatus(); checkBackupAlert();
   const bd=document.getElementById('backupDays'); if(bd) bd.value=state.settings.backupDays||7;
   const lb=document.getElementById('lastBackupDate'); if(lb) lb.value=state.settings.lastBackupAt||'없음';
