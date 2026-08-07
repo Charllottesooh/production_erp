@@ -275,7 +275,7 @@
   <div class="header-flex">
     <div>
       <h1><span class="header-app-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l5 3V9l5 3V4h4v17"/><path d="M8 17h1"/><path d="M12 17h1"/><path d="M16 17h1"/></svg></span><span>생산관리 ERP</span> <span class="app-version">v2.5</span></h1>
-      <div class="subtitle">원재료 → 반제품 → 완제품 2단계 · 수불부 · FIFO 원가 · 클라우드</div>
+      <div class="subtitle">원재료 → 반제품 → 완제품 2단계 ·  · FIFO 원가 · 클라우드</div>
     </div>
     <div id="cloudStatus" class="cloud-status disconnected"><span class="dot"></span><span class="text">클라우드 미연결</span></div>
   </div>
@@ -293,7 +293,7 @@
     <button data-tab="purchase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="M4 12h16"/><path d="M12 10v4"/></svg><span>매입(원재료)</span></button>
     <button data-tab="prod1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 19V9l4 2V8l4 2V5h4v14"/><path d="M9 15h1"/><path d="M13 15h1"/></svg><span>생산(1차/반제품)</span></button>
     <button data-tab="prod2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="m4 7 8 4 8-4"/><path d="M12 11v10"/></svg><span>생산(2차/완제품)</span></button>
-    <button data-tab="ledger"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><path d="M7 3v18"/><path d="M10 8h6"/><path d="M10 12h6"/><path d="M10 16h4"/></svg><span>수불부</span></button>
+    <button data-tab="ledger"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><path d="M7 3v18"/><path d="M10 8h6"/><path d="M10 12h6"/><path d="M10 16h4"/></svg><span></span></button>
     <button data-tab="ship"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>출고(완제품)</span></button>
     <button data-tab="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg><span>리포트</span></button>
   </div>
@@ -573,7 +573,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>수불 내역 <button class="btn btn-print no-print" onclick="printTab('ledger','수불부')">🖨️ 인쇄</button></h2>
+      <h2>수불 내역 <button class="btn btn-print no-print" onclick="printTab('ledger','수불부')">🖨️ 인쇄</button> <button class="btn no-print" onclick="printLedgerSimple()">🖨️ 간략인쇄</button></h2>
       <div id="ledgerBody"></div>
     </div>
   </section>
@@ -720,6 +720,74 @@ service cloud.firestore {
     </div>
   </div>
 </div>
+
+// ===== 완제품 출고 간략인쇄 (일자별 합계) =====
+function printLedgerSimple(){
+  const itemId = document.getElementById('ledItem').value; // 선택 시 해당 품목만
+  const s = document.getElementById('ledStart').value, e = document.getElementById('ledEnd').value;
+
+  // 완제품 출고내역만 필터
+  let ships = state.ships.filter(x=>{
+    if(itemId && x.productId!==itemId) return false;
+    if(s && x.date < s) return false;
+    if(e && x.date > e) return false;
+    return true;
+  });
+  if(ships.length===0){ alert('출고내역이 없습니다.'); return; }
+
+  // 품목 > 일자 그룹핑
+  const g={};
+  for(const x of ships){
+    const pid=x.productId, d=x.date;
+    (g[pid]=g[pid]||{});
+    (g[pid][d]=g[pid][d]||{qty:0, rows:[]});
+    g[pid][d].qty += (x.qty||0);
+    g[pid][d].rows.push(x);
+  }
+
+  let win = window.open('','_blank');
+  let html = `<html><head><meta charset="utf-8"><title>완제품 출고 간략</title>
+  <style>
+    body{font-family:'Malgun Gothic',sans-serif;font-size:11px;padding:14px;color:#172f35;}
+    h1{font-size:18px;margin:0 0 4px;}
+    .sub{font-size:10px;color:#666;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:12px;}
+    h2{font-size:14px;color:#075d67;margin:14px 0 6px;border-bottom:1px solid #b9cdd1;padding-bottom:4px;break-after:avoid;}
+    table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6px;}
+    th,td{border:1px solid #ccc;padding:4px 6px;}
+    th{background:#e6f3f5;font-weight:800;}
+    tr{break-inside:avoid;}
+    .r{text-align:right;}
+    .day{cursor:pointer;font-weight:700;}
+    .detail{display:none;background:#f7fbfc;}
+    .detail.open{display:table-row;}
+    .detail td{font-size:9px;color:#444;padding:2px 6px;}
+    .item-block{break-inside:avoid-page;}
+    @media print{ .detail{display:table-row !important;} .hint{display:none;} }
+  </style></head><body>
+  <h1>완제품 출고 (간략)</h1>
+  <div class="sub">출력일: ${todayISO()}${s||e?` · 기간: ${s||'~'} ~ ${e||'~'}`:''} <span class="hint">· 일자 클릭 시 상세 펼침</span></div>`;
+
+  const pids = Object.keys(g).sort((a,b)=>prodName(a).localeCompare(prodName(b)));
+  for(const pid of pids){
+    html += `<div class="item-block"><h2>${escapeHtml(prodName(pid))}</h2>
+      <table><thead><tr><th>일자</th><th class="r">출고수량</th></tr></thead><tbody>`;
+    const days = Object.keys(g[pid]).sort();
+    let sum=0;
+    for(const d of days){
+      const cell=g[pid][d]; sum+=cell.qty;
+      const did=`d_${pid}_${d}`.replace(/[^a-zA-Z0-9_]/g,'');
+      html += `<tr class="day" onclick="document.getElementById('${did}').classList.toggle('open')">
+        <td>▸ ${d}</td><td class="r">${prodQtyKg(pid,cell.qty)}</td></tr>`;
+      // 상세
+      let dh = cell.rows.map(r=>`${escapeHtml(r.client||'(미지정)')} : ${prodQtyKg(pid,r.qty)}${r.notes?' ('+escapeHtml(r.notes)+')':''}`).join('<br>');
+      html += `<tr class="detail" id="${did}"><td colspan="2">${dh}</td></tr>`;
+    }
+    html += `<tr><th>합계</th><th class="r">${prodQtyKg(pid,sum)}</th></tr></tbody></table></div>`;
+  }
+  html += `</body></html>`;
+  win.document.write(html); win.document.close();
+}
+  
 
 <div id="prodSheet" class="prod-sheet"></div>
 <div class="toast" id="toast"></div>
