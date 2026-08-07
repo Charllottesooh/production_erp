@@ -2176,7 +2176,6 @@ function printLedgerSimple(){
   });
   if(ships.length===0){ alert('출고내역이 없습니다.'); return; }
 
-  // 품목 > 일자 그룹핑
   const g={};
   for(const x of ships){
     const pid=x.productId, d=x.date;
@@ -2211,22 +2210,23 @@ function printLedgerSimple(){
     .kpi{flex:1;min-width:130px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
     .kpi .lbl{font-size:10px;color:#6b8085;margin-bottom:4px;}
     .kpi .val{font-size:18px;font-weight:800;color:var(--teal-d);}
-    .item-block{margin-bottom:26px;break-inside:avoid;}
+    .item-block{margin-bottom:26px;}
     .item-head{display:flex;justify-content:space-between;align-items:baseline;
-      border-left:4px solid var(--teal);padding:2px 0 6px 10px;margin-bottom:8px;}
+      border-left:4px solid var(--teal);padding:2px 0 6px 10px;margin-bottom:8px;break-after:avoid;page-break-after:avoid;}
     .item-head .nm{font-size:14px;font-weight:800;color:var(--teal-d);}
     .item-head .tot{font-size:11px;color:#6b8085;}
     .item-head .tot b{color:var(--ink);font-size:13px;}
     table{width:100%;border-collapse:collapse;font-size:10.5px;}
+    thead{display:table-header-group;}
     thead th{background:var(--teal-d);color:#fff;font-weight:700;padding:7px 10px;text-align:left;
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     thead th.r{text-align:right;}
-    tbody td{padding:6px 10px;border-bottom:1px solid #eef2f3;}
-    tbody tr:nth-child(4n-3){background:#fbfdfd;}
+    tbody td{padding:6px 10px;border-bottom:1px solid #eef2f3;vertical-align:top;}
     .day{cursor:pointer;}
-    .day:hover{background:#eef7f8 !important;}
+    .day:hover td{background:#eef7f8;}
     .day td{font-weight:600;}
-    .r{text-align:right;font-variant-numeric:tabular-nums;}
+    .qty{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+    .note{color:#5b7075;font-weight:400;font-size:10px;}
     .caret{display:inline-block;width:12px;color:var(--teal);transition:transform .15s;}
     .day.open .caret{transform:rotate(90deg);}
     .detail{display:none;}
@@ -2236,14 +2236,13 @@ function printLedgerSimple(){
     .drow{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;color:#4a5f64;border-bottom:1px dashed #dde8ea;}
     .drow:last-child{border-bottom:none;}
     .drow .c{font-weight:600;color:var(--ink);}
+    tr{break-inside:avoid;page-break-inside:avoid;}
     tfoot td{border-top:2px solid var(--teal-d);padding:8px 10px;font-weight:800;background:var(--soft);
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     @media print{
       body{background:#fff;} .page{max-width:none;padding:0;}
       .topbar,.btns{display:none !important;}
-      .detail{display:table-row !important;}
       .caret{display:none;}
-      .item-block{break-inside:avoid;}
       thead th{background:var(--teal-d) !important;}
     }
   </style></head><body><div class="page">
@@ -2269,21 +2268,25 @@ function printLedgerSimple(){
     html += `<div class="item-block">
       <div class="item-head"><span class="nm">${escapeHtml(prodName(pid))}</span>
         <span class="tot">기간 합계 <b>${prodQtyKg(pid,sum)}</b></span></div>
-      <table><thead><tr><th style="width:60%">일자</th><th class="r">출고수량</th></tr></thead><tbody>`;
+      <table><thead><tr><th style="width:22%">일자</th><th class="r" style="width:22%">출고수량</th><th style="width:56%">비고</th></tr></thead><tbody>`;
     for(const d of days){
       const cell=g[pid][d];
       const did=`x_${pid}_${d}`.replace(/[^a-zA-Z0-9_]/g,'');
+      const clients=[...new Set(cell.rows.map(r=>(r.client||'(미지정)')))];
+      const noteTxt = clients.slice(0,3).join(', ') + (clients.length>3?` 외 ${clients.length-3}곳`:'') + ` · ${cell.rows.length}건`;
       html += `<tr class="day" onclick="this.classList.toggle('open');document.getElementById('${did}').classList.toggle('open')">
-        <td><span class="caret">▸</span> ${d} <span style="color:#9bb0b4">(${cell.rows.length}건)</span></td>
-        <td class="r">${prodQtyKg(pid,cell.qty)}</td></tr>`;
+        <td><span class="caret">▸</span> ${d}</td>
+        <td class="qty">${prodQtyKg(pid,cell.qty)}</td>
+        <td class="note">${escapeHtml(noteTxt)}</td></tr>`;
       let dh = cell.rows.map(r=>`<div class="drow"><span class="c">${escapeHtml(r.client||'(미지정)')}</span><span>${prodQtyKg(pid,r.qty)}${r.notes?' · '+escapeHtml(r.notes):''}</span></div>`).join('');
-      html += `<tr class="detail" id="${did}"><td colspan="2"><div class="detail-inner">${dh}</div></td></tr>`;
+      html += `<tr class="detail" id="${did}"><td colspan="3"><div class="detail-inner">${dh}</div></td></tr>`;
     }
-    html += `</tbody><tfoot><tr><td>합계</td><td class="r">${prodQtyKg(pid,sum)}</td></tr></tfoot></table></div>`;
+    html += `</tbody><tfoot><tr><td>합계</td><td class="qty">${prodQtyKg(pid,sum)}</td><td></td></tr></tfoot></table></div>`;
   }
   html += `</div></body></html>`;
   win.document.write(html); win.document.close();
 }
+
 
 // ========== DASHBOARD ==========
 function dashSetRange(type){
