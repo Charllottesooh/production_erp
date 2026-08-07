@@ -2096,9 +2096,11 @@ function buildLedgerEvents(kind, itemId){
     for(const l of state.semiLots){ if(itemId&&l.semiId!==itemId) continue; ev.push({date:l.date,itemId:l.semiId,inQty:l.quantity,outQty:0,scrap:0,type:l.isOpening?'기초':'1차생산',note:'',ord:l.createdAt}); }
     for(const pr of state.prod1){ if(itemId&&pr.semiId!==itemId) continue; if(pr.scrap>0) ev.push({date:pr.date,itemId:pr.semiId,inQty:0,outQty:0,scrap:pr.scrap,type:'파기',note:pr.scrapReason||'',ord:pr.createdAt+'z'}); }
     for(const pr of state.prod2) for(const u of pr.semiUsages){ if(itemId&&u.semiId!==itemId) continue; ev.push({date:pr.date,itemId:u.semiId,inQty:0,outQty:u.totalUsed,scrap:0,type:'2차투입',note:prodName(pr.productId),ord:pr.createdAt}); }
-  } else {
+ } else {
     for(const pr of state.prod2){ if(itemId&&pr.productId!==itemId) continue; ev.push({date:pr.date,itemId:pr.productId,inQty:pr.output,outQty:0,scrap:pr.scrap||0,type:'2차생산',note:pr.lot||'',ord:pr.createdAt}); }
     for(const s of state.ships){ if(itemId&&s.productId!==itemId) continue; ev.push({date:s.date,itemId:s.productId,inQty:0,outQty:s.qty,scrap:0,type:'출고',note:s.notes||'',ord:s.createdAt}); }
+    // 완제품 기초재고 / 재고조정 반영
+    for(const aj of (state.adjustments||[])){ if(aj.kind!=='product') continue; if(itemId&&aj.itemId!==itemId) continue; if(aj.delta>=0) ev.push({date:aj.date,itemId:aj.itemId,inQty:aj.delta,outQty:0,scrap:0,type:aj.isOpening?'기초':'재고조정',note:aj.reason||'',ord:(aj.isOpening?'':'z')+aj.createdAt}); else ev.push({date:aj.date,itemId:aj.itemId,inQty:0,outQty:-aj.delta,scrap:0,type:'재고조정',note:aj.reason||'',ord:'z'+aj.createdAt}); }
   }
   ev.sort((a,b)=>a.date.localeCompare(b.date)||String(a.ord).localeCompare(String(b.ord)));
   return ev;
