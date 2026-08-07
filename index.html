@@ -2303,7 +2303,7 @@ function parseExcelPreview(){
       const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''}).filter(r=>r.some(c=>String(c).trim()!==''));
       if(rows.length<2){ toast('데이터 없음','error'); return; }
       _excelParsed={kind,rows};
-      const preview=rows.slice(0,6).map(r=>'<tr>'+r.map(c=>`<td>${escapeHtml(String(c))}</td>`).join('')+'</tr>').join('');
+      const preview=rows.slice(0,6).map((r,ri)=>'<tr>'+r.map((c,ci)=>`<td>${escapeHtml(ci===0 && ri>0 ? normDate(c) : String(c))}</td>`).join('')+'</tr>').join('');
       document.getElementById('excelPreview').innerHTML=`<div class="info-box">총 ${rows.length-1}행 감지 (헤더 제외). 아래 미리보기 확인 후 "가져오기 확정".</div><table>${preview}</table>`;
       document.getElementById('excelCommitBtn').style.display='inline-block';
     }catch(err){ toast('파싱 오류: '+err.message,'error'); }
