@@ -255,7 +255,10 @@
     body.printing-list { padding-left: 0 !important; }
     body.printing-list main { padding: 0; max-width: 100%; }
     body.printing-list .tab { display: none !important; } body.printing-list .tab.print-active { display: block !important; }
-    body.printing-list .card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; padding: 12px; margin-bottom: 12px; }
+    body.printing-list .card { border: 1px solid #ddd; box-shadow: none; padding: 12px; margin-bottom: 12px; }
+    body.printing-list .card h2 { font-size: 13px; padding-bottom: 6px; margin-bottom: 8px; break-after: avoid; page-break-after: avoid; }
+    body.printing-list thead { display: table-header-group; }
+    body.printing-list tr { page-break-inside: avoid; }
     body.printing-list .card h2 { font-size: 13px; padding-bottom: 6px; margin-bottom: 8px; }
     body.printing-list .print-header { display: block; }
     body.printing-list table { font-size: 10px; }
