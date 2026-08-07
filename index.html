@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2320,7 +2317,7 @@ function normDate(v){
   if(v==null||v==='') return todayISO();
   // JS Date 객체 (엑셀 날짜 셀, cellDates:true)
   if(v instanceof Date && !isNaN(v)){
-    // 로컬 자정 기준으로 시프트 후 가장 가까운 날짜로 반올림 (엑셀 23:59:xx 오차 흡수)
+    // 엑셀 날짜 오차(23:59:xx 등) 흡수: 로컬 자정 기준으로 가장 가까운 날짜로 반올림
     const shifted=v.getTime()-v.getTimezoneOffset()*60000;
     const rounded=new Date(Math.round(shifted/86400000)*86400000);
     return `${rounded.getUTCFullYear()}-${String(rounded.getUTCMonth()+1).padStart(2,'0')}-${String(rounded.getUTCDate()).padStart(2,'0')}`;
