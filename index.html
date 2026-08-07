@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -720,74 +721,6 @@ service cloud.firestore {
     </div>
   </div>
 </div>
-
-// ===== 완제품 출고 간략인쇄 (일자별 합계) =====
-function printLedgerSimple(){
-  const itemId = document.getElementById('ledItem').value; // 선택 시 해당 품목만
-  const s = document.getElementById('ledStart').value, e = document.getElementById('ledEnd').value;
-
-  // 완제품 출고내역만 필터
-  let ships = state.ships.filter(x=>{
-    if(itemId && x.productId!==itemId) return false;
-    if(s && x.date < s) return false;
-    if(e && x.date > e) return false;
-    return true;
-  });
-  if(ships.length===0){ alert('출고내역이 없습니다.'); return; }
-
-  // 품목 > 일자 그룹핑
-  const g={};
-  for(const x of ships){
-    const pid=x.productId, d=x.date;
-    (g[pid]=g[pid]||{});
-    (g[pid][d]=g[pid][d]||{qty:0, rows:[]});
-    g[pid][d].qty += (x.qty||0);
-    g[pid][d].rows.push(x);
-  }
-
-  let win = window.open('','_blank');
-  let html = `<html><head><meta charset="utf-8"><title>완제품 출고 간략</title>
-  <style>
-    body{font-family:'Malgun Gothic',sans-serif;font-size:11px;padding:14px;color:#172f35;}
-    h1{font-size:18px;margin:0 0 4px;}
-    .sub{font-size:10px;color:#666;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:12px;}
-    h2{font-size:14px;color:#075d67;margin:14px 0 6px;border-bottom:1px solid #b9cdd1;padding-bottom:4px;break-after:avoid;}
-    table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6px;}
-    th,td{border:1px solid #ccc;padding:4px 6px;}
-    th{background:#e6f3f5;font-weight:800;}
-    tr{break-inside:avoid;}
-    .r{text-align:right;}
-    .day{cursor:pointer;font-weight:700;}
-    .detail{display:none;background:#f7fbfc;}
-    .detail.open{display:table-row;}
-    .detail td{font-size:9px;color:#444;padding:2px 6px;}
-    .item-block{break-inside:avoid-page;}
-    @media print{ .detail{display:table-row !important;} .hint{display:none;} }
-  </style></head><body>
-  <h1>완제품 출고 (간략)</h1>
-  <div class="sub">출력일: ${todayISO()}${s||e?` · 기간: ${s||'~'} ~ ${e||'~'}`:''} <span class="hint">· 일자 클릭 시 상세 펼침</span></div>`;
-
-  const pids = Object.keys(g).sort((a,b)=>prodName(a).localeCompare(prodName(b)));
-  for(const pid of pids){
-    html += `<div class="item-block"><h2>${escapeHtml(prodName(pid))}</h2>
-      <table><thead><tr><th>일자</th><th class="r">출고수량</th></tr></thead><tbody>`;
-    const days = Object.keys(g[pid]).sort();
-    let sum=0;
-    for(const d of days){
-      const cell=g[pid][d]; sum+=cell.qty;
-      const did=`d_${pid}_${d}`.replace(/[^a-zA-Z0-9_]/g,'');
-      html += `<tr class="day" onclick="document.getElementById('${did}').classList.toggle('open')">
-        <td>▸ ${d}</td><td class="r">${prodQtyKg(pid,cell.qty)}</td></tr>`;
-      // 상세
-      let dh = cell.rows.map(r=>`${escapeHtml(r.client||'(미지정)')} : ${prodQtyKg(pid,r.qty)}${r.notes?' ('+escapeHtml(r.notes)+')':''}`).join('<br>');
-      html += `<tr class="detail" id="${did}"><td colspan="2">${dh}</td></tr>`;
-    }
-    html += `<tr><th>합계</th><th class="r">${prodQtyKg(pid,sum)}</th></tr></tbody></table></div>`;
-  }
-  html += `</body></html>`;
-  win.document.write(html); win.document.close();
-}
-  
 
 <div id="prodSheet" class="prod-sheet"></div>
 <div class="toast" id="toast"></div>
@@ -2228,6 +2161,73 @@ function exportLedger(){
   const aoa=[['일자','품목','구분','입고','출고','파기','잔량','비고']];
   for(const r of shown) aoa.push([r.date,nameFn(r.itemId),r.type,r.inQty||0,r.outQty||0,r.scrap||0,r.balance,r.note||'']);
   writeXlsx(aoa, `수불부_${kind}_${todayISO()}`);
+}
+
+// ===== 완제품 출고 간략인쇄 (일자별 합계) =====
+function printLedgerSimple(){
+  const itemId = document.getElementById('ledItem').value; // 선택 시 해당 품목만
+  const s = document.getElementById('ledStart').value, e = document.getElementById('ledEnd').value;
+
+  // 완제품 출고내역만 필터
+  let ships = state.ships.filter(x=>{
+    if(itemId && x.productId!==itemId) return false;
+    if(s && x.date < s) return false;
+    if(e && x.date > e) return false;
+    return true;
+  });
+  if(ships.length===0){ alert('출고내역이 없습니다.'); return; }
+
+  // 품목 > 일자 그룹핑
+  const g={};
+  for(const x of ships){
+    const pid=x.productId, d=x.date;
+    (g[pid]=g[pid]||{});
+    (g[pid][d]=g[pid][d]||{qty:0, rows:[]});
+    g[pid][d].qty += (x.qty||0);
+    g[pid][d].rows.push(x);
+  }
+
+  let win = window.open('','_blank');
+  let html = `<html><head><meta charset="utf-8"><title>완제품 출고 간략</title>
+  <style>
+    body{font-family:'Malgun Gothic',sans-serif;font-size:11px;padding:14px;color:#172f35;}
+    h1{font-size:18px;margin:0 0 4px;}
+    .sub{font-size:10px;color:#666;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:12px;}
+    h2{font-size:14px;color:#075d67;margin:14px 0 6px;border-bottom:1px solid #b9cdd1;padding-bottom:4px;break-after:avoid;}
+    table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6px;}
+    th,td{border:1px solid #ccc;padding:4px 6px;}
+    th{background:#e6f3f5;font-weight:800;}
+    tr{break-inside:avoid;}
+    .r{text-align:right;}
+    .day{cursor:pointer;font-weight:700;}
+    .detail{display:none;background:#f7fbfc;}
+    .detail.open{display:table-row;}
+    .detail td{font-size:9px;color:#444;padding:2px 6px;}
+    .item-block{break-inside:avoid-page;}
+    @media print{ .detail{display:table-row !important;} .hint{display:none;} }
+  </style></head><body>
+  <h1>완제품 출고 (간략)</h1>
+  <div class="sub">출력일: ${todayISO()}${s||e?` · 기간: ${s||'~'} ~ ${e||'~'}`:''} <span class="hint">· 일자 클릭 시 상세 펼침</span></div>`;
+
+  const pids = Object.keys(g).sort((a,b)=>prodName(a).localeCompare(prodName(b)));
+  for(const pid of pids){
+    html += `<div class="item-block"><h2>${escapeHtml(prodName(pid))}</h2>
+      <table><thead><tr><th>일자</th><th class="r">출고수량</th></tr></thead><tbody>`;
+    const days = Object.keys(g[pid]).sort();
+    let sum=0;
+    for(const d of days){
+      const cell=g[pid][d]; sum+=cell.qty;
+      const did=`d_${pid}_${d}`.replace(/[^a-zA-Z0-9_]/g,'');
+      html += `<tr class="day" onclick="document.getElementById('${did}').classList.toggle('open')">
+        <td>▸ ${d}</td><td class="r">${prodQtyKg(pid,cell.qty)}</td></tr>`;
+      // 상세
+      let dh = cell.rows.map(r=>`${escapeHtml(r.client||'(미지정)')} : ${prodQtyKg(pid,r.qty)}${r.notes?' ('+escapeHtml(r.notes)+')':''}`).join('<br>');
+      html += `<tr class="detail" id="${did}"><td colspan="2">${dh}</td></tr>`;
+    }
+    html += `<tr><th>합계</th><th class="r">${prodQtyKg(pid,sum)}</th></tr></tbody></table></div>`;
+  }
+  html += `</body></html>`;
+  win.document.write(html); win.document.close();
 }
 
 // ========== DASHBOARD ==========
