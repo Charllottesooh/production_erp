@@ -2103,81 +2103,44 @@ function buildLedgerEvents(kind, itemId){
     for(const pr of state.prod2) for(const u of pr.semiUsages){ if(itemId&&u.semiId!==itemId) continue; ev.push({date:pr.date,itemId:u.semiId,inQty:0,outQty:u.totalUsed,scrap:0,type:'2차투입',note:prodName(pr.productId),ord:pr.createdAt}); }
  } else {
     for(const pr of state.prod2){ if(itemId&&pr.productId!==itemId) continue; ev.push({date:pr.date,itemId:pr.productId,inQty:pr.output,outQty:0,scrap:pr.scrap||0,type:'2차생산',note:pr.lot||'',ord:pr.createdAt}); }
-    for(const s of state.ships){ if(itemId&&s.productId!==itemId) continue; ev.push({date:s.date,itemId:s.productId,inQty:0,outQty:s.qty,scrap:0,type:'출고',note:s.notes||'',ord:s.createdAt}); }
+    for(const s of state.ships){ if(itemId&&s.productId!==itemId) continue; ev.push({date:s.date,itemId:s.productId,inQty:0,outQty:s.qty,scrap:0,type:'출고',client:s.client||'',note:s.notes||'',ord:s.createdAt}); }
     // 완제품 기초재고 / 재고조정 반영
     for(const aj of (state.adjustments||[])){ if(aj.kind!=='product') continue; if(itemId&&aj.itemId!==itemId) continue; if(aj.delta>=0) ev.push({date:aj.date,itemId:aj.itemId,inQty:aj.delta,outQty:0,scrap:0,type:aj.isOpening?'기초':'재고조정',note:aj.reason||'',ord:(aj.isOpening?'':'z')+aj.createdAt}); else ev.push({date:aj.date,itemId:aj.itemId,inQty:0,outQty:-aj.delta,scrap:0,type:'재고조정',note:aj.reason||'',ord:'z'+aj.createdAt}); }
   }
   ev.sort((a,b)=>a.date.localeCompare(b.date)||String(a.ord).localeCompare(String(b.ord)));
   return ev;
 }
-// ===== 수불부 캐시 (종류/품목이 같으면 재계산 안 함) =====
-let _ledgerCache = { key:null, rows:null };
-function invalidateLedgerCache(){ _ledgerCache = { key:null, rows:null }; }
-let _ledgerPage = 0;
-const LEDGER_PAGE_SIZE = 200;
-
-function renderLedger(resetPage){
-  if(resetPage!==false) _ledgerPage = 0;
+function renderLedger(){
   const kind=document.getElementById('ledKind').value;
   const itemId=document.getElementById('ledItem').value;
   const s=document.getElementById('ledStart').value, e=document.getElementById('ledEnd').value;
   const nameFn = kind==='material'?matName : kind==='semi'?semiName : prodName;
-
-  // --- 캐시: 종류+품목 조합이 같으면 전체 이벤트·잔량 재계산 생략 ---
-  const cacheKey = kind + '|' + itemId;
-  let rows;
-  if(_ledgerCache.key === cacheKey && _ledgerCache.rows){
-    rows = _ledgerCache.rows;
-  } else {
-    let ev=buildLedgerEvents(kind,itemId);
-    const bal={}; rows=[];
-    for(const x of ev){
-      bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
-      rows.push({...x,balance:bal[x.itemId]});
-    }
-    _ledgerCache = { key:cacheKey, rows };
+  let ev=buildLedgerEvents(kind,itemId);
+  // 잔량 계산은 전체기간 누적 후, 표시만 기간필터
+  const bal={};
+  const rows=[];
+  for(const x of ev){
+    bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
+    rows.push({...x,balance:bal[x.itemId]});
   }
-
-  // --- 날짜 필터 (가벼움) ---
   let shown=rows;
   if(s) shown=shown.filter(r=>r.date>=s);
   if(e) shown=shown.filter(r=>r.date<=e);
   shown=shown.slice().reverse();
-
   const el=document.getElementById('ledgerBody');
   if(shown.length===0){ el.innerHTML='<div class="empty-state">내역 없음</div>'; return; }
-
   const tin=shown.reduce((a,r)=>a+(r.inQty||0),0), tout=shown.reduce((a,r)=>a+(r.outQty||0),0), tscr=shown.reduce((a,r)=>a+(r.scrap||0),0);
   const hasScrap = kind!=='material';
-
-  // --- 페이지네이션: 화면엔 200건씩만 그림 ---
-  const total = shown.length;
-  const pages = Math.ceil(total / LEDGER_PAGE_SIZE);
-  if(_ledgerPage >= pages) _ledgerPage = 0;
-  const start = _ledgerPage * LEDGER_PAGE_SIZE;
-  const pageRows = shown.slice(start, start + LEDGER_PAGE_SIZE);
-
-  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${total}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
-  h+=`<table><thead><tr><th>일자</th><th>품목</th><th>구분</th><th class="text-right">입고</th><th class="text-right">출고</th>${hasScrap?'<th class="text-right">파기</th>':''}<th class="text-right">잔량</th><th>비고</th></tr></thead><tbody>`;
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${shown.length}건 · 입고 ${fmt(tin)} · 출고 ${fmt(tout)}${hasScrap?` · 파기 ${fmt(tscr)}`:''}</div>`;
+  const hasClient = kind==='product';
+  h+=`<table><thead><tr><th>일자</th><th>품목</th><th>구분</th>${hasClient?'<th>거래처</th>':''}<th class="text-right">입고</th><th class="text-right">출고</th>${hasScrap?'<th class="text-right">파기</th>':''}<th class="text-right">잔량</th><th>비고</th></tr></thead><tbody>`;
   const kgFn = kind==='semi'?(id,q)=>semiQtyKg(id,q) : kind==='product'?(id,q)=>prodQtyKg(id,q) : (id,q)=>fmt(q);
-  for(const r of pageRows){
+  for(const r of shown){
     const c=(r.inQty>0)?'var(--success)':((r.outQty>0)?'var(--danger)':'var(--warning)');
-    h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td><td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${kgFn(r.itemId,r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
+    h+=`<tr><td>${r.date}</td><td><b>${nameFn(r.itemId)}</b></td><td style="color:${c};font-weight:600;">${r.type}</td>${hasClient?`<td>${escapeHtml(r.client||'-')}</td>`:''}<td class="text-right">${r.inQty>0?fmt(r.inQty):'-'}</td><td class="text-right">${r.outQty>0?fmt(r.outQty):'-'}</td>${hasScrap?`<td class="text-right">${r.scrap>0?fmt(r.scrap):'-'}</td>`:''}<td class="text-right"><b>${kgFn(r.itemId,r.balance)}</b></td><td>${escapeHtml(r.note||'-')}</td></tr>`;
   }
-  h+='</tbody></table>';
-
-  // --- 페이지 네비게이션 ---
-  if(pages>1){
-    h+=`<div class="no-print" style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap;">`;
-    h+=`<button class="btn btn-sm" ${_ledgerPage===0?'disabled':''} onclick="ledgerGoPage(${_ledgerPage-1})">◀ 이전</button>`;
-    h+=`<span style="font-size:13px;color:var(--text-light);">${_ledgerPage+1} / ${pages} 페이지 (${start+1}~${Math.min(start+LEDGER_PAGE_SIZE,total)}건)</span>`;
-    h+=`<button class="btn btn-sm" ${_ledgerPage>=pages-1?'disabled':''} onclick="ledgerGoPage(${_ledgerPage+1})">다음 ▶</button>`;
-    h+=`</div>`;
-  }
-  el.innerHTML=h;
+  el.innerHTML=h+'</tbody></table>';
 }
-function ledgerGoPage(p){ _ledgerPage=p; renderLedger(false); window.scrollTo({top:0,behavior:'smooth'}); }
-
 function exportClientSales(){
   const s=document.getElementById('repStart')?.value||'', e=document.getElementById('repEnd')?.value||'';
   const sh=state.ships.filter(x=>inRange(x.date,s,e));
@@ -2197,39 +2160,58 @@ function exportLedger(){
   let ev=buildLedgerEvents(kind,itemId); const bal={}; const rows=[];
   for(const x of ev){ bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0); rows.push({...x,balance:bal[x.itemId]}); }
   let shown=rows; if(s) shown=shown.filter(r=>r.date>=s); if(e) shown=shown.filter(r=>r.date<=e);
-  const aoa=[['일자','품목','구분','입고','출고','파기','잔량','비고']];
-  for(const r of shown) aoa.push([r.date,nameFn(r.itemId),r.type,r.inQty||0,r.outQty||0,r.scrap||0,r.balance,r.note||'']);
+  const hasClient = kind==='product';
+  const aoa=[hasClient?['일자','품목','구분','거래처','입고','출고','파기','잔량','비고']:['일자','품목','구분','입고','출고','파기','잔량','비고']];
+  for(const r of shown) aoa.push(hasClient?[r.date,nameFn(r.itemId),r.type,r.client||'',r.inQty||0,r.outQty||0,r.scrap||0,r.balance,r.note||'']:[r.date,nameFn(r.itemId),r.type,r.inQty||0,r.outQty||0,r.scrap||0,r.balance,r.note||'']);
   writeXlsx(aoa, `수불부_${kind}_${todayISO()}`);
 }
 
 // ===== 완제품 출고 간략인쇄 (일자별 합계, 세련된 리포트) =====
 function printLedgerSimple(){
-  const itemId = document.getElementById('ledItem').value;
-  const s = document.getElementById('ledStart').value, e = document.getElementById('ledEnd').value;
+  const kind=document.getElementById('ledKind').value;
+  const itemId=document.getElementById('ledItem').value;
+  const s=document.getElementById('ledStart').value, e=document.getElementById('ledEnd').value;
+  const kindTxt=kind==='material'?'원재료':kind==='semi'?'반제품':'완제품';
+  const nameFn=kind==='material'?matName:kind==='semi'?semiName:prodName;
+  const unitTxt=kind==='material'?'kg':'개';
+  const hasScrap=kind!=='material';
+  const hasClient=kind==='product';
+  const kgFn = kind==='semi'?(id,q)=>semiQtyKg(id,q) : kind==='product'?(id,q)=>prodQtyKg(id,q) : (id,q)=>fmt(q);
 
-  let ships = state.ships.filter(x=>{
-    if(itemId && x.productId!==itemId) return false;
-    if(s && x.date < s) return false;
-    if(e && x.date > e) return false;
-    return true;
-  });
-  if(ships.length===0){ alert('출고내역이 없습니다.'); return; }
+  // 전체기간 이벤트로 누적 잔량 계산 → 기간필터는 표시에만 적용, 시작 이월잔량 산출
+  let ev=buildLedgerEvents(kind,itemId);
+  const bal={};
+  const rows=[];
+  for(const x of ev){
+    bal[x.itemId]=(bal[x.itemId]||0)+(x.inQty||0)-(x.outQty||0)-(x.scrap||0);
+    rows.push({...x,balance:bal[x.itemId]});
+  }
+  let shown=rows;
+  if(s) shown=shown.filter(r=>r.date>=s);
+  if(e) shown=shown.filter(r=>r.date<=e);
+  if(shown.length===0){ alert('수불 내역이 없습니다.'); return; }
 
+  // 품목별 그룹핑 (선택 순서 유지: 이름순)
   const g={};
-  for(const x of ships){
-    const pid=x.productId, d=x.date;
-    (g[pid]=g[pid]||{});
-    (g[pid][d]=g[pid][d]||{qty:0, rows:[]});
-    g[pid][d].qty += (x.qty||0);
-    g[pid][d].rows.push(x);
+  for(const r of shown){ (g[r.itemId]=g[r.itemId]||[]).push(r); }
+  const pids=Object.keys(g).sort((a,b)=>nameFn(a).localeCompare(nameFn(b)));
+
+  // 품목별 기초(이월)잔량 = 첫 표시행의 잔량에서 그 행 변동분을 뺀 값
+  function openingBal(list){
+    const f=list[0];
+    return (f.balance||0)-((f.inQty||0)-(f.outQty||0)-(f.scrap||0));
   }
 
-  const totalQty = ships.reduce((a,x)=>a+(x.qty||0),0);
-  const itemCount = Object.keys(g).length;
-  const periodTxt = (s||e) ? `${s||'처음'} ~ ${e||'끝'}` : '전체 기간';
+  const periodTxt=(s||e)?`${s||'처음'} ~ ${e||'끝'}`:'전체 기간';
+  const itemTxt=itemId?nameFn(itemId):'전체';
 
-  let win = window.open('','_blank');
-  let html = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>완제품 출고 (간략)</title>
+  // 전체 합계
+  const tin=shown.reduce((a,r)=>a+(r.inQty||0),0);
+  const tout=shown.reduce((a,r)=>a+(r.outQty||0),0);
+  const tscr=shown.reduce((a,r)=>a+(r.scrap||0),0);
+
+  let win=window.open('','_blank');
+  let html=`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>수불부 (${kindTxt})</title>
   <style>
     :root{ --ink:#16343b; --teal:#087f8c; --teal-d:#075d67; --line:#d6e3e6; --soft:#f2f8f9; }
     *{box-sizing:border-box;}
@@ -2244,11 +2226,12 @@ function printLedgerSimple(){
     .btn-print:hover{background:var(--teal-d);}
     .btn-close{background:#e5ecee;color:#546;}
     h1{font-size:20px;margin:0 0 4px;font-weight:800;}
+    .subttl{font-size:14px;font-weight:800;color:var(--teal-d);margin:0 0 4px;}
     .meta{font-size:11px;color:#6b8085;margin-bottom:16px;}
     .summary{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
-    .kpi{flex:1;min-width:130px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+    .kpi{flex:1;min-width:110px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
     .kpi .lbl{font-size:10px;color:#6b8085;margin-bottom:4px;}
-    .kpi .val{font-size:18px;font-weight:800;color:var(--teal-d);}
+    .kpi .val{font-size:17px;font-weight:800;color:var(--teal-d);}
     .item-block{margin-bottom:26px;}
     .item-head{display:flex;justify-content:space-between;align-items:baseline;
       border-left:4px solid var(--teal);padding:2px 0 6px 10px;margin-bottom:8px;break-after:avoid;page-break-after:avoid;}
@@ -2257,31 +2240,24 @@ function printLedgerSimple(){
     .item-head .tot b{color:var(--ink);font-size:13px;}
     table{width:100%;border-collapse:collapse;font-size:10.5px;}
     thead{display:table-header-group;}
-    thead th{background:var(--teal-d);color:#fff;font-weight:700;padding:7px 10px;text-align:left;
+    thead th{background:var(--teal-d);color:#fff;font-weight:700;padding:7px 8px;text-align:left;
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     thead th.r{text-align:right;}
-    tbody td{padding:6px 10px;border-bottom:1px solid #eef2f3;vertical-align:top;}
-    .day{cursor:pointer;}
-    .day:hover td{background:#eef7f8;}
-    .day td{font-weight:600;}
+    tbody td{padding:6px 8px;border-bottom:1px solid #eef2f3;vertical-align:top;}
     .qty{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
-    .note{color:#5b7075;font-weight:400;font-size:10px;}
-    .caret{display:inline-block;width:12px;color:var(--teal);transition:transform .15s;}
-    .day.open .caret{transform:rotate(90deg);}
-    .detail{display:none;}
-    .detail.open{display:table-row;}
-    .detail td{background:#f7fbfc;padding:0;border-bottom:1px solid #e3edef;}
-    .detail-inner{padding:8px 14px 8px 34px;}
-    .drow{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;color:#4a5f64;border-bottom:1px dashed #dde8ea;}
-    .drow:last-child{border-bottom:none;}
-    .drow .c{font-weight:600;color:var(--ink);}
+    .in{color:var(--teal-d);font-weight:700;}
+    .out{color:#c0392b;font-weight:700;}
+    .scr{color:#b8860b;font-weight:700;}
+    .bal{font-weight:800;}
+    .type{font-weight:600;}
+    .note{color:#5b7075;font-size:10px;}
+    .opening td{background:#f7fbfc;font-style:italic;color:#5b7075;}
     tr{break-inside:avoid;page-break-inside:avoid;}
-    tfoot td{border-top:2px solid var(--teal-d);padding:8px 10px;font-weight:800;background:var(--soft);
+    tfoot td{border-top:2px solid var(--teal-d);padding:8px;font-weight:800;background:var(--soft);
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     @media print{
       body{background:#fff;} .page{max-width:none;padding:0;}
       .topbar,.btns{display:none !important;}
-      .caret{display:none;}
       thead th{background:var(--teal-d) !important;}
     }
   </style></head><body><div class="page">
@@ -2292,37 +2268,61 @@ function printLedgerSimple(){
         <button class="btn btn-close" onclick="window.close()">닫기</button>
       </div>
     </div>
-    <h1>완제품 출고 내역 (간략)</h1>
+    <h1>수불부 (간략)</h1>
+    <div class="subttl">${kindTxt} - ${escapeHtml(itemTxt)}</div>
     <div class="meta">출력일 ${todayISO()} · 조회기간 ${periodTxt}</div>
     <div class="summary">
-      <div class="kpi"><div class="lbl">품목 수</div><div class="val">${itemCount}</div></div>
-      <div class="kpi"><div class="lbl">총 출고건수</div><div class="val">${ships.length}</div></div>
-      <div class="kpi"><div class="lbl">총 출고수량</div><div class="val">${fmt(totalQty)}</div></div>
+      <div class="kpi"><div class="lbl">품목 수</div><div class="val">${pids.length}</div></div>
+      <div class="kpi"><div class="lbl">총 입고</div><div class="val">${fmt(tin)}</div></div>
+      <div class="kpi"><div class="lbl">총 출고</div><div class="val">${fmt(tout)}</div></div>
+      ${hasScrap?`<div class="kpi"><div class="lbl">총 파기</div><div class="val">${fmt(tscr)}</div></div>`:''}
     </div>`;
 
-  const pids = Object.keys(g).sort((a,b)=>prodName(a).localeCompare(prodName(b)));
+  const colspan = 3 + (hasClient?1:0) + 2 + (hasScrap?1:0) + 1; // 일자,구분,(거래처),입고,출고,(파기),잔량
   for(const pid of pids){
-    const days = Object.keys(g[pid]).sort();
-    let sum=0; for(const d of days) sum+=g[pid][d].qty;
-    html += `<div class="item-block">
-      <div class="item-head"><span class="nm">${escapeHtml(prodName(pid))}</span>
-        <span class="tot">기간 합계 <b>${prodQtyKg(pid,sum)}</b></span></div>
-      <table><thead><tr><th style="width:22%">일자</th><th class="r" style="width:22%">출고수량</th><th style="width:56%">비고</th></tr></thead><tbody>`;
-    for(const d of days){
-      const cell=g[pid][d];
-      const did=`x_${pid}_${d}`.replace(/[^a-zA-Z0-9_]/g,'');
-      const clients=[...new Set(cell.rows.map(r=>(r.client||'(미지정)')))];
-      const noteTxt = clients.slice(0,3).join(', ') + (clients.length>3?` 외 ${clients.length-3}곳`:'') + ` · ${cell.rows.length}건`;
-      html += `<tr class="day" onclick="this.classList.toggle('open');document.getElementById('${did}').classList.toggle('open')">
-        <td><span class="caret">▸</span> ${d}</td>
-        <td class="qty">${prodQtyKg(pid,cell.qty)}</td>
-        <td class="note">${escapeHtml(noteTxt)}</td></tr>`;
-      let dh = cell.rows.map(r=>`<div class="drow"><span class="c">${escapeHtml(r.client||'(미지정)')}</span><span>${prodQtyKg(pid,r.qty)}${r.notes?' · '+escapeHtml(r.notes):''}</span></div>`).join('');
-      html += `<tr class="detail" id="${did}"><td colspan="3"><div class="detail-inner">${dh}</div></td></tr>`;
+    const list=g[pid];
+    const ob=openingBal(list);
+    const iin=list.reduce((a,r)=>a+(r.inQty||0),0);
+    const iout=list.reduce((a,r)=>a+(r.outQty||0),0);
+    const iscr=list.reduce((a,r)=>a+(r.scrap||0),0);
+    const endBal=list[list.length-1].balance;
+    html+=`<div class="item-block">
+      <div class="item-head"><span class="nm">${escapeHtml(nameFn(pid))}</span>
+        <span class="tot">이월 ${kgFn(pid,ob)} · 입고 ${kgFn(pid,iin)} · 출고 ${kgFn(pid,iout)}${hasScrap?` · 파기 ${kgFn(pid,iscr)}`:''} → 잔량 <b>${kgFn(pid,endBal)}</b></span></div>
+      <table><thead><tr>
+        <th style="width:12%">일자</th>
+        <th style="width:14%">구분</th>
+        ${hasClient?'<th style="width:16%">거래처</th>':''}
+        <th class="r" style="width:12%">입고</th>
+        <th class="r" style="width:12%">출고</th>
+        ${hasScrap?'<th class="r" style="width:10%">파기</th>':''}
+        <th class="r" style="width:12%">잔량</th>
+        <th>비고</th>
+      </tr></thead><tbody>`;
+    // 이월 행
+    html+=`<tr class="opening"><td>${s||'-'}</td><td>이월</td>${hasClient?'<td>-</td>':''}<td class="qty">-</td><td class="qty">-</td>${hasScrap?'<td class="qty">-</td>':''}<td class="qty bal">${kgFn(pid,ob)}</td><td>전기 이월잔량</td></tr>`;
+    for(const r of list){
+      html+=`<tr>
+        <td>${r.date}</td>
+        <td class="type">${escapeHtml(r.type)}</td>
+        ${hasClient?`<td>${escapeHtml(r.client||'-')}</td>`:''}
+        <td class="qty in">${r.inQty>0?kgFn(pid,r.inQty):'-'}</td>
+        <td class="qty out">${r.outQty>0?kgFn(pid,r.outQty):'-'}</td>
+        ${hasScrap?`<td class="qty scr">${r.scrap>0?kgFn(pid,r.scrap):'-'}</td>`:''}
+        <td class="qty bal">${kgFn(pid,r.balance)}</td>
+        <td class="note">${escapeHtml(r.note||'-')}</td>
+      </tr>`;
     }
-    html += `</tbody><tfoot><tr><td>합계</td><td class="qty">${prodQtyKg(pid,sum)}</td><td></td></tr></tfoot></table></div>`;
+    html+=`</tbody><tfoot><tr>
+      <td colspan="${hasClient?3:2}">합계</td>
+      <td class="qty">${kgFn(pid,iin)}</td>
+      <td class="qty">${kgFn(pid,iout)}</td>
+      ${hasScrap?`<td class="qty">${kgFn(pid,iscr)}</td>`:''}
+      <td class="qty">${kgFn(pid,endBal)}</td>
+      <td></td>
+    </tr></tfoot></table></div>`;
   }
-  html += `</div></body></html>`;
+  html+=`</div></body></html>`;
   win.document.write(html); win.document.close();
 }
 
@@ -2729,6 +2729,15 @@ function printTab(tabId,title){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('print-active'));
   document.getElementById(tabId).classList.add('print-active');
   document.getElementById('printTitle').textContent=title;
+  // 수불부: 선택한 구분(원재료/반제품/완제품)·품목명을 제목에 표시
+  if(tabId==='ledger'){
+    const kind=document.getElementById('ledKind')?.value||'';
+    const kindTxt=kind==='material'?'원재료':kind==='semi'?'반제품':'완제품';
+    const itemId=document.getElementById('ledItem')?.value||'';
+    const nameFn=kind==='material'?matName:kind==='semi'?semiName:prodName;
+    const itemTxt=itemId?nameFn(itemId):'전체';
+    document.getElementById('printTitle').textContent=`수불부 · ${kindTxt} - ${itemTxt}`;
+  }
   // 기간·작성자: 리포트 탭에만 표시
   const periodEl=document.getElementById('printPeriod');
   const authorEl=document.getElementById('printAuthor');
@@ -2754,7 +2763,7 @@ function renderAll(){
   renderMaterials(); renderSemis(); renderProducts(); renderSelects();
   renderAdjustments(); renderSemiRecipeList(); renderProductRecipeList();
   renderPurchases(); renderP1(); renderP2(); // renderShips(); // 조회 버튼 눌렀을 때만 로딩 (성능)
-  invalidateLedgerCache(); renderLedger(); renderDashboard(); renderReport();
+  renderLedger(); renderDashboard(); renderReport();
   updateCloudStatus(); checkBackupAlert();
   const bd=document.getElementById('backupDays'); if(bd) bd.value=state.settings.backupDays||7;
   const lb=document.getElementById('lastBackupDate'); if(lb) lb.value=state.settings.lastBackupAt||'없음';
