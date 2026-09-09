@@ -3056,8 +3056,15 @@ tbody tr:hover td { background: #f1f9fa; }
 #purchase .purchase-actions .btn { width: 100%; }
 #purchase .purchase-filterbar { align-items: flex-end; gap: 12px; margin-bottom: 18px; padding: 14px; background: #f6f9fa; border: 1px solid var(--border); border-radius: 12px; }
 #purchase .purchase-filterbar .btn { min-height: 44px; }
-#purchase #purchasesList { overflow-x: auto; }
+#purchase #purchasesList { overflow-x: scroll; -webkit-overflow-scrolling: touch; max-width: 100%; padding-bottom: 4px; }
+#purchase #purchasesList::-webkit-scrollbar { height: 12px; -webkit-appearance: none; }
+#purchase #purchasesList::-webkit-scrollbar-track { background: #eef3f4; border-radius: 6px; }
+#purchase #purchasesList::-webkit-scrollbar-thumb { background: #087f8c; border-radius: 6px; border: 2px solid #eef3f4; }
+#purchase #purchasesList::-webkit-scrollbar-thumb:hover { background: #066a75; }
 #purchase #purchasesList table { min-width: 1280px; }
+#purchase .purchase-history-card { overflow: hidden; }
+#purchase.active { min-width: 0; }
+#purchase.active > * { min-width: 0; max-width: 100%; }
 #purchase .empty-state { min-height: 160px; }
 #purchase .btn-icon { width: 34px; height: 34px; border-radius: 8px; font-size: 0; }
 #purchase .btn-icon::before { content: ""; width: 16px; height: 16px; display: block; background: currentColor; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; }
