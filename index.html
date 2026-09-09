@@ -1882,9 +1882,7 @@ function renderP2(){
 }
 function deleteP2(id){
   const p=state.prod2.find(x=>x.id===id); if(!p) return;
-  const made=state.prod2.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.output,0);
-  const shipped=state.ships.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.qty,0);
-  if(shipped>made-p.output+1e-9) return toast('출고분이 남는 재고보다 큼. 출고 먼저 삭제','error');
+  if(productStock(p.productId) - p.output < -1e-9) return toast('삭제 시 완제품 재고가 마이너스가 됩니다. 출고 먼저 조정','error');
   if(!confirm('삭제 시 반제품/원재료 잔량 복원. 계속?')) return;
   for(const u of p.semiUsages) for(const a of u.allocations){ const l=state.semiLots.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; }
   for(const u of p.matUsages) for(const a of u.allocations){ const l=state.purchases.find(x=>x.id===a.lotId); if(l) l.remaining+=a.qty; }
@@ -1893,9 +1891,7 @@ function deleteP2(id){
 let _editP2Semi=[], _editP2Mat=[];
 function editP2(id){
   const p=state.prod2.find(x=>x.id===id); if(!p) return;
-  const made=state.prod2.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.output,0);
-  const shipped=state.ships.filter(x=>x.productId===p.productId).reduce((s,x)=>s+x.qty,0);
-  if(shipped>made-p.output+1e-9) return toast('이 완제품의 출고분이 남는 재고보다 큼. 출고 먼저 삭제 후 수정','error');
+  if(productStock(p.productId) - p.output < -1e-9) return toast('수정 시 완제품 재고가 마이너스가 됩니다. 출고 먼저 조정','error');
   const prodOpts=state.products.map(x=>`<option value="${x.id}" ${x.id===p.productId?'selected':''}>${escapeHtml(x.name)}</option>`).join('');
   _editP2Semi=p.semiUsages.map(u=>({semiId:u.semiId,qty:u.totalUsed}));
   _editP2Mat=p.matUsages.map(u=>({materialId:u.materialId,qty:u.totalUsed}));
