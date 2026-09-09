@@ -412,9 +412,11 @@
     <div class="purchase-entry-grid no-print-card">
       <div class="card purchase-form-card">
         <h2><span class="purchase-title"><span class="purchase-title-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4z"/><path d="M8 7V4h8v3"/><path d="M4 12h16"/></svg></span><span>원재료 매입 입고</span></span></h2>
-        <div class="purchase-form-grid">
+                <div class="purchase-form-grid">
+          <div><label>구분 *</label><select id="pKind" onchange="onPurchaseKindChange()"><option value="purchase">매입 (입고)</option><option value="return">반품 (출고·차감)</option></select></div>
           <div><label>입고일 *</label><input type="date" id="pDate" /></div>
-          <div><label>원재료 *</label><select id="pMaterial" onchange="updatePurchasePreview()"></select></div>
+          <div><label>원재료 *</label><select id="pMaterial" onchange="onPurchaseMaterialChange()"></select></div>
+          <div id="pReturnLotWrap" class="purchase-span-2" style="display:none;"><label>반품할 입고 로트 * <span style="color:var(--text-light);font-weight:400;">(되돌릴 입고건 선택)</span></label><select id="pReturnLot" onchange="updatePurchasePreview()"><option value="">원재료를 먼저 선택하세요</option></select></div>
           <div><label>수량 * <span style="color:var(--primary);font-weight:400;">(Kg 단위)</span></label><input type="number" id="pQuantity" step="0.001" min="0" placeholder="0" oninput="updatePurchasePreview()" /></div>
           <div><label>포장 비고 <span style="color:var(--text-light);font-weight:400;">(예: 20Kg 5포)</span></label><input type="text" id="pPack" placeholder="몇 포대 / 몇 박스" /></div>
           <div><label>LOT번호</label><input type="text" id="pLot" placeholder="입고 로트" /></div>
@@ -1311,31 +1313,116 @@ function renderSupplierList(){
 <script>
 // ========== PURCHASE ==========
 function updatePurchasePreview(){
+  const kind=document.getElementById('pKind')?document.getElementById('pKind').value:'purchase';
+  const qty=Number(document.getElementById('pQuantity').value)||0;
+  const pv=document.getElementById('pPreview');
+  if(kind==='return'){
+    const lotId=document.getElementById('pReturnLot').value;
+    const lot=state.purchases.find(p=>p.id===lotId);
+    if(!lot){ pv.innerHTML='<span style="color:var(--text-light);">반품할 입고 로트를 선택하세요.</span>'; return; }
+    const amt=Math.round(qty*lot.unitCost);
+    const over=qty>lot.remaining+1e-9;
+    // 반품 금액을 금액칸에 자동 반영 (음수 아님, 저장 시 음수 처리)
+    const amtEl=document.getElementById('pAmount'); if(amtEl) amtEl.value=amt||'';
+    pv.innerHTML=`<b style="color:var(--danger);">반품</b> · 로트 ${lot.date} · 로트잔량 <b>${fmt(lot.remaining)}</b><br>반품수량 <b>${fmt(qty)}</b> · 단가 ${won(lot.unitCost)} · 차감금액 <b style="color:var(--danger);">-${won(amt)}</b>${over?'<br><span style="color:var(--danger);font-weight:700;">⚠ 로트 잔량보다 많습니다</span>':''}`;
+    return;
+  }
   const amt=Number(document.getElementById('pAmount').value)||0;
   const type=document.getElementById('pTaxType').value;
-  const qty=Number(document.getElementById('pQuantity').value)||0;
   const r=calcTax(amt,type); const u=qty>0?r.supply/qty:0;
-  document.getElementById('pPreview').innerHTML=`<b>자동계산</b> · 공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · 단가 <b>${won(u)}</b>`;
+  pv.innerHTML=`<b>자동계산</b> · 공급가 ${won(r.supply)} · 부가세 ${won(r.vat)} · 합계 <b>${won(r.total)}</b> · 단가 <b>${won(u)}</b>`;
 }
+
+// 구분(매입/반품) 전환
+function onPurchaseKindChange(){
+  const kind=document.getElementById('pKind').value;
+  const wrap=document.getElementById('pReturnLotWrap');
+  const amtEl=document.getElementById('pAmount');
+  const taxEl=document.getElementById('pTaxType');
+  if(kind==='return'){
+    wrap.style.display='';
+    fillReturnLots();
+    // 반품은 로트 단가로 금액 자동계산 → 금액·세금 입력 잠금
+    if(amtEl){ amtEl.readOnly=true; amtEl.style.background='#f1f5f9'; }
+    if(taxEl){ taxEl.disabled=true; }
+  } else {
+    wrap.style.display='none';
+    if(amtEl){ amtEl.readOnly=false; amtEl.style.background=''; }
+    if(taxEl){ taxEl.disabled=false; }
+  }
+  updatePurchasePreview();
+}
+// 원재료 변경 시: 반품 모드면 로트목록 갱신
+function onPurchaseMaterialChange(){
+  if(document.getElementById('pKind').value==='return') fillReturnLots();
+  updatePurchasePreview();
+}
+// 선택한 원재료의 잔량 있는 입고 로트 목록 채우기
+function fillReturnLots(){
+  const sel=document.getElementById('pReturnLot');
+  const mid=document.getElementById('pMaterial').value;
+  if(!mid){ sel.innerHTML='<option value="">원재료를 먼저 선택하세요</option>'; return; }
+  const lots=state.purchases
+    .filter(p=>p.materialId===mid && !p.isReturn && p.remaining>1e-9)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  if(lots.length===0){ sel.innerHTML='<option value="">반품 가능한 잔량이 없습니다</option>'; return; }
+  sel.innerHTML='<option value="">선택...</option>'+lots.map(l=>
+    `<option value="${l.id}">${l.date} · 잔량 ${fmt(l.remaining)}${matName(mid)&&state.materials.find(m=>m.id===mid)?state.materials.find(m=>m.id===mid).unit:''} · 단가 ${won(l.unitCost)}${l.lot?' · LOT '+escapeHtml(l.lot):''}</option>`
+  ).join('');
+}
+  
 function resetPurchaseForm(){
   document.getElementById('pDate').value=todayISO();
   ['pMaterial','pQuantity','pAmount','pExpiration','pLot','pSupplier','pNotes','pPack'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('pTaxType').value='excluded'; updatePurchasePreview();
+  document.getElementById('pTaxType').value='excluded';
+  const kindEl=document.getElementById('pKind'); if(kindEl){ kindEl.value='purchase'; onPurchaseKindChange(); }
+  updatePurchasePreview();
 }
 function savePurchase(){
+  const kind=document.getElementById('pKind')?document.getElementById('pKind').value:'purchase';
   const date=document.getElementById('pDate').value;
   const materialId=document.getElementById('pMaterial').value;
   const quantity=Number(document.getElementById('pQuantity').value);
+  const notes=document.getElementById('pNotes').value.trim();
+
+  if(!date) return toast('입고일','error');
+  if(!materialId) return toast('원재료 선택','error');
+  if(!(quantity>0)) return toast('수량','error');
+
+  // ===== 반품 처리 =====
+  if(kind==='return'){
+    const lotId=document.getElementById('pReturnLot').value;
+    const lot=state.purchases.find(p=>p.id===lotId);
+    if(!lot) return toast('반품할 로트 선택','error');
+    if(lot.materialId!==materialId) return toast('로트의 원재료가 다릅니다','error');
+    if(quantity>lot.remaining+1e-9) return toast(`로트 잔량(${fmt(lot.remaining)}) 초과`,'error');
+    // 로트 잔량 차감
+    lot.remaining=Math.max(0,lot.remaining-quantity);
+    // 반품 금액 = 로트 단가 기준 (음수 기록)
+    const supply=Math.round(quantity*lot.unitCost);
+    state.purchases.push({
+      id:uid(),date,materialId,
+      quantity:-quantity, remaining:0,
+      enteredAmount:-supply, taxType:lot.taxType||'exempt',
+      supplyPrice:-supply, vat:0, totalAmount:-supply,
+      unitCost:lot.unitCost,
+      lot:lot.lot||'', pack:'', expiration:null,
+      supplier:lot.supplier||'',
+      notes:notes||('반품 (로트 '+lot.date+')'),
+      isReturn:true, returnFromLot:lotId,
+      createdAt:nowISO()
+    });
+    saveState(); resetPurchaseForm(); toast('반품 저장','success'); renderAll();
+    return;
+  }
+
+  // ===== 일반 매입 =====
   const amount=Number(document.getElementById('pAmount').value);
   const taxType=document.getElementById('pTaxType').value;
   const expiration=document.getElementById('pExpiration').value;
   const lot=document.getElementById('pLot').value.trim();
   const pack=(document.getElementById('pPack')?.value||'').trim();
   const supplier=document.getElementById('pSupplier').value.trim();
-  const notes=document.getElementById('pNotes').value.trim();
-  if(!date) return toast('입고일','error');
-  if(!materialId) return toast('원재료 선택','error');
-  if(!(quantity>0)) return toast('수량','error');
   if(!(amount>=0)) return toast('금액','error');
   const r=calcTax(amount,taxType);
   state.purchases.push({id:uid(),date,materialId,quantity,remaining:quantity,enteredAmount:amount,taxType,supplyPrice:r.supply,vat:r.vat,totalAmount:r.total,unitCost:quantity>0?r.supply/quantity:0,lot,pack,expiration:expiration||null,supplier,notes,createdAt:nowISO()});
@@ -1364,14 +1451,40 @@ function renderPurchases(){
   const tQ=list.reduce((s,p)=>s+p.quantity,0),tS=list.reduce((s,p)=>s+p.supplyPrice,0),tV=list.reduce((s,p)=>s+p.vat,0),tT=list.reduce((s,p)=>s+p.totalAmount,0);
   let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-light);">${list.length}건 · 수량 ${fmt(tQ)} · 공급가 ${won(tS)} · 부가세 ${won(tV)} · 합계 <b>${won(tT)}</b></div>`;
   h+='<table><thead><tr><th>입고일</th><th>원재료</th><th class="text-right">수량(Kg)</th><th>포장</th><th>LOT</th><th>세금</th><th class="text-right">공급가</th><th class="text-right">합계</th><th class="text-right">잔량</th><th>유통기한</th><th>공급처</th><th>비고</th><th class="no-print"></th></tr></thead><tbody>';
-  for(const p of list){
+    for(const p of list){
     const e=expirationClass(p.expiration);
-    h+=`<tr><td>${p.date}</td><td><b>${matName(p.materialId)}</b></td><td class="text-right">${fmt(p.quantity)}</td><td style="color:var(--text-light);">${escapeHtml(p.pack||'-')}</td><td>${escapeHtml(p.lot||'-')}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right"><b>${won(p.totalAmount)}</b></td><td class="text-right">${fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${e.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.supplier||'-')}</td><td style="color:var(--text-light);">${escapeHtml(p.notes||'-')}</td><td class="text-right no-print"><button class="btn-icon edit" title="수정" onclick="editPurchase('${p.id}')">✎</button><button class="btn-icon del" title="삭제" onclick="deletePurchase('${p.id}')">🗑</button></td></tr>`;
+    const isRet=p.isReturn;
+    const rowStyle=isRet?' style="background:#fff5f5;"':'';
+    const nameCell=isRet
+      ? `<b>${matName(p.materialId)}</b> <span class="badge" style="background:#fde8e8;color:#991b1b;">반품</span>`
+      : `<b>${matName(p.materialId)}</b>`;
+    const qtyCell=isRet
+      ? `<span style="color:var(--danger);font-weight:700;">${fmt(p.quantity)}</span>`
+      : fmt(p.quantity);
+    const totalCell=isRet
+      ? `<b style="color:var(--danger);">${won(p.totalAmount)}</b>`
+      : `<b>${won(p.totalAmount)}</b>`;
+    const editBtn=isRet?'':`<button class="btn-icon edit" title="수정" onclick="editPurchase('${p.id}')">✎</button>`;
+    h+=`<tr${rowStyle}><td>${p.date}</td><td>${nameCell}</td><td class="text-right">${qtyCell}</td><td style="color:var(--text-light);">${escapeHtml(p.pack||'-')}</td><td>${escapeHtml(p.lot||'-')}</td><td><span class="badge ${taxBadgeClass(p.taxType)}">${taxLabel(p.taxType)}</span></td><td class="text-right">${won(p.supplyPrice)}</td><td class="text-right">${totalCell}</td><td class="text-right">${isRet?'-':fmt(p.remaining)}</td><td>${p.expiration?`<span class="badge ${e.cls}">${p.expiration}</span>`:'-'}</td><td>${escapeHtml(p.supplier||'-')}</td><td style="color:var(--text-light);">${escapeHtml(p.notes||'-')}</td><td class="text-right no-print">${editBtn}<button class="btn-icon del" title="삭제" onclick="deletePurchase('${p.id}')">🗑</button></td></tr>`;
   }
   el.innerHTML=h+'</tbody></table>';
 }
 function deletePurchase(id){
   const p=state.purchases.find(x=>x.id===id); if(!p) return;
+  // 반품 건 삭제: 차감했던 로트 잔량을 되돌림
+  if(p.isReturn){
+    if(!confirm('반품을 취소(삭제)하시겠습니까? 차감했던 재고가 복원됩니다.')) return;
+    const src=state.purchases.find(x=>x.id===p.returnFromLot);
+    if(src){
+      const restoreQty=Math.abs(p.quantity);
+      if(src.remaining+restoreQty > src.quantity+1e-9){
+        if(!confirm('복원 시 로트 잔량이 원래 입고량을 초과합니다(중간에 다른 변동이 있었을 수 있음). 계속?')) return;
+      }
+      src.remaining=src.remaining+restoreQty;
+    }
+    state.purchases=state.purchases.filter(x=>x.id!==id); saveState(); renderAll(); toast('반품 취소됨','success'); return;
+  }
+  // 일반 매입 삭제
   if(p.remaining<p.quantity-1e-9){ if(!confirm('일부 사용된 매입. 삭제 시 데이터 불일치 위험. 계속?')) return; }
   else if(!confirm('삭제?')) return;
   state.purchases=state.purchases.filter(x=>x.id!==id); saveState(); renderAll();
